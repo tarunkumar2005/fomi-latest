@@ -29,84 +29,10 @@ import {
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Mock form data
-const formsData = [
-  {
-    id: 1,
-    name: "Customer Feedback Survey",
-    status: "published",
-    createdAt: "Oct 11, 2025",
-    views: 1245,
-    completions: 892,
-    rate: 71.6
-  },
-  {
-    id: 2,
-    name: "Event Participation Form",
-    status: "published",
-    createdAt: "Oct 10, 2025",
-    views: 856,
-    completions: 623,
-    rate: 72.8
-  },
-  {
-    id: 3,
-    name: "Newsletter Signup",
-    status: "unpublished",
-    createdAt: "Oct 9, 2025",
-    views: 432,
-    completions: 156,
-    rate: 36.1
-  },
-  {
-    id: 4,
-    name: "Contact Form",
-    status: "published",
-    createdAt: "Oct 8, 2025",
-    views: 2341,
-    completions: 1567,
-    rate: 66.9
-  },
-  {
-    id: 5,
-    name: "Job Application Form",
-    status: "published",
-    createdAt: "Oct 7, 2025",
-    views: 678,
-    completions: 445,
-    rate: 65.6
-  },
-  {
-    id: 6,
-    name: "Product Inquiry",
-    status: "unpublished",
-    createdAt: "Oct 6, 2025",
-    views: 234,
-    completions: 89,
-    rate: 38.0
-  },
-  {
-    id: 7,
-    name: "Registration Form",
-    status: "published",
-    createdAt: "Oct 5, 2025",
-    views: 1567,
-    completions: 1123,
-    rate: 71.7
-  },
-  {
-    id: 8,
-    name: "Support Ticket",
-    status: "published",
-    createdAt: "Oct 4, 2025",
-    views: 987,
-    completions: 654,
-    rate: 66.3
-  },
-];
+import { useDashboard } from "@/hooks/useDashboard";
 
 export default function FormPaginated() {
+  const { formsData } = useDashboard();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

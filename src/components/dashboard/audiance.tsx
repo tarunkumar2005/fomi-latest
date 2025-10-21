@@ -14,42 +14,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { Globe } from "lucide-react";
-import { SiFirefoxbrowser as FirefoxIcon } from "react-icons/si";
-import { SiGooglechrome as ChromeIcon } from "react-icons/si";
-import { SiSafari as SafariIcon } from "react-icons/si";
-
-// Geographic distribution data
-const geographicData = [
-  { country: "US", fullName: "United States", value: 2300, flag: "🇺🇸", color: "#3b82f6" },
-  { country: "GB", fullName: "United Kingdom", value: 1300, flag: "🇬🇧", color: "#8b5cf6" },
-  { country: "CA", fullName: "Canada", value: 780, flag: "🇨🇦", color: "#10b981" },
-  { country: "AU", fullName: "Australia", value: 520, flag: "🇦🇺", color: "#f59e0b" },
-  { country: "DE", fullName: "Germany", value: 260, flag: "🇩🇪", color: "#ef4444" },
-];
-
-// Device types data
-const deviceData = [
-  { name: "Mobile", value: 58.0, color: "#8b5cf6" },
-  { name: "Desktop", value: 32.0, color: "#3b82f6" },
-  { name: "Tablet", value: 10.0, color: "#10b981" },
-];
-
-// Top browsers data
-const browsersData = [
-  { name: "Chrome", percentage: 68, icon: ChromeIcon, color: "text-blue-600", bgColor: "bg-blue-50" },
-  { name: "Safari", percentage: 18, icon: SafariIcon, color: "text-cyan-600", bgColor: "bg-cyan-50" },
-  { name: "Firefox", percentage: 8, icon: FirefoxIcon, color: "text-orange-600", bgColor: "bg-orange-50" },
-  { name: "Edge", percentage: 6, icon: Globe, color: "text-indigo-600", bgColor: "bg-indigo-50" },
-];
-
-// Traffic sources data
-const trafficSources = [
-  { name: "Direct", percentage: 42, color: "bg-blue-500" },
-  { name: "Social Media", percentage: 28, color: "bg-purple-500" },
-  { name: "Email", percentage: 20, color: "bg-green-500" },
-  { name: "Referral", percentage: 10, color: "bg-orange-500" },
-];
+import { useDashboard } from "@/hooks/useDashboard";
 
 // Custom tooltip for pie chart
 const CustomPieTooltip = ({ active, payload }: any) => {
@@ -106,6 +71,8 @@ const CustomBarLabel = (props: any) => {
 };
 
 export default function Audience() {
+  const { geographicData, deviceData, browsersData, trafficSources } = useDashboard();
+
   return (
     <div className="px-4 sm:px-6 py-8 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -148,7 +115,7 @@ export default function Audience() {
                       axisLine={{ stroke: "hsl(var(--border))" }}
                       tickLine={{ stroke: "hsl(var(--border))" }}
                     />
-                    <Tooltip content={<CustomGeoTooltip />} cursor={{ fill: "hsl(var(--muted))" }} />
+                    <Tooltip content={<CustomGeoTooltip />} cursor={{ fill: "transparent" }} />
                     <Bar
                       dataKey="value"
                       radius={[8, 8, 0, 0]}

@@ -4,43 +4,11 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Award } from "lucide-react";
-
-// Funnel stages data
-const funnelStages = [
-  { stage: "Views", value: 12400, percentage: 100, color: "#3b82f6", dropoff: 0 },
-  { stage: "Starts", value: 7440, percentage: 60, color: "#8b5cf6", dropoff: 40 },
-  { stage: "Submissions", value: 5356, percentage: 43.2, color: "#10b981", dropoff: 28 },
-];
-
-// Top 3 performing forms
-const topForms = [
-  {
-    rank: 2,
-    name: "Signup Form",
-    conversionRate: 68,
-    avgTime: "1.2m",
-    medal: "🥈",
-    height: "h-24"
-  },
-  {
-    rank: 1,
-    name: "Feedback Form",
-    conversionRate: 72,
-    avgTime: "45s",
-    medal: "🥇",
-    height: "h-32"
-  },
-  {
-    rank: 3,
-    name: "Contact Form",
-    conversionRate: 54,
-    avgTime: "2.1m",
-    medal: "🥉",
-    height: "h-20"
-  },
-];
+import { useDashboard } from "@/hooks/useDashboard";
 
 export default function FunnelAnalysis() {
+  const { funnelStages, topForms } = useDashboard();
+
   return (
     <div className="px-4 sm:px-6 py-8 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -127,17 +95,20 @@ export default function FunnelAnalysis() {
                       <div
                         className={cn(
                           "p-3 rounded-lg border border-border bg-card hover:shadow-md transition-all cursor-pointer",
-                          form.rank === 1 && "border-yellow-300 bg-linear-to-br from-yellow-50 to-amber-50",
-                          form.rank === 2 && "border-gray-300 bg-linear-to-br from-gray-50 to-slate-50",
-                          form.rank === 3 && "border-orange-300 bg-linear-to-br from-orange-50 to-amber-50"
+                          form.rank === 1 && "border-yellow-300 bg-gradient-to-br from-yellow-50 to-amber-50",
+                          form.rank === 2 && "border-gray-300 bg-gradient-to-br from-gray-50 to-slate-50",
+                          form.rank === 3 && "border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50"
                         )}
                       >
-                        <div className="text-center mb-2">
-                          <span className={cn(
-                            form.rank === 1 ? "text-4xl" : "text-3xl"
+                        <div className="flex justify-center mb-2">
+                          <div className={cn(
+                            "w-12 h-12 rounded-full flex items-center justify-center font-heading font-bold",
+                            form.rank === 1 && "bg-yellow-100 text-yellow-700 text-2xl",
+                            form.rank === 2 && "bg-gray-100 text-gray-700 text-xl",
+                            form.rank === 3 && "bg-orange-100 text-orange-700 text-xl"
                           )}>
-                            {form.medal}
-                          </span>
+                            {form.rank}
+                          </div>
                         </div>
                         <div className="text-center">
                           <p className="font-body text-xs font-semibold text-foreground mb-1.5">
@@ -161,9 +132,9 @@ export default function FunnelAnalysis() {
                       className={cn(
                         "w-full rounded-t-lg transition-all",
                         form.height,
-                        form.rank === 1 && "bg-linear-to-t from-yellow-400 to-yellow-300",
-                        form.rank === 2 && "bg-linear-to-t from-gray-400 to-gray-300",
-                        form.rank === 3 && "bg-linear-to-t from-orange-400 to-orange-300"
+                        form.rank === 1 && "bg-gradient-to-t from-yellow-400 to-yellow-300",
+                        form.rank === 2 && "bg-gradient-to-t from-gray-400 to-gray-300",
+                        form.rank === 3 && "bg-gradient-to-t from-orange-400 to-orange-300"
                       )}
                     />
                   </div>

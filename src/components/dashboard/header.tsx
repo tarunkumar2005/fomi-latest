@@ -27,19 +27,15 @@ import {
   Plus,
 } from "lucide-react";
 import { useSession, signOut } from "@/hooks/useSession";
-
-const mockWorkspaces = [
-  { id: "1", name: "Marketing Team", isActive: true },
-  { id: "2", name: "Product Team", isActive: false },
-  { id: "3", name: "Sales Team", isActive: false },
-];
+import { useDashboard } from "@/hooks/useDashboard";
 
 export default function Header() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [activeWorkspace, setActiveWorkspace] = useState(mockWorkspaces[0]);
+  const { workspaces } = useDashboard();
+  const [activeWorkspace, setActiveWorkspace] = useState(workspaces[0]);
 
-  const handleWorkspaceChange = (workspace: typeof mockWorkspaces[0]) => {
+  const handleWorkspaceChange = (workspace: typeof workspaces[0]) => {
     setActiveWorkspace(workspace);
   };
 
@@ -81,7 +77,7 @@ export default function Header() {
                   Switch Workspace
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {mockWorkspaces.map((workspace) => (
+                {workspaces.map((workspace) => (
                   <DropdownMenuItem
                     key={workspace.id}
                     className="flex items-center justify-between cursor-pointer"

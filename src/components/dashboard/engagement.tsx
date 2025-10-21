@@ -12,16 +12,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-
-// Trend data over time
-const trendData = [
-  { date: "Week 1", views: 2100, starts: 1450, submissions: 890 },
-  { date: "Week 2", views: 2350, starts: 1620, submissions: 980 },
-  { date: "Week 3", views: 2180, starts: 1510, submissions: 920 },
-  { date: "Week 4", views: 2520, starts: 1780, submissions: 1100 },
-  { date: "Week 5", views: 2650, starts: 1890, submissions: 1180 },
-  { date: "Week 6", views: 2400, starts: 1650, submissions: 1020 },
-];
+import { useDashboard } from "@/hooks/useDashboard";
 
 // Custom Tooltip for trend chart
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -54,6 +45,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function EngagementTrends() {
+  const { trendData } = useDashboard();
+
   return (
     <div className="px-4 sm:px-6 py-8 bg-background">
       <div className="max-w-7xl mx-auto">
