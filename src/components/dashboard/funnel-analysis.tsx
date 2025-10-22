@@ -95,9 +95,9 @@ export default function FunnelAnalysis() {
                       <div
                         className={cn(
                           "p-3 rounded-lg border border-border bg-card hover:shadow-md transition-all cursor-pointer",
-                          form.rank === 1 && "border-yellow-300 bg-gradient-to-br from-yellow-50 to-amber-50",
-                          form.rank === 2 && "border-gray-300 bg-gradient-to-br from-gray-50 to-slate-50",
-                          form.rank === 3 && "border-orange-300 bg-gradient-to-br from-orange-50 to-amber-50"
+                          form.rank === 1 && "border-yellow-300 bg-linear-to-br from-yellow-50 to-amber-50",
+                          form.rank === 2 && "border-gray-300 bg-linear-to-br from-gray-50 to-slate-50",
+                          form.rank === 3 && "border-orange-300 bg-linear-to-br from-orange-50 to-amber-50"
                         )}
                       >
                         <div className="flex justify-center mb-2">
@@ -132,9 +132,9 @@ export default function FunnelAnalysis() {
                       className={cn(
                         "w-full rounded-t-lg transition-all",
                         form.height,
-                        form.rank === 1 && "bg-gradient-to-t from-yellow-400 to-yellow-300",
-                        form.rank === 2 && "bg-gradient-to-t from-gray-400 to-gray-300",
-                        form.rank === 3 && "bg-gradient-to-t from-orange-400 to-orange-300"
+                        form.rank === 1 && "bg-linear-to-t from-yellow-400 to-yellow-300",
+                        form.rank === 2 && "bg-linear-to-t from-gray-400 to-gray-300",
+                        form.rank === 3 && "bg-linear-to-t from-orange-400 to-orange-300"
                       )}
                     />
                   </div>
