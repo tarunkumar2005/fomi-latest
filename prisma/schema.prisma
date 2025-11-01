@@ -13,6 +13,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum FormStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum FieldType {
+  SHORT_ANSWER
+  EMAIL
+  PHONE
+  PARAGRAPH
+  MULTIPLE_CHOICE
+  CHECKBOXES
+  DROPDOWN
+  NUMBER
+  RATING
+  DATE
+  TIME
+  FILE_UPLOAD
+}
+
+enum NotificationType {
+  FORM_COMPLETED
+  FORM_CREATED
+  FORM_PUBLISHED
+  INVITATION_SENT
+  INVITATION_ACCEPTED
+  WORKSPACE_CREATED
+  OTHER
+}
+
 model User {
   id            String    @id
   name          String
@@ -23,9 +71,247 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
   accounts      Account[]
+  memberships   WorkspaceMember[]
+  chatHistories ChatHistory[]
+  responses     Response[]
+  sentInvitations     WorkspaceInvitation[] @relation("SentInvitations")
+  acceptedInvitations WorkspaceInvitation[] @relation("AcceptedInvitations")
+  agentCredit   AgentCredit?
+  notifications Notification[]
+  forms         Form[]
 
   @@unique([email])
   @@map("user")
+}
+
+model Workspace {
+  id          String             @id @default(cuid())
+  name        String
+  slug        String             @unique
+  description String?
+  plan        Plan               @default(FREE)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  // Relations
+  forms       Form[]
+  members     WorkspaceMember[]
+  invitations WorkspaceInvitation[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String      @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        Role        @default(MEMBER)
+  joinedAt    DateTime    @default(now())
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+model WorkspaceInvitation {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  invitedById  String
+  acceptedById String?  
+  email        String
+  status       InvitationStatus @default(PENDING)
+  token        String   @unique
+  createdAt    DateTime @default(now())
+  acceptedAt   DateTime?
+
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy    User      @relation("SentInvitations", fields: [invitedById], references: [id], onDelete: Cascade)
+  acceptedBy   User?     @relation("AcceptedInvitations", fields: [acceptedById], references: [id], onDelete: SetNull)
+}
+
+model Form {
+  id           String       @id @default(cuid())
+  userId       String
+  workspaceId  String
+  title        String
+  description  String?
+  slug         String       @unique
+  status       FormStatus   @default(DRAFT)
+  version      Int          @default(1)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @default(now()) @updatedAt
+  publishedAt  DateTime?
+  archivedAt   DateTime?
+
+  workspace    Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections     Section[]
+  responses    Response[]
+  chatHistories ChatHistory[]
+}
+
+model Section {
+  id              String   @id @default(cuid())
+  formId          String
+  title           String
+  order           Int      @default(0)
+  description     String?
+  nextSectionLogic Json?   // Conditional branching rules to decide next section
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  fields    Field[]
+
+  @@index([formId])
+  @@index([formId, order])
+}
+
+model Field {
+  id            String      @id @default(cuid())
+  sectionId     String
+  question      String
+  type          FieldType
+  required      Boolean     @default(false)
+  order         Int         @default(0)
+
+  // Field configuration
+  placeholder   String?
+  description   String?
+  options       Json?       // Array of { label, value, default, image? } for choice fields
+  metadata      Json?       // Future-proof storage for extra configs
+  isHidden      Boolean?    @default(false)
+
+  // Validation rules
+  minLength     Int?        // For text
+  maxLength     Int?        // For text
+  pattern       String?     // Regex for text
+  min           Float?      // For number
+  max           Float?      // For number
+  step          Float?      // For number/slider
+  customValidation Json?    // For advanced/custom validation rules
+
+  // UI hints
+  rows          Int?        // For textarea
+  gridColumns   Int?        // For layout
+
+  // File upload settings
+  acceptedTypes String?
+  maxFileSize   Int?
+  maxFiles      Int?
+  requiredFiles Int?
+
+  // Date/Time constraints
+  minDate       DateTime?
+  maxDate       DateTime?
+  minTime       DateTime?
+  maxTime       DateTime?
+
+  // Rating settings
+  maxRating     Int?        @default(5)
+  ratingStyle   String?     // stars, numbers, emoji
+
+  // Conditional logic
+  conditional   Json?       // e.g., show if another field equals value
+
+  // Timestamps
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  section    Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  fieldResponses FieldResponse[]
+
+  @@index([sectionId])
+  @@index([sectionId, order])
+  @@map("fields")
+}
+
+model Response {
+  id          String   @id @default(cuid())
+  formId      String
+  userId      String?  
+  formVersion Int      @default(1)
+  isComplete  Boolean  @default(true)
+  isSpam      Boolean  @default(false)
+  submitterIp String?
+  userAgent   String?
+  referrer    String?
+  location    Json?
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  form        Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  fieldResponses FieldResponse[]
+  
+  @@index([formId])
+  @@index([submittedAt])
+  @@index([formId, submittedAt])
+  @@index([formId, formVersion])
+  @@index([isSpam])
+}
+
+model FieldResponse {
+  id         String   @id @default(cuid())
+  responseId String
+  fieldId    String
+  value      Json
+
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  field      Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([responseId])
+  @@index([fieldId])
+}
+
+model ChatHistory {
+  id        String   @id @default(cuid())
+  formId    String
+  userId    String
+  thread    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, formId])
+  @@map("chat_histories")
+}
+
+model AgentCredit {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  dailyLimit   Int       @default(10)
+  usedCount    Int       @default(0)
+  firstUsedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([firstUsedAt])
+  @@map("agent_credits")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  metadata  Json?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+  @@index([userId, createdAt])
+  @@map("notifications")
 }
 
 model Session {

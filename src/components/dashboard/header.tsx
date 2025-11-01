@@ -28,14 +28,20 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "@/hooks/useSession";
 import { useDashboard } from "@/hooks/useDashboard";
+import { Workspace } from "@/types/dashboard";
 
-export default function Header() {
+export default function Header({
+  activeWorkspace,
+  setActiveWorkspace,
+}: {
+  activeWorkspace: Workspace;
+  setActiveWorkspace: React.Dispatch<React.SetStateAction<Workspace>>;
+}) {
   const router = useRouter();
   const { data: session } = useSession();
   const { workspaces } = useDashboard();
-  const [activeWorkspace, setActiveWorkspace] = useState(workspaces[0]);
 
-  const handleWorkspaceChange = (workspace: typeof workspaces[0]) => {
+  const handleWorkspaceChange = (workspace: Workspace) => {
     setActiveWorkspace(workspace);
   };
 

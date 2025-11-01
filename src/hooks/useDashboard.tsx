@@ -7,13 +7,13 @@ import {
   XCircle,
   Percent,
   Clock,
-  TrendingUp,
-  Target,
   Globe,
 } from "lucide-react";
 import { SiFirefoxbrowser as FirefoxIcon } from "react-icons/si";
 import { SiGooglechrome as ChromeIcon } from "react-icons/si";
 import { SiSafari as SafariIcon } from "react-icons/si";
+import axios from "axios";
+import { RangeOption, Workspace, Plan } from "@/types/dashboard";
 
 interface OverviewMetric {
   id: string;
@@ -27,11 +27,35 @@ interface OverviewMetric {
 }
 
 export const useDashboard = () => {
-  const getWorkspaces = () => {
+  const getWorkspaces = (): Workspace[] => {
     return [
-      { id: "1", name: "Marketing Team", isActive: true },
-      { id: "2", name: "Product Team", isActive: false },
-      { id: "3", name: "Sales Team", isActive: false },
+      {
+        id: "workspace-1",
+        name: "Acme Corp",
+        slug: "acme-corp",
+        description: "Workspace for Acme Corporation",
+        plan: Plan.FREE,
+        createdAt: "2023-01-15T10:00:00Z",
+        updatedAt: "2023-06-20T12:00:00Z",
+      },
+      {
+        id: "workspace-2",
+        name: "Beta LLC",
+        slug: "beta-llc",
+        description: "Workspace for Beta LLC",
+        plan: Plan.PRO,
+        createdAt: "2022-11-05T14:30:00Z",
+        updatedAt: "2023-05-18T09:15:00Z",
+      },
+      {
+        id: "workspace-3",
+        name: "Gamma Inc",
+        slug: "gamma-inc",
+        description: "Workspace for Gamma Inc",
+        plan: Plan.FREE,
+        createdAt: "2023-02-10T11:00:00Z",
+        updatedAt: "2023-06-15T08:30:00Z",
+      },
     ]
   }
 
@@ -117,26 +141,6 @@ export const useDashboard = () => {
         iconBg: "bg-teal-50",
         iconColor: "text-teal-600",
       },
-      {
-        id: "conversion",
-        icon: <Target className="h-5 w-5" />,
-        label: "Conversion",
-        value: "59.8%",
-        change: 4,
-        changeColor: "positive",
-        iconBg: "bg-emerald-50",
-        iconColor: "text-emerald-600",
-      },
-      {
-        id: "weekly-growth",
-        icon: <TrendingUp className="h-5 w-5" />,
-        label: "Weekly Growth",
-        value: "+18%",
-        change: 2,
-        changeColor: "positive",
-        iconBg: "bg-cyan-50",
-        iconColor: "text-cyan-600",
-      },
     ];
   }
 
@@ -198,18 +202,18 @@ export const useDashboard = () => {
   const getTopForms = () => {
     return [
       {
-        rank: 1,
-        name: "Feedback Form",
-        conversionRate: 72,
-        avgTime: "45s",
-        height: "h-32"
-      },
-      {
         rank: 2,
         name: "Signup Form",
         conversionRate: 68,
         avgTime: "1.2m",
         height: "h-24"
+      },
+      {
+        rank: 1,
+        name: "Feedback Form",
+        conversionRate: 72,
+        avgTime: "45s",
+        height: "h-32"
       },
       {
         rank: 3,
@@ -298,6 +302,17 @@ export const useDashboard = () => {
     ];
   }
 
+  const getDashboardData = async (
+    workspaceId: string,
+    range: RangeOption
+  ) => {
+    const overviewData = await axios.get('/api/dashboard/analytics/overview', {
+      params: { workspaceId, range }
+    })
+
+    return overviewData.data.overview;
+  }
+
   return {
     workspaces: getWorkspaces(),
     overviewMetrics: getOverviewMetric(),
@@ -309,5 +324,6 @@ export const useDashboard = () => {
     funnelStages: getFunnelStages(),
     topForms: getTopForms(),
     formsData: getFormsData(),
+    getDashboardData,
   }
 }

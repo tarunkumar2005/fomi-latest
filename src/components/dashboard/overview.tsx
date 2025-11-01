@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -10,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useDashboard } from "@/hooks/useDashboard";
+import { RangeOption } from "@/types/dashboard";
 
 interface MetricCardProps {
   icon: React.ReactNode;
@@ -66,8 +67,18 @@ function MetricCard({
   );
 }
 
-export default function Overview() {
-  const { overviewMetrics } = useDashboard();
+export default function Overview({
+  range,
+  setRange,
+  overviewData,
+}: {
+  range?: RangeOption;
+  setRange?: (range: RangeOption) => void;
+  overviewData: any;
+}) {
+  if (!overviewData) {
+    return null;
+  }
 
   return (
     <div className="pt-30 px-4 sm:px-6 py-8 bg-background">
@@ -85,23 +96,25 @@ export default function Overview() {
 
           {/* Controls */}
           <div className="flex items-center gap-2">
-            <Select defaultValue={"Last 7 days"}>
+            <Select defaultValue={range} onValueChange={(value) => {
+              if (setRange) setRange(value as RangeOption);
+            }}>
               <SelectTrigger className="w-[140px] h-9 font-body text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Last 7 days">Last 7 days</SelectItem>
-                <SelectItem value="Last 30 days">Last 30 days</SelectItem>
-                <SelectItem value="Last 90 days">Last 90 days</SelectItem>
-                <SelectItem value="Last year">Last year</SelectItem>
+                <SelectItem value="24h">Last 24 hours</SelectItem>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {overviewMetrics.map((metric) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {overviewData.map((metric: any) => (
             <MetricCard key={metric.id} {...metric} />
           ))}
         </div>

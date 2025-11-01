@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from './providers';
 import ConditionalFooter from "@/components/shared/ConditionalFooter";
+import PostHogPageView from '@/components/shared/PostHogPageView';
+import Script from "next/script";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,10 +17,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src={process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL}
+          data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          strategy="afterInteractive"
+        />
+      </head>
       <body
         className={`antialiased`}
       >
         <Providers>
+          <PostHogPageView />
           {children}
           <ConditionalFooter />
         </Providers>
