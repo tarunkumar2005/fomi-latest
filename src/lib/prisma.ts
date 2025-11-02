@@ -152,3 +152,40 @@ export const getSubmissionsCountbyWorkspaceId = async (workspaceId: string, date
     },
   });
 };
+
+export const getWorkspaceFormSubmissionsByDate = async (
+  workspaceId: string,
+  dateFrom: string,
+  dateTo: string
+) => {
+  const results = await prisma.response.groupBy({
+    by: ["submittedAt"],
+    where: {
+      form: {
+        workspaceId,
+      },
+      submittedAt: {
+        gte: new Date(dateFrom),
+        lte: new Date(dateTo),
+      },
+      isComplete: true,
+      isSpam: false,
+    },
+    _count: { _all: true },
+  });
+
+  // Normalize to date-only and aggregate same-day entries
+  const dailyTotals: Record<string, number> = {};
+
+  for (const r of results) {
+    const date = new Date(r.submittedAt)
+      .toISOString()
+      .split("T")[0]; // YYYY-MM-DD
+    dailyTotals[date] = (dailyTotals[date] || 0) + (r._count._all || 0);
+  }
+
+  // Convert to array sorted by date
+  return Object.entries(dailyTotals)
+    .map(([date, total]) => ({ date, total }))
+    .sort((a, b) => (a.date > b.date ? 1 : -1));
+};

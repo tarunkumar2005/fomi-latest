@@ -49,10 +49,14 @@ export default function DashboardPageClient() {
       <Overview
         range={range}
         setRange={setRange}
-        overviewData={dashboardData}
+        overviewData={dashboardData?.overviewData}
         isLoading={isLoading}
       />
-      <EngagementTrends />
+      <EngagementTrends
+        range={range}
+        isLoading={isLoading}
+        trendsChartData={dashboardData?.trendsChartData}
+      />
       <Audience />
       <FunnelAnalysis />
       <FormPaginated />

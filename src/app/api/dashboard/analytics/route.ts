@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { RangeOption } from "@/types/dashboard";
-import { getDashboardData } from "@/lib/ph-server";
+import { getDashboardData, getTrendsChartData } from "@/lib/ph-server";
 
 export async function GET(request: Request) {
   try {
@@ -16,11 +16,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid range" }, { status: 400 });
 
     // Fetch overview data
-    const data = await getDashboardData(workspaceId, range as RangeOption);
+    const overviewData = await getDashboardData(
+      workspaceId,
+      range as RangeOption
+    );
+    const trendsChartData = await getTrendsChartData(
+      workspaceId,
+      range as RangeOption
+    );
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ overviewData, trendsChartData });
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch data" },
+      { status: 500 }
+    );
   }
 }

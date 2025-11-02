@@ -3,6 +3,7 @@ import {
   getTotalFormCountbyWorkspaceId,
   getPublishedFormCountbyWorkspaceId,
   getSubmissionsCountbyWorkspaceId,
+  getWorkspaceFormSubmissionsByDate
 } from "./prisma";
 import { getDateRange, getPreviousRange, calcChange } from "@/utils/getDateRange";
 import { RangeOption } from "@/types/dashboard";
@@ -69,7 +70,7 @@ export const getTotalFormStartsbySlug = async (
 
   try {
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST?.replace(/\/$/, "");
-    const projectId = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_ID;
+    const projectId = process.env.POSTHOG_PROJECT_ID;
     const url = `${host}/api/projects/${projectId}/query/`;
 
     const payload = {
@@ -117,7 +118,7 @@ export const getAverageCompletionTime = async (
 ) => {
   try {
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST?.replace(/\/$/, "");
-    const projectId = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_ID;
+    const projectId = process.env.POSTHOG_PROJECT_ID;
     const url = `${host}/api/projects/${projectId}/query/`;
 
     const payload = {
@@ -125,12 +126,12 @@ export const getAverageCompletionTime = async (
         kind: "HogQLQuery",
         query: `
           SELECT 
-            avg(toFloat64OrNull(properties['completion_time_seconds'])) as avg_completion_time_seconds,
+            avg(toFloat(properties.completion_time_seconds)) as avg_completion_time_seconds,
             count() as total_completions
           FROM events
           WHERE event = 'form_completed'
-            AND properties['form_slug'] = '${slug}'
-            AND properties['completion_time_seconds'] IS NOT NULL
+            AND properties.form_slug = '${slug}'
+            AND properties.completion_time_seconds IS NOT NULL
             AND timestamp >= toDateTime('${dateFrom}')
             AND timestamp < toDateTime('${dateTo}')
         `,
@@ -152,9 +153,126 @@ export const getAverageCompletionTime = async (
       totalCompletions,
     };
   } catch (error) {
-    console.error("Error fetching average completion time:", error);
+    if (axios.isAxiosError(error)) {
+      console.error("PostHog API Error:", {
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    }
     return { avgCompletionTimeSeconds: 0, totalCompletions: 0 };
   }
+};
+
+const queryPosthogDailyCounts = async (
+  event: string,
+  slugs: string[],
+  interval: string,
+  dateFrom: string,
+  dateTo: string,
+  propertyKey: string,
+  urlPattern?: (slug: string) => string
+) => {
+  if (!slugs?.length) return [];
+
+  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST?.replace(/\/$/, "");
+  const projectId = process.env.POSTHOG_PROJECT_ID;
+  const url = `${host}/api/projects/${projectId}/query/`;
+
+  const values =
+    propertyKey === "$current_url"
+      ? slugs.map((s) => `'${urlPattern?.(s)}'`).join(", ")
+      : slugs.map((s) => `'${s}'`).join(", ");
+
+  const payload = {
+    query: {
+      kind: "HogQLQuery",
+      query: `
+        SELECT
+          toStartOfInterval(timestamp, INTERVAL ${interval}) AS bucket,
+          count() AS total
+        FROM events
+        WHERE event = '${event}'
+          AND properties['${propertyKey}'] IN (${values})
+          AND timestamp >= toDateTime('${dateFrom}')
+          AND timestamp < toDateTime('${dateTo}')
+        GROUP BY bucket
+        ORDER BY bucket ASC
+      `,
+    },
+  };
+
+  const response = await axios.post(url, payload, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.POSTHOG_PERSONAL_API_KEY}`,
+    },
+  });
+
+  console.log(`📈 RAW Results for ${event}:`, response.data.results);
+
+  const mapped = response.data.results?.map((r: [string, number]) => ({
+    date: r[0],
+    total: r[1],
+  })) || [];
+
+  console.log(`📈 MAPPED Results for ${event}:`, mapped);
+
+  return mapped;
+};
+
+const fillGapsWithZeros = (
+  data: DailyMetric[],
+  dateFrom: string,
+  dateTo: string,
+  intervalStr: string
+) => {
+  if (data.length === 0) {
+    console.warn('⚠️ No data to fill gaps for');
+  }
+  
+  if (data.length > 0) {
+    console.log('🔍 First bucket from data:', data[0].date);
+    console.log('🔍 Last bucket from data:', data[data.length - 1].date);
+  }
+  
+  const intervalMs = intervalStr === "6 hour" ? 6 * 60 * 60 * 1000 :
+                     intervalStr === "1 hour" || intervalStr === "hour" ? 60 * 60 * 1000 :
+                     24 * 60 * 60 * 1000;
+  
+  const start = data.length > 0 
+    ? new Date(data[0].date) 
+    : new Date(Math.floor(new Date(dateFrom).getTime() / intervalMs) * intervalMs);
+  
+  const end = new Date(dateTo);
+  
+  // FIX: Normalize timestamps when creating the map
+  const dataMap = new Map(
+    data.map(d => {
+      const normalizedDate = new Date(d.date).toISOString();
+      console.log(`🗺️ Map entry: ${d.date} -> ${normalizedDate} = ${d.total}`);
+      return [normalizedDate, d.total];
+    })
+  );
+  
+  const results: DailyMetric[] = [];
+  let current = new Date(start);
+  
+  while (current < end) {
+    const isoDate = current.toISOString();
+    const value = dataMap.get(isoDate) || 0;
+    
+    console.log(`📅 Lookup: ${isoDate} = ${value}`);
+    
+    results.push({
+      date: isoDate,
+      total: value
+    });
+    current = new Date(current.getTime() + intervalMs);
+  }
+  
+  console.log(`✅ Filled ${results.length} buckets`);
+  
+  return results;
 };
 
 export const getMetricsForRange = async (workspaceId: string, dateFrom: string, dateTo: string) => {
@@ -257,10 +375,73 @@ export const getDashboardData = async (
   return metrics;
 }
 
+type DailyMetric = {
+  date: string
+  total: number
+}
+
 export const getTrendsChartData = async (
   workspaceId: string,
   range: RangeOption
 ) => {
   const { dateFrom, dateTo } = getDateRange(range);
 
-}
+  const forms = await getFormsByWorkspaceId(workspaceId);
+  const slugs = forms.map((f) => f.slug);
+
+  const interval =
+    ['24h', '1d'].includes(range as string) ? "6 hour" : "1 day";
+
+  // Views (pageviews for all form URLs)
+  const viewsRaw: DailyMetric[] = await queryPosthogDailyCounts(
+    "$pageview",
+    slugs,
+    interval,
+    dateFrom,
+    dateTo,
+    "$current_url",
+    (slug) => `${process.env.NEXT_PUBLIC_BASE_URL}/form/${slug}`
+  );
+  console.log('🔍 viewsRaw BEFORE gap-fill:', viewsRaw);
+  const views = fillGapsWithZeros(viewsRaw, dateFrom, dateTo, interval);
+
+  // Starts (custom 'form_started' event)
+  const startsRaw: DailyMetric[] = await queryPosthogDailyCounts(
+    "form_started",
+    slugs,
+    interval,
+    dateFrom,
+    dateTo,
+    "form_slug"
+  );
+  const starts = fillGapsWithZeros(startsRaw, dateFrom, dateTo, interval);
+
+  const submissions: DailyMetric[] = await getWorkspaceFormSubmissionsByDate(
+    workspaceId,
+    dateFrom,
+    dateTo
+  );
+
+  // Merge all unique dates
+  const allDates = Array.from(
+    new Set([
+      ...views.map((v) => v.date),
+      ...starts.map((s) => s.date),
+      ...submissions.map((x) => x.date),
+    ])
+  ).sort()
+
+  // Combine daily totals into chart-friendly objects
+  return allDates.map((date) => {
+    const view = views.find((v) => v.date === date)
+    const start = starts.find((s) => s.date === date)
+    const submission = submissions.find((x) => x.date === date)
+
+    return {
+      date,
+      views: view?.total || 0,
+      starts: start?.total || 0,
+      submissions: submission?.total || 0,
+    }
+  })
+};

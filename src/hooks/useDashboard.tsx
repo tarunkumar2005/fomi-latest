@@ -225,7 +225,7 @@ export const useDashboard = () => {
       params: { workspaceId, range }
     })
 
-    return overviewData.data.data;
+    return overviewData.data;
   }
 
   return {
