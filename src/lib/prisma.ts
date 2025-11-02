@@ -1,8 +1,6 @@
 import { prisma } from "./db";
 import { nanoid } from "nanoid";
 import type { Form } from "@prisma/client";
-import { getDateRange } from "@/utils/getDateRange";
-import { RangeOption } from "@/types/dashboard";
 
 export const createNewForm = async (
   workspaceId: string,
@@ -114,9 +112,7 @@ export const getFormsByWorkspaceId = async (workspaceId: string) => {
   });
 }
 
-export const getTotalFormCountbyWorkspaceId = async (workspaceId: string, range: RangeOption) => {
-  const { dateFrom, dateTo } = getDateRange(range);
-
+export const getTotalFormCountbyWorkspaceId = async (workspaceId: string, dateFrom: string, dateTo: string) => {
   return prisma.form.count({
     where: {
       workspaceId,
@@ -128,9 +124,7 @@ export const getTotalFormCountbyWorkspaceId = async (workspaceId: string, range:
   });
 };
 
-export const getPublishedFormCountbyWorkspaceId = async (workspaceId: string, range: RangeOption) => {
-  const { dateFrom, dateTo } = getDateRange(range);
-
+export const getPublishedFormCountbyWorkspaceId = async (workspaceId: string, dateFrom: string, dateTo: string) => {
   return prisma.form.count({
     where: {
       workspaceId,
@@ -143,9 +137,7 @@ export const getPublishedFormCountbyWorkspaceId = async (workspaceId: string, ra
   });
 };
 
-export const getSubmissionsCountbyWorkspaceId = async (workspaceId: string, range: RangeOption) => {
-  const { dateFrom, dateTo } = getDateRange(range);
-
+export const getSubmissionsCountbyWorkspaceId = async (workspaceId: string, dateFrom: string, dateTo: string) => {
   return prisma.response.count({
     where: {
       form: {
@@ -160,257 +152,3 @@ export const getSubmissionsCountbyWorkspaceId = async (workspaceId: string, rang
     },
   });
 };
-
-// export const getDashboardOverview = async (
-//   workspaceId: string, 
-//   range: RangeOption
-// ) => {
-//   // 1. Determine time range in ms
-//   const days =
-//     range === "24h" ? 1 :
-//     range === "7d" ? 7 :
-//     range === "30d" ? 30 :
-//     90;
-  
-//   const endAt = Date.now();
-//   const startAt = endAt - days * 24 * 60 * 60 * 1000;
-
-//   // 2. Fetch total forms and published forms created in range
-//   const [totalForms, totalPublishedForms, forms] = await Promise.all([
-//     prisma.form.count({ 
-//       where: { 
-//         workspaceId,
-//         createdAt: { gte: new Date(startAt), lte: new Date(endAt) } 
-//       } 
-//     }),
-    
-//     prisma.form.count({ 
-//       where: { 
-//         workspaceId,
-//         status: "PUBLISHED",
-//         publishedAt: { 
-//           gte: new Date(startAt),
-//           lte: new Date(endAt)
-//         } 
-//       } 
-//     }),
-    
-//     // Get all forms in this workspace
-//     prisma.form.findMany({
-//       where: { 
-//         workspaceId,
-//         createdAt: { lte: new Date(endAt) }
-//       },
-//       select: { slug: true },
-//     }),
-//   ]);
-
-//   // 3. Fetch views from Umami
-//   const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
-
-//   let totalViews = 0;
-
-//   if (umamiWebsiteId && forms.length > 0) {
-//     try {
-//       // Get URL metrics for all forms
-//       const urlMetrics = await client.getWebsiteMetrics(umamiWebsiteId, {
-//         startAt,
-//         endAt,
-//         type: 'url',
-//       });
-
-//       // Filter and sum views for our form URLs
-//       totalViews = urlMetrics?.data?.reduce((sum: number, item: any) => {
-//         // Check if URL matches any of our forms: /form/{slug}
-//         const isFormUrl = forms.some(form => item.x === `/form/${form.slug}`);
-//         return isFormUrl ? sum + (item.y ?? 0) : sum;
-//       }, 0) ?? 0;
-
-//     } catch (error) {
-//       console.error('Failed to fetch Umami views:', error);
-//     }
-//   }
-
-//   let totalStarts = 0;
-
-//   if (umamiWebsiteId && forms.length > 0) {
-//     try {
-//       const metrics = await client.getWebsiteMetrics(umamiWebsiteId, {
-//         startAt,
-//         endAt,
-//         type: 'event',
-//         event: 'form-start',
-//       });
-
-//       const formStartMetric = metrics?.data?.find(m => m.x === 'form-start');
-//       const totalStarts = formStartMetric?.y ?? 0;
-//     } catch (error) {
-//       console.error('Failed to fetch form starts:', error);
-//     }
-//   }
-
-//   // Fetch average completion time
-//   let avgCompletionTime = 0;
-
-//   if (umamiWebsiteId && forms.length > 0) {
-//     try {
-//       // Get the event data to access the 'time' property values
-//       const eventData = await client.getEventDataEvents(umamiWebsiteId, {
-//         startAt,
-//         endAt,
-//         event: "completion-time",
-//       });
-
-//       // Filter for 'time' property entries and extract the numeric values
-//       const completionTimes = eventData?.data
-//         ?.filter((event: any) => event.propertyName === 'time')
-//         .map((event: any) => parseFloat(event.propertyValue))
-//         .filter((time: number) => !isNaN(time) && time > 0) ?? [];
-
-//       // Calculate average (values are in milliseconds, convert to seconds)
-//       if (completionTimes.length > 0) {
-//         const totalMs = completionTimes.reduce((sum: number, time: number) => sum + time, 0);
-//         avgCompletionTime = totalMs / completionTimes.length / 1000; // Convert to seconds
-//       }
-
-//     } catch (error) {
-//       console.error('Failed to fetch completion time:', error);
-//     }
-//   }
-
-//   // 4. Fetch submissions from DB in range
-//   const totalSubmissions = await prisma.response.count({
-//     where: { 
-//       form: { workspaceId },
-//       submittedAt: { 
-//         gte: new Date(startAt),
-//         lte: new Date(endAt)
-//       },
-//       isComplete: true,
-//       isSpam: false,
-//     },
-//   });
-
-//   // 5. Calculate drop-offs and drop-off rate
-//   const totalDropoffs = Math.max(0, totalStarts - totalSubmissions);
-//   const dropoffRate = totalStarts > 0 
-//     ? parseFloat(((totalDropoffs / totalStarts) * 100).toFixed(2))
-//     : 0;
-
-//   return {
-//     totalForms,
-//     totalPublishedForms,
-//     totalViews,
-//     totalStarts,
-//     totalSubmissions,
-//     totalDropoffs,
-//     dropoffRate,
-//     avgCompletionTime,
-//   };
-// };
-
-// export const getDashboardTrends = async (
-//   workspaceId: string, 
-//   range: RangeOption
-// ) => {
-//   const days =
-//     range === "24h" ? 1 :
-//     range === "7d" ? 7 :
-//     range === "30d" ? 30 :
-//     90;
-  
-//   const endAt = Date.now();
-//   const startAt = endAt - days * 24 * 60 * 60 * 1000;
-
-//   // Fetch all forms in this workspace
-//   const forms = await prisma.form.findMany({
-//     where: { 
-//       workspaceId,
-//       createdAt: { lte: new Date(endAt) }
-//     },
-//     select: { slug: true },
-//   });
-
-//   const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID!;
-//   const formUrls = forms.map(form => `/form/${form.slug}`);
-
-//   // Initialize all dates with 0 values
-//   const dataByDate: { [date: string]: { views: number; starts: number; submissions: number } } = {};
-//   for (let i = 0; i < days; i++) {
-//     const date = new Date(startAt + i * 24 * 60 * 60 * 1000);
-//     const dateKey = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-//     dataByDate[dateKey] = { views: 0, starts: 0, submissions: 0 };
-//   }
-
-//   // 1. Fetch pageviews for each form
-//   const allFormPageviews = await Promise.all(
-//     formUrls.map(async (url) => {
-//       return await client.getWebsitePageviews(umamiWebsiteId, {
-//         startAt,
-//         endAt,
-//         unit: 'day',
-//         url: url,
-//         timezone: 'Asia/Kolkata'
-//       });
-//     })
-//   );
-
-//   // Aggregate pageviews
-//   allFormPageviews.forEach(result => {
-//     const pageviews = result?.data?.pageviews || [];
-    
-//     pageviews.forEach((item: any) => {
-//       if (item.x) {
-//         const date = new Date(item.x);
-//         const dateKey = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-//         if (dataByDate[dateKey]) {
-//           dataByDate[dateKey].views += (item.y || 0);
-//         }
-//       }
-//     });
-//   });
-
-//   // Try to get event data with time series (if your Umami version supports it)
-//   const resp = await client.getWebsiteEvents(umamiWebsiteId, {
-//     startAt: startAt.toString(),
-//     endAt: endAt.toString(),
-//     // Optionally you might need: eventName: 'form-start' (if supported)
-//   });
-
-//   // Inspect the returned object:
-//   // console.log(JSON.stringify(resp, null, 2));
-//   const raw = resp?.data;
-//   let events: any[] = [];
-
-//   if (Array.isArray(raw)) {
-//     events = raw;
-//   } else if (raw && Array.isArray(raw.events)) {
-//     events = raw.events;
-//   } else {
-//     // Fallback: nothing to process
-//     events = [];
-//   }
-
-//   events.forEach((event: any) => {
-//     // You’ll need to inspect the actual field names
-//     const name = event.x ?? event.eventName ?? event.name;
-//     const timestamp = event.t ?? event.timestamp ?? event.createdAt;
-//     const count = event.y ?? event.count ?? 1;
-
-//     if (name === 'form-start' && timestamp) {
-//       const date = new Date(timestamp);
-//       const dateKey = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-//       if (dataByDate[dateKey]) {
-//         dataByDate[dateKey].starts += count;
-//       }
-//     }
-//   });
-
-//   return {
-//     chartData: Object.entries(dataByDate).map(([date, { views, starts }]) => ({
-//       date,
-//       views,
-//       starts,
-//     }))
-//   };
-// }

@@ -13,25 +13,45 @@ import { RangeOption, Workspace } from "@/types/dashboard";
 
 export default function DashboardPageClient() {
   const { getDashboardData, workspaces } = useDashboard();
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>(workspaces[0]);
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>(
+    workspaces[0]
+  );
   const [range, setRange] = useState<RangeOption>(RangeOption["24h"]);
   const [dashboardData, setDashboardData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const fetchOverviewData = async () => {
+  const fetchDashboardData = async () => {
     if (!activeWorkspace) return;
 
-    const response = await getDashboardData(activeWorkspace.id, range);
-    setDashboardData(response);
+    try {
+      setIsLoading(true);
+      const response = await getDashboardData(activeWorkspace.id, range);
+      setDashboardData(response);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      // Set empty data on error so UI still shows with N/A values
+      setDashboardData(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchOverviewData();
+    fetchDashboardData();
   }, [activeWorkspace, range]);
 
   return (
     <>
-      <Header activeWorkspace={activeWorkspace} setActiveWorkspace={setActiveWorkspace} />
-      <Overview range={range} setRange={setRange} overviewData={dashboardData} />
+      <Header
+        activeWorkspace={activeWorkspace}
+        setActiveWorkspace={setActiveWorkspace}
+      />
+      <Overview
+        range={range}
+        setRange={setRange}
+        overviewData={dashboardData}
+        isLoading={isLoading}
+      />
       <EngagementTrends />
       <Audience />
       <FunnelAnalysis />

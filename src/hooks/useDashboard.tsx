@@ -30,7 +30,7 @@ export const useDashboard = () => {
   const getWorkspaces = (): Workspace[] => {
     return [
       {
-        id: "workspace-1",
+        id: "demo_workspace_001",
         name: "Acme Corp",
         slug: "acme-corp",
         description: "Workspace for Acme Corporation",
@@ -57,91 +57,6 @@ export const useDashboard = () => {
         updatedAt: "2023-06-15T08:30:00Z",
       },
     ]
-  }
-
-  const getOverviewMetric = (): OverviewMetric[] => {
-    return [
-      {
-        id: "total-forms",
-        icon: <FileText className="h-5 w-5" />,
-        label: "Total Forms",
-        value: "24",
-        change: 12,
-        changeColor: "positive",
-        iconBg: "bg-blue-50",
-        iconColor: "text-blue-600",
-      },
-      {
-        id: "published",
-        icon: <CheckCircle2 className="h-5 w-5" />,
-        label: "Published",
-        value: "18",
-        change: 8,
-        changeColor: "positive",
-        iconBg: "bg-green-50",
-        iconColor: "text-green-600",
-      },
-      {
-        id: "total-views",
-        icon: <Eye className="h-5 w-5" />,
-        label: "Total Views",
-        value: "12.4K",
-        change: 24,
-        changeColor: "positive",
-        iconBg: "bg-purple-50",
-        iconColor: "text-purple-600",
-      },
-      {
-        id: "total-starts",
-        icon: <Play className="h-5 w-5" />,
-        label: "Total Starts",
-        value: "8.7K",
-        change: 18,
-        changeColor: "positive",
-        iconBg: "bg-yellow-50",
-        iconColor: "text-yellow-600",
-      },
-      {
-        id: "submissions",
-        icon: <Send className="h-5 w-5" />,
-        label: "Submissions",
-        value: "5.2K",
-        change: 22,
-        changeColor: "positive",
-        iconBg: "bg-indigo-50",
-        iconColor: "text-indigo-600",
-      },
-      {
-        id: "dropoffs",
-        icon: <XCircle className="h-5 w-5" />,
-        label: "Drop-offs",
-        value: "3.5K",
-        change: 5,
-        changeColor: "negative",
-        iconBg: "bg-red-50",
-        iconColor: "text-red-600",
-      },
-      {
-        id: "dropoff-rate",
-        icon: <Percent className="h-5 w-5" />,
-        label: "Drop-off Rate",
-        value: "40.2%",
-        change: 3,
-        changeColor: "positive",
-        iconBg: "bg-orange-50",
-        iconColor: "text-orange-600",
-      },
-      {
-        id: "avg-time",
-        icon: <Clock className="h-5 w-5" />,
-        label: "Avg. Time",
-        value: "3.2m",
-        change: 15,
-        changeColor: "positive",
-        iconBg: "bg-teal-50",
-        iconColor: "text-teal-600",
-      },
-    ];
   }
 
   const getTrendData = () => {
@@ -306,16 +221,15 @@ export const useDashboard = () => {
     workspaceId: string,
     range: RangeOption
   ) => {
-    const overviewData = await axios.get('/api/dashboard/analytics/overview', {
+    const overviewData = await axios.get('/api/dashboard/analytics', {
       params: { workspaceId, range }
     })
 
-    return overviewData.data.overview;
+    return overviewData.data.data;
   }
 
   return {
     workspaces: getWorkspaces(),
-    overviewMetrics: getOverviewMetric(),
     trendData: getTrendData(),
     geographicData: getGeographicData(),
     deviceData: getDeviceData(),

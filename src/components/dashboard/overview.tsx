@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -12,6 +11,32 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { RangeOption } from "@/types/dashboard";
+import {
+  FileText,
+  Send,
+  Eye,
+  PlayCircle,
+  CheckCircle,
+  XCircle,
+  TrendingDown,
+  Clock,
+} from "lucide-react";
+
+// Static metric configuration
+interface MetricConfig {
+  key: string;
+  icon: React.ReactNode;
+  label: string;
+  iconBg: string;
+  iconColor: string;
+}
+
+// Dynamic data from API
+interface MetricData {
+  value: string | number;
+  change: number;
+  changeColor: "positive" | "negative";
+}
 
 interface MetricCardProps {
   icon: React.ReactNode;
@@ -67,19 +92,77 @@ function MetricCard({
   );
 }
 
+// Default metric configurations - these are static and defined in the component
+const METRIC_CONFIGS: MetricConfig[] = [
+  {
+    key: "totalForms",
+    label: "Total Forms",
+    icon: <FileText className="w-5 h-5" />,
+    iconBg: "bg-blue-50",
+    iconColor: "text-blue-600",
+  },
+  {
+    key: "publishedForms",
+    label: "Published Forms",
+    icon: <Send className="w-5 h-5" />,
+    iconBg: "bg-green-50",
+    iconColor: "text-green-600",
+  },
+  {
+    key: "totalViews",
+    label: "Total Views",
+    icon: <Eye className="w-5 h-5" />,
+    iconBg: "bg-purple-50",
+    iconColor: "text-purple-600",
+  },
+  {
+    key: "formStarts",
+    label: "Form Starts",
+    icon: <PlayCircle className="w-5 h-5" />,
+    iconBg: "bg-indigo-50",
+    iconColor: "text-indigo-600",
+  },
+  {
+    key: "formSubmissions",
+    label: "Form Submissions",
+    icon: <CheckCircle className="w-5 h-5" />,
+    iconBg: "bg-emerald-50",
+    iconColor: "text-emerald-600",
+  },
+  {
+    key: "dropoffs",
+    label: "Dropoffs",
+    icon: <XCircle className="w-5 h-5" />,
+    iconBg: "bg-red-50",
+    iconColor: "text-red-600",
+  },
+  {
+    key: "dropoffRate",
+    label: "Dropoff Rate",
+    icon: <TrendingDown className="w-5 h-5" />,
+    iconBg: "bg-orange-50",
+    iconColor: "text-orange-600",
+  },
+  {
+    key: "avgCompletionTime",
+    label: "Avg. Completion Time",
+    icon: <Clock className="w-5 h-5" />,
+    iconBg: "bg-cyan-50",
+    iconColor: "text-cyan-600",
+  },
+];
+
 export default function Overview({
   range,
   setRange,
   overviewData,
+  isLoading = false,
 }: {
   range?: RangeOption;
   setRange?: (range: RangeOption) => void;
-  overviewData: any;
+  overviewData?: Record<string, MetricData>;
+  isLoading?: boolean;
 }) {
-  if (!overviewData) {
-    return null;
-  }
-
   return (
     <div className="pt-30 px-4 sm:px-6 py-8 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -96,9 +179,12 @@ export default function Overview({
 
           {/* Controls */}
           <div className="flex items-center gap-2">
-            <Select defaultValue={range} onValueChange={(value) => {
-              if (setRange) setRange(value as RangeOption);
-            }}>
+            <Select
+              defaultValue={range}
+              onValueChange={(value) => {
+                if (setRange) setRange(value as RangeOption);
+              }}
+            >
               <SelectTrigger className="w-[140px] h-9 font-body text-xs">
                 <SelectValue />
               </SelectTrigger>
@@ -114,9 +200,68 @@ export default function Overview({
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {overviewData.map((metric: any) => (
-            <MetricCard key={metric.id} {...metric} />
-          ))}
+          {METRIC_CONFIGS.map((config) => {
+            const data = overviewData?.[config.key];
+
+            if (isLoading) {
+              return (
+                <Card key={config.key} className="border-border bg-card h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={cn("p-3 rounded-xl", config.iconBg)}>
+                        <div className={config.iconColor}>{config.icon}</div>
+                      </div>
+                      <div className="h-6 w-12 bg-muted rounded-md animate-pulse" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wide">
+                        {config.label}
+                      </p>
+                      <div className="h-9 w-20 bg-muted rounded animate-pulse" />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }
+
+            if (!data) {
+              return (
+                <Card key={config.key} className="border-border bg-card h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={cn("p-3 rounded-xl", config.iconBg)}>
+                        <div className={config.iconColor}>{config.icon}</div>
+                      </div>
+                      <span className="font-body text-xs font-bold px-2.5 py-1 rounded-md bg-gray-50 text-gray-400">
+                        N/A
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wide">
+                        {config.label}
+                      </p>
+                      <p className="font-heading text-3xl font-bold text-muted-foreground">
+                        -
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }
+
+            return (
+              <MetricCard
+                key={config.key}
+                icon={config.icon}
+                label={config.label}
+                iconBg={config.iconBg}
+                iconColor={config.iconColor}
+                value={data.value}
+                change={data.change}
+                changeColor={data.changeColor}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

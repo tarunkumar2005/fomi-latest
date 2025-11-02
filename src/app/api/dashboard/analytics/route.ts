@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getDashboardTrends } from "@/lib/prisma";
 import { RangeOption } from "@/types/dashboard";
+import { getDashboardData } from "@/lib/ph-server";
 
 export async function GET(request: Request) {
   try {
@@ -15,12 +15,12 @@ export async function GET(request: Request) {
     if (!validRanges.includes(range))
       return NextResponse.json({ error: "Invalid range" }, { status: 400 });
 
-    // Fetch trend data
-    const trends = await getDashboardTrends(workspaceId, range as RangeOption);
+    // Fetch overview data
+    const data = await getDashboardData(workspaceId, range as RangeOption);
 
-    return NextResponse.json({ trends });
+    return NextResponse.json({ data });
   } catch (error) {
-    console.error("Error fetching dashboard trends:", error);
+    console.error("Error fetching dashboard data:", error);
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
 }
