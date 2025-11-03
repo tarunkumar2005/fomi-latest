@@ -57,7 +57,10 @@ export default function DashboardPageClient() {
         isLoading={isLoading}
         trendsChartData={dashboardData?.trendsChartData}
       />
-      <Audience />
+      <Audience
+        isLoading={isLoading}
+        audienceData={dashboardData?.audienceData}
+      />
       <FunnelAnalysis />
       <FormPaginated />
       <AIInsights />

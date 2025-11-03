@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { RangeOption } from "@/types/dashboard";
-import { getDashboardData, getTrendsChartData } from "@/lib/ph-server";
+import { getDashboardData, getTrendsChartData, getGeographicData, getDeviceTypeData, getBrowserData, getTrafficSourceData } from "@/lib/ph-server";
 
 export async function GET(request: Request) {
   try {
@@ -25,7 +25,36 @@ export async function GET(request: Request) {
       range as RangeOption
     );
 
-    return NextResponse.json({ overviewData, trendsChartData });
+    const geographicData = await getGeographicData(
+      workspaceId,
+      range as RangeOption
+    );
+
+    const deviceTypeData = await getDeviceTypeData(
+      workspaceId,
+      range as RangeOption
+    );
+
+    const browserData = await getBrowserData(
+      workspaceId,
+      range as RangeOption
+    );
+
+    const trafficSourceData = await getTrafficSourceData(
+      workspaceId,
+      range as RangeOption
+    );
+
+    return NextResponse.json({
+      overviewData,
+      trendsChartData,
+      audienceData: {
+        geographicData,
+        deviceTypeData,
+        browserData,
+        trafficSourceData,
+      },
+    });
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
     return NextResponse.json(

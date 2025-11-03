@@ -59,17 +59,6 @@ export const useDashboard = () => {
     ]
   }
 
-  const getTrendData = () => {
-    return [
-      { date: "Week 1", views: 2100, starts: 1450, submissions: 890 },
-      { date: "Week 2", views: 2350, starts: 1620, submissions: 980 },
-      { date: "Week 3", views: 2180, starts: 1510, submissions: 920 },
-      { date: "Week 4", views: 2520, starts: 1780, submissions: 1100 },
-      { date: "Week 5", views: 2650, starts: 1890, submissions: 1180 },
-      { date: "Week 6", views: 2400, starts: 1650, submissions: 1020 },
-    ];
-  }
-
   const getGeographicData = () => {
     return [
       { country: "US", fullName: "United States", value: 2300, flag: "🇺🇸", color: "#3b82f6" },
@@ -221,16 +210,15 @@ export const useDashboard = () => {
     workspaceId: string,
     range: RangeOption
   ) => {
-    const overviewData = await axios.get('/api/dashboard/analytics', {
+    const dashboardData = await axios.get('/api/dashboard/analytics', {
       params: { workspaceId, range }
     })
 
-    return overviewData.data;
+    return dashboardData.data;
   }
 
   return {
     workspaces: getWorkspaces(),
-    trendData: getTrendData(),
     geographicData: getGeographicData(),
     deviceData: getDeviceData(),
     browsersData: getBrowsersData(),
