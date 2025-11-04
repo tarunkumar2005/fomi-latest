@@ -231,3 +231,60 @@ export const getSubmissionsGroupedByForm = async (
 
   return submissionsMap;
 };
+
+export const getWorkspaceFormsSummary = async (
+  workspaceId: string,
+  page: number = 1,
+  pageSize: number = 10
+) => {
+  const totalCount = await prisma.form.count({
+    where: { workspaceId },
+  });
+
+  const forms = await prisma.form.findMany({
+    where: {
+      workspaceId,
+    },
+    select: {
+      id: true,
+      slug: true, // Add slug here!
+      title: true,
+      status: true,
+      createdAt: true,
+      _count: {
+        select: {
+          responses: {
+            where: {
+              isComplete: true,
+              isSpam: false,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  });
+
+  return {
+    forms: forms.map((form) => ({
+      id: form.id,
+      slug: form.slug, // Include slug
+      name: form.title,
+      status: form.status.toLowerCase(),
+      createdAt: form.createdAt.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+      completions: form._count.responses,
+    })),
+    totalCount,
+    page,
+    pageSize,
+    totalPages: Math.ceil(totalCount / pageSize),
+  };
+};

@@ -5,6 +5,7 @@ import {
   getSubmissionsCountbyWorkspaceId,
   getWorkspaceFormSubmissionsByDate,
   getSubmissionsGroupedByForm,
+  getWorkspaceFormsSummary
 } from "./prisma";
 import {
   getDateRange,
@@ -1325,4 +1326,85 @@ export const getTopForms = async (
     }));
 
   return sortedForms;
+};
+
+export interface FormSummaryDB {
+  id: string;
+  slug: string;
+  name: string;
+  status: string;
+  createdAt: string;
+  completions: number;
+}
+
+export interface FormWithAnalytics {
+  id: string;
+  name: string;
+  status: string;
+  createdAt: string;
+  views: number;
+  completions: number;
+  rate: number;
+}
+
+export interface PaginatedFormsResult {
+  forms: FormWithAnalytics[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export const enrichFormsWithAnalytics = async (
+  formsSummary: FormSummaryDB[]
+): Promise<FormWithAnalytics[]> => {
+  if (!formsSummary.length) return [];
+
+  // Extract slugs
+  const slugs = formsSummary.map(f => f.slug);
+
+  // Get views from PostHog (all time)
+  const allTimeStart = new Date('2025-01-01').toISOString();
+  const now = new Date().toISOString();
+  
+  const viewsByForm = await getViewsGroupedByForm(slugs, allTimeStart, now);
+
+  // Enrich forms with views and calculate rates
+  return formsSummary.map(form => {
+    const views = viewsByForm[form.slug] || 0;
+    const rate = views > 0 
+      ? parseFloat(((form.completions / views) * 100).toFixed(1))
+      : 0;
+
+    return {
+      id: form.id,
+      name: form.name,
+      status: form.status,
+      createdAt: form.createdAt,
+      views,
+      completions: form.completions,
+      rate,
+    };
+  });
+};
+
+export const getWorkspaceFormsData = async (
+  workspaceId: string,
+  page: number = 1,
+  pageSize: number = 10
+): Promise<PaginatedFormsResult> => {
+  // Step 1: Get forms from database with pagination
+  const dbData = await getWorkspaceFormsSummary(workspaceId, page, pageSize);
+
+  // Step 2: Enrich with PostHog analytics
+  const formsWithAnalytics = await enrichFormsWithAnalytics(dbData.forms);
+
+  // Step 3: Return complete data
+  return {
+    forms: formsWithAnalytics,
+    totalCount: dbData.totalCount,
+    page: dbData.page,
+    pageSize: dbData.pageSize,
+    totalPages: dbData.totalPages,
+  };
 };
