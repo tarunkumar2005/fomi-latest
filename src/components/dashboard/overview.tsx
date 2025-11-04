@@ -157,11 +157,13 @@ export default function Overview({
   setRange,
   overviewData,
   isLoading = false,
+  isFetching = false,
 }: {
   range?: RangeOption;
   setRange?: (range: RangeOption) => void;
   overviewData?: Record<string, MetricData>;
   isLoading?: boolean;
+  isFetching?: boolean;
 }) {
   return (
     <div className="pt-30 px-4 sm:px-6 py-8 bg-background">
@@ -179,11 +181,20 @@ export default function Overview({
 
           {/* Controls */}
           <div className="flex items-center gap-2">
+            {/* Loading indicator when refetching */}
+            {isFetching && !isLoading && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span className="font-body text-xs">Updating...</span>
+              </div>
+            )}
+
             <Select
               defaultValue={range}
               onValueChange={(value) => {
                 if (setRange) setRange(value as RangeOption);
               }}
+              disabled={isFetching}
             >
               <SelectTrigger className="w-[140px] h-9 font-body text-xs">
                 <SelectValue />

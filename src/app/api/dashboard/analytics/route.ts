@@ -1,59 +1,52 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  getDashboardData,
+  getTrendsChartData,
+  getGeographicData,
+  getDeviceTypeData,
+  getBrowserData,
+  getTrafficSourceData,
+  getConversionFunnel,
+  getTopForms,
+} from "@/lib/ph-server";
 import { RangeOption } from "@/types/dashboard";
-import { getDashboardData, getTrendsChartData, getGeographicData, getDeviceTypeData, getBrowserData, getTrafficSourceData, getConversionFunnel, getTopForms } from "@/lib/ph-server";
 
-export async function GET(request: Request) {
+// Enable caching for this route (Next.js 13+)
+export const revalidate = 10; // Revalidate every 10 seconds
+
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const workspaceId = searchParams.get("workspaceId");
-    const range = searchParams.get("range");
+    const range = searchParams.get("range") as RangeOption;
 
-    if (!workspaceId || !range)
-      return NextResponse.json({ error: "Missing params" }, { status: 400 });
+    if (!workspaceId) {
+      return NextResponse.json(
+        { error: "Workspace ID is required" },
+        { status: 400 }
+      );
+    }
 
-    const validRanges = ["24h", "7d", "30d", "90d"];
-    if (!validRanges.includes(range))
-      return NextResponse.json({ error: "Invalid range" }, { status: 400 });
-
-    // Fetch overview data
-    const overviewData = await getDashboardData(
-      workspaceId,
-      range as RangeOption
-    );
-    const trendsChartData = await getTrendsChartData(
-      workspaceId,
-      range as RangeOption
-    );
-
-    const geographicData = await getGeographicData(
-      workspaceId,
-      range as RangeOption
-    );
-
-    const deviceTypeData = await getDeviceTypeData(
-      workspaceId,
-      range as RangeOption
-    );
-
-    const browserData = await getBrowserData(
-      workspaceId,
-      range as RangeOption
-    );
-
-    const trafficSourceData = await getTrafficSourceData(
-      workspaceId,
-      range as RangeOption
-    );
-
-    const conversionFunnel = await getConversionFunnel(
-      workspaceId,
-      range as RangeOption
-    );
-
-    const topForms = await getTopForms(
-      workspaceId,
-      range as RangeOption
-    );
+    // Fetch all dashboard data in parallel
+    const [
+      overviewData,
+      trendsChartData,
+      geographicData,
+      deviceTypeData,
+      browserData,
+      trafficSourceData,
+      funnelStages,
+      topForms,
+    ] = await Promise.all([
+      getDashboardData(workspaceId, range || RangeOption["7d"]),
+      getTrendsChartData(workspaceId, range || RangeOption["7d"]),
+      getGeographicData(workspaceId, range || RangeOption["7d"]),
+      getDeviceTypeData(workspaceId, range || RangeOption["7d"]),
+      getBrowserData(workspaceId, range || RangeOption["7d"]),
+      getTrafficSourceData(workspaceId, range || RangeOption["7d"]),
+      getConversionFunnel(workspaceId, range || RangeOption["7d"]),
+      getTopForms(workspaceId, range || RangeOption["7d"], 5),
+    ]);
 
     return NextResponse.json({
       overviewData,
@@ -65,14 +58,14 @@ export async function GET(request: Request) {
         trafficSourceData,
       },
       funnelData: {
-        conversionFunnel,
+        conversionFunnel: funnelStages,
         topForms,
       },
     });
   } catch (error) {
-    console.error("Error fetching dashboard data:", error);
+    console.error("Error fetching dashboard analytics:", error);
     return NextResponse.json(
-      { error: "Failed to fetch data" },
+      { error: "Failed to fetch dashboard data" },
       { status: 500 }
     );
   }

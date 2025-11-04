@@ -8,67 +8,73 @@ import Audience from "@/components/dashboard/audiance";
 import FunnelAnalysis from "@/components/dashboard/funnel-analysis";
 import FormPaginated from "@/components/dashboard/form-paginated";
 import AIInsights from "@/components/dashboard/ai-insights";
-import { useDashboard } from "@/hooks/useDashboard";
+import {
+  useWorkspaces,
+  useDashboardData,
+  useWorkspaceFormsData,
+} from "@/hooks/useDashboard";
 import { RangeOption, Workspace } from "@/types/dashboard";
 
 export default function DashboardPageClient() {
-  const { getDashboardData, getWorkspaceFormData, workspaces } = useDashboard();
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace>(
-    workspaces[0]
+  // Get workspaces
+  const { data: workspaces = [], isLoading: isLoadingWorkspaces } =
+    useWorkspaces();
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
+    null
   );
   const [range, setRange] = useState<RangeOption>(RangeOption["24h"]);
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // Form data state (separate from dashboard data)
-  const [formsData, setFormsData] = useState<any>(null);
-  const [isLoadingForms, setIsLoadingForms] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize] = useState<number>(10);
 
-  const fetchDashboardData = async () => {
-    if (!activeWorkspace) return;
-
-    try {
-      setIsLoading(true);
-      const response = await getDashboardData(activeWorkspace.id, range);
-      setDashboardData(response);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      setDashboardData(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchFormsData = async () => {
-    if (!activeWorkspace) return;
-
-    try {
-      setIsLoadingForms(true);
-      const response = await getWorkspaceFormData(
-        activeWorkspace.id,
-        currentPage,
-        pageSize
-      );
-      setFormsData(response);
-    } catch (error) {
-      console.error("Error fetching forms data:", error);
-      setFormsData(null);
-    } finally {
-      setIsLoadingForms(false);
-    }
-  };
-
-  // Fetch dashboard data when workspace or range changes
+  // Initialize activeWorkspace once workspaces are loaded
   useEffect(() => {
-    fetchDashboardData();
-  }, [activeWorkspace, range]);
+    if (!activeWorkspace && workspaces.length > 0) {
+      setActiveWorkspace(workspaces[0]);
+    }
+  }, [workspaces, activeWorkspace]);
 
-  // Fetch forms data when workspace or page changes
-  useEffect(() => {
-    fetchFormsData();
-  }, [activeWorkspace, currentPage]);
+  // Fetch dashboard data with TanStack Query (data is already memoized via select)
+  const {
+    data: dashboardData,
+    isLoading: isDashboardLoading,
+    isFetching: isDashboardFetching,
+    error: dashboardError,
+  } = useDashboardData(activeWorkspace?.id, range);
+
+  // Fetch forms data with TanStack Query
+  const {
+    data: formsData,
+    isLoading: isLoadingForms,
+    error: formsError,
+  } = useWorkspaceFormsData(activeWorkspace?.id, currentPage, pageSize);
+
+  // Show loading state while workspaces are loading
+  if (isLoadingWorkspaces) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Show error state if workspaces failed to load
+  if (!workspaces.length && !isLoadingWorkspaces) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-lg text-muted-foreground">No workspaces found</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Please create a workspace to continue
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render until we have an active workspace
+  if (!activeWorkspace) {
+    return null;
+  }
 
   return (
     <>
@@ -80,19 +86,20 @@ export default function DashboardPageClient() {
         range={range}
         setRange={setRange}
         overviewData={dashboardData?.overviewData}
-        isLoading={isLoading}
+        isLoading={isDashboardLoading}
+        isFetching={isDashboardFetching}
       />
       <EngagementTrends
         range={range}
-        isLoading={isLoading}
+        isLoading={isDashboardLoading}
         trendsChartData={dashboardData?.trendsChartData}
       />
       <Audience
-        isLoading={isLoading}
+        isLoading={isDashboardLoading}
         audienceData={dashboardData?.audienceData}
       />
       <FunnelAnalysis
-        isLoading={isLoading}
+        isLoading={isDashboardLoading}
         funnelData={dashboardData?.funnelData}
       />
       <FormPaginated

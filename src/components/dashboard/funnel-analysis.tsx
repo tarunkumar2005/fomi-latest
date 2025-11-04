@@ -44,7 +44,7 @@ interface FunnelAnalysisProps {
 const getPodiumHeight = (rank: number): string => {
   const heights = {
     1: "h-32",
-    2: "h-24", 
+    2: "h-24",
     3: "h-20",
   };
   return heights[rank as keyof typeof heights] || "h-16";
@@ -117,27 +117,42 @@ const EmptyState = ({ message }: { message: string }) => (
 // MAIN COMPONENT
 // ===========================
 
-export default function FunnelAnalysis({ 
-  isLoading = false, 
-  funnelData 
+export default function FunnelAnalysis({
+  isLoading = false,
+  funnelData,
 }: FunnelAnalysisProps) {
   // Extract data with fallbacks
-  const {
-    conversionFunnel = [],
-    topForms = [],
-  } = funnelData || {};
+  const { conversionFunnel = [], topForms = [] } = funnelData || {};
 
   // Loading state
   if (isLoading) {
     return <LoadingSkeleton />;
   }
 
-  // Sort top forms for podium display (2nd, 1st, 3rd order)
-  const podiumOrder = [
-    topForms.find(f => f.rank === 2),
-    topForms.find(f => f.rank === 1),
-    topForms.find(f => f.rank === 3),
-  ].filter(Boolean) as TopForm[];
+  // Create empty form placeholder
+  const createEmptyForm = (rank: number): TopForm => ({
+    rank,
+    name: "No Form",
+    slug: `empty-${rank}`,
+    conversionRate: 0,
+    avgTime: "0s",
+    views: 0,
+    starts: 0,
+    submissions: 0,
+  });
+
+  // Ensure we always have exactly 3 forms for podium display
+  const podiumForms: TopForm[] = [
+    topForms.find((f) => f.rank === 1) || createEmptyForm(1),
+    topForms.find((f) => f.rank === 2) || createEmptyForm(2),
+    topForms.find((f) => f.rank === 3) || createEmptyForm(3),
+  ];
+
+  // Sort for podium display: 2nd, 1st, 3rd
+  const podiumOrder = [podiumForms[1], podiumForms[0], podiumForms[2]];
+
+  // Check if we have any real forms
+  const hasAnyForms = topForms.length > 0;
 
   return (
     <div className="px-4 sm:px-6 py-8 bg-background">
@@ -154,7 +169,6 @@ export default function FunnelAnalysis({
 
         {/* Side by Side Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          
           {/* ===== CONVERSION FUNNEL ===== */}
           <Card className="border-border bg-card hover:shadow-sm transition-all duration-200">
             <CardHeader className="pb-4">
@@ -177,8 +191,8 @@ export default function FunnelAnalysis({
                           </span>
                           {stage.dropoff > 0 && (
                             <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded flex items-center gap-1">
-                              <TrendingDown className="h-3 w-3" />
-                              -{stage.dropoff}%
+                              <TrendingDown className="h-3 w-3" />-
+                              {stage.dropoff}%
                             </span>
                           )}
                         </div>
@@ -186,14 +200,14 @@ export default function FunnelAnalysis({
                           {stage.value.toLocaleString()} ({stage.percentage}%)
                         </span>
                       </div>
-                      
+
                       {/* Funnel Bar */}
                       <div className="relative h-14 bg-muted/20 rounded-xl overflow-hidden">
                         <div
                           className="absolute inset-y-0 left-0 rounded-xl transition-all duration-700 flex items-center justify-between px-4"
                           style={{
                             width: `${stage.percentage}%`,
-                            background: `linear-gradient(90deg, ${stage.color}, ${stage.color}dd)`
+                            background: `linear-gradient(90deg, ${stage.color}, ${stage.color}dd)`,
                           }}
                         >
                           <span className="font-heading text-sm font-bold text-white">
@@ -222,66 +236,104 @@ export default function FunnelAnalysis({
               </div>
             </CardHeader>
             <CardContent className="pb-5">
-              {topForms.length === 0 ? (
-                <EmptyState message="No form performance data available" />
+              {!hasAnyForms ? (
+                <EmptyState message="No forms yet. Create a form to see performance data." />
               ) : (
                 <div className="flex items-end justify-center gap-3">
                   {podiumOrder.map((form) => {
                     const colors = getPodiumColors(form.rank);
                     const height = getPodiumHeight(form.rank);
-                    
+                    const isEmpty = form.name === "No Form";
+
                     return (
-                      <div key={form.slug} className="flex flex-col items-center flex-1">
+                      <div
+                        key={form.slug}
+                        className="flex flex-col items-center flex-1"
+                      >
                         {/* Form Card */}
                         <div className="w-full mb-2">
                           <div
                             className={cn(
-                              "p-3 rounded-lg border bg-card hover:shadow-md transition-all cursor-pointer",
+                              "p-3 rounded-lg border bg-card transition-all",
                               colors.border,
-                              colors.bg
+                              colors.bg,
+                              !isEmpty && "hover:shadow-md cursor-pointer",
+                              isEmpty && "opacity-50"
                             )}
                           >
                             {/* Rank Badge */}
                             <div className="flex justify-center mb-2">
-                              <div className={cn(
-                                "w-12 h-12 rounded-full flex items-center justify-center font-heading font-bold",
-                                colors.badge,
-                                colors.badgeSize
-                              )}>
+                              <div
+                                className={cn(
+                                  "w-12 h-12 rounded-full flex items-center justify-center font-heading font-bold",
+                                  colors.badge,
+                                  colors.badgeSize
+                                )}
+                              >
                                 {form.rank}
                               </div>
                             </div>
-                            
+
                             {/* Form Details */}
                             <div className="text-center">
-                              <p className="font-body text-xs font-semibold text-foreground mb-1.5 truncate" title={form.name}>
+                              <p
+                                className={cn(
+                                  "font-body text-xs font-semibold mb-1.5 truncate",
+                                  isEmpty
+                                    ? "text-muted-foreground italic"
+                                    : "text-foreground"
+                                )}
+                                title={form.name}
+                              >
                                 {form.name}
                               </p>
-                              <p className={cn(
-                                "font-heading font-bold text-foreground mb-1",
-                                colors.rateSize
-                              )}>
-                                {form.conversionRate}%
-                              </p>
-                              <p className="font-body text-xs text-muted-foreground">
-                                Avg: {form.avgTime}
-                              </p>
-                              <div className="mt-2 pt-2 border-t border-border/50">
-                                <div className="grid grid-cols-3 gap-1 text-xs">
-                                  <div>
-                                    <p className="text-muted-foreground">Views</p>
-                                    <p className="font-semibold text-foreground">{form.views}</p>
+                              {!isEmpty ? (
+                                <>
+                                  <p
+                                    className={cn(
+                                      "font-heading font-bold text-foreground mb-1",
+                                      colors.rateSize
+                                    )}
+                                  >
+                                    {form.conversionRate}%
+                                  </p>
+                                  <p className="font-body text-xs text-muted-foreground">
+                                    Avg: {form.avgTime}
+                                  </p>
+                                  <div className="mt-2 pt-2 border-t border-border/50">
+                                    <div className="grid grid-cols-3 gap-1 text-xs">
+                                      <div>
+                                        <p className="text-muted-foreground">
+                                          Views
+                                        </p>
+                                        <p className="font-semibold text-foreground">
+                                          {form.views}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <p className="text-muted-foreground">
+                                          Starts
+                                        </p>
+                                        <p className="font-semibold text-foreground">
+                                          {form.starts}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <p className="text-muted-foreground">
+                                          Done
+                                        </p>
+                                        <p className="font-semibold text-foreground">
+                                          {form.submissions}
+                                        </p>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <p className="text-muted-foreground">Starts</p>
-                                    <p className="font-semibold text-foreground">{form.starts}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground">Done</p>
-                                    <p className="font-semibold text-foreground">{form.submissions}</p>
-                                  </div>
-                                </div>
-                              </div>
+                                </>
+                              ) : (
+                                <p className="font-body text-xs text-muted-foreground italic mt-2">
+                                  No data
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -291,7 +343,8 @@ export default function FunnelAnalysis({
                           className={cn(
                             "w-full rounded-t-lg transition-all",
                             height,
-                            colors.podium
+                            colors.podium,
+                            isEmpty && "opacity-30"
                           )}
                         />
                       </div>

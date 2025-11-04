@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/fomi.png";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useSession, signOut } from "@/hooks/useSession";
-import { useDashboard } from "@/hooks/useDashboard";
+import { useWorkspaces } from "@/hooks/useDashboard";
 import { Workspace } from "@/types/dashboard";
 
 export default function Header({
@@ -35,11 +35,11 @@ export default function Header({
   setActiveWorkspace,
 }: {
   activeWorkspace: Workspace;
-  setActiveWorkspace: React.Dispatch<React.SetStateAction<Workspace>>;
+  setActiveWorkspace: Dispatch<SetStateAction<Workspace | null>>;
 }) {
   const router = useRouter();
   const { data: session } = useSession();
-  const { workspaces } = useDashboard();
+  const { data: workspaces = [] } = useWorkspaces();
 
   const handleWorkspaceChange = (workspace: Workspace) => {
     setActiveWorkspace(workspace);
@@ -60,7 +60,11 @@ export default function Header({
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 sm:gap-3">
               <div className="p-2 sm:p-2.5 rounded-lg bg-primary/5">
-                <Image src={logo} alt="Fomi Logo" className="w-6 h-6 sm:w-7 sm:h-7" />
+                <Image
+                  src={logo}
+                  alt="Fomi Logo"
+                  className="w-6 h-6 sm:w-7 sm:h-7"
+                />
               </div>
               <span className="font-heading text-xl sm:text-2xl font-bold text-foreground">
                 Fomi
@@ -71,7 +75,9 @@ export default function Header({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="hidden sm:flex items-center gap-1.5 hover:bg-muted px-2.5 py-1.5 rounded-md transition-colors outline-none">
-                  <span className="font-body text-xs text-muted-foreground">Workspace:</span>
+                  <span className="font-body text-xs text-muted-foreground">
+                    Workspace:
+                  </span>
                   <span className="font-body text-sm font-medium text-foreground">
                     {activeWorkspace.name}
                   </span>
@@ -91,7 +97,9 @@ export default function Header({
                   >
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-body text-sm font-medium">{workspace.name}</span>
+                      <span className="font-body text-sm font-medium">
+                        {workspace.name}
+                      </span>
                     </div>
                     {workspace.id === activeWorkspace.id && (
                       <Check className="h-4 w-4 text-primary" />
@@ -104,7 +112,9 @@ export default function Header({
                   onClick={() => router.push("/dashboard/workspaces/new")}
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="font-body text-sm font-medium">Create Workspace</span>
+                  <span className="font-body text-sm font-medium">
+                    Create Workspace
+                  </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -127,7 +137,10 @@ export default function Header({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-muted rounded-lg cursor-pointer transition-colors outline-none">
                   <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
-                    <AvatarImage src={session.data.user.image ?? undefined} alt={session.data.user.name} />
+                    <AvatarImage
+                      src={session.data.user.image ?? undefined}
+                      alt={session.data.user.name}
+                    />
                     <AvatarFallback className="bg-primary/10 text-primary font-semibold font-heading">
                       {session.data.user.name.charAt(0)}
                     </AvatarFallback>
@@ -143,7 +156,10 @@ export default function Header({
                 <DropdownMenuLabel>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={session.data.user.image ?? undefined} alt={session.data.user.name} />
+                      <AvatarImage
+                        src={session.data.user.image ?? undefined}
+                        alt={session.data.user.name}
+                      />
                       <AvatarFallback className="bg-primary/10 text-primary font-semibold font-heading text-base">
                         {session.data.user.name.charAt(0)}
                       </AvatarFallback>
@@ -164,7 +180,9 @@ export default function Header({
                   onClick={() => router.push("/dashboard")}
                 >
                   <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body text-sm font-medium">Dashboard</span>
+                  <span className="font-body text-sm font-medium">
+                    Dashboard
+                  </span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
@@ -172,7 +190,9 @@ export default function Header({
                   onClick={() => router.push("/profile")}
                 >
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body text-sm font-medium">Profile Settings</span>
+                  <span className="font-body text-sm font-medium">
+                    Profile Settings
+                  </span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
@@ -188,7 +208,9 @@ export default function Header({
                   onClick={() => router.push("/settings")}
                 >
                   <Settings className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body text-sm font-medium">Settings</span>
+                  <span className="font-body text-sm font-medium">
+                    Settings
+                  </span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />

@@ -273,15 +273,11 @@ const queryPosthogDailyCounts = async (
     },
   });
 
-  console.log(`📈 RAW Results for ${event}:`, response.data.results);
-
   const mapped =
     response.data.results?.map((r: [string, number]) => ({
       date: r[0],
       total: r[1],
     })) || [];
-
-  console.log(`📈 MAPPED Results for ${event}:`, mapped);
 
   return mapped;
 };
@@ -304,11 +300,6 @@ const fillGapsWithZeros = (
     console.warn("⚠️ No data to fill gaps for");
   }
 
-  if (data.length > 0) {
-    console.log("🔍 First bucket from data:", data[0].date);
-    console.log("🔍 Last bucket from data:", data[data.length - 1].date);
-  }
-
   const intervalMs =
     intervalStr === "6 hour"
       ? 6 * 60 * 60 * 1000
@@ -329,7 +320,6 @@ const fillGapsWithZeros = (
   const dataMap = new Map(
     data.map((d) => {
       const normalizedDate = new Date(d.date).toISOString();
-      console.log(`🗺️ Map entry: ${d.date} -> ${normalizedDate} = ${d.total}`);
       return [normalizedDate, d.total];
     })
   );
@@ -341,16 +331,12 @@ const fillGapsWithZeros = (
     const isoDate = current.toISOString();
     const value = dataMap.get(isoDate) || 0;
 
-    console.log(`📅 Lookup: ${isoDate} = ${value}`);
-
     results.push({
       date: isoDate,
       total: value,
     });
     current = new Date(current.getTime() + intervalMs);
   }
-
-  console.log(`✅ Filled ${results.length} buckets`);
 
   return results;
 };
@@ -750,8 +736,6 @@ export const getViewsGroupedByForm = async (
       },
     };
 
-    console.log("📊 Views by form query:", payload.query.query);
-
     const response = await axios.post(url, payload, {
       headers: {
         "Content-Type": "application/json",
@@ -1041,7 +1025,6 @@ export const getTrendsChartData = async (
     "$current_url",
     (slug) => `${process.env.NEXT_PUBLIC_BASE_URL}/form/${slug}`
   );
-  console.log("🔍 viewsRaw BEFORE gap-fill:", viewsRaw);
   const views = fillGapsWithZeros(viewsRaw, dateFrom, dateTo, interval);
 
   // Starts (custom 'form_started' event)
@@ -1200,12 +1183,13 @@ export const getConversionFunnel = async (
   const forms = await getFormsByWorkspaceId(workspaceId);
   const slugs = forms.map((f) => f.slug);
 
-  // Get all metrics in parallel
-  const [totalViews, totalStarts, totalSubmissions] = await Promise.all([
-    getTotalViewsBySlugs(slugs, dateFrom, dateTo),
-    getTotalFormStartsBySlugs(slugs, dateFrom, dateTo),
-    getSubmissionsCountbyWorkspaceId(workspaceId, dateFrom, dateTo),
-  ]);
+  const totalViews = await getTotalViewsBySlugs(slugs, dateFrom, dateTo);
+  const totalStarts = await getTotalFormStartsBySlugs(slugs, dateFrom, dateTo);
+  const totalSubmissions = await getSubmissionsCountbyWorkspaceId(
+    workspaceId,
+    dateFrom,
+    dateTo
+  );
 
   // Calculate percentages (all relative to views as 100%)
   const viewsPercentage = 100;
