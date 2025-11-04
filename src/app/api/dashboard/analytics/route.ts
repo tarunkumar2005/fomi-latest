@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { RangeOption } from "@/types/dashboard";
-import { getDashboardData, getTrendsChartData, getGeographicData, getDeviceTypeData, getBrowserData, getTrafficSourceData } from "@/lib/ph-server";
+import { getDashboardData, getTrendsChartData, getGeographicData, getDeviceTypeData, getBrowserData, getTrafficSourceData, getConversionFunnel, getTopForms } from "@/lib/ph-server";
 
 export async function GET(request: Request) {
   try {
@@ -45,6 +45,16 @@ export async function GET(request: Request) {
       range as RangeOption
     );
 
+    const conversionFunnel = await getConversionFunnel(
+      workspaceId,
+      range as RangeOption
+    );
+
+    const topForms = await getTopForms(
+      workspaceId,
+      range as RangeOption
+    );
+
     return NextResponse.json({
       overviewData,
       trendsChartData,
@@ -53,6 +63,10 @@ export async function GET(request: Request) {
         deviceTypeData,
         browserData,
         trafficSourceData,
+      },
+      funnelData: {
+        conversionFunnel,
+        topForms,
       },
     });
   } catch (error) {

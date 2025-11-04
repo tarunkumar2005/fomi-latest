@@ -189,3 +189,45 @@ export const getWorkspaceFormSubmissionsByDate = async (
     .map(([date, total]) => ({ date, total }))
     .sort((a, b) => (a.date > b.date ? 1 : -1));
 };
+
+export const getSubmissionsGroupedByForm = async (
+  workspaceId: string,
+  dateFrom: string,
+  dateTo: string
+): Promise<Record<string, number>> => {
+  const results = await prisma.response.groupBy({
+    by: ["formId"],
+    where: {
+      form: {
+        workspaceId,
+      },
+      submittedAt: {
+        gte: new Date(dateFrom),
+        lte: new Date(dateTo),
+      },
+      isComplete: true,
+      isSpam: false,
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  // Fetch slugs for mapping
+  const formIds = results.map(r => r.formId);
+  const forms = await prisma.form.findMany({
+    where: { id: { in: formIds } },
+    select: { id: true, slug: true },
+  });
+
+  const slugMap = Object.fromEntries(forms.map(f => [f.id, f.slug]));
+
+  // Final slug → count map
+  const submissionsMap: Record<string, number> = {};
+  results.forEach(r => {
+    const slug = slugMap[r.formId];
+    if (slug) submissionsMap[slug] = r._count._all;
+  });
+
+  return submissionsMap;
+};
