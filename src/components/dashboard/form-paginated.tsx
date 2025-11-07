@@ -141,12 +141,15 @@ export default function FormPaginated({
     : 0;
 
   const handleAction = (action: string, form: FormData) => {
+    // Use slug if available, otherwise fallback to id
+    const formIdentifier = form.slug || form.id;
+
     switch (action) {
       case "edit":
-        router.push(`/forms/${form.slug}/edit`);
+        router.push(`/forms/${formIdentifier}/edit`);
         break;
       case "analytics":
-        router.push(`/forms/${form.slug}/analytics`);
+        router.push(`/forms/${formIdentifier}/analytics`);
         break;
       case "share":
         setSelectedForm(form);
