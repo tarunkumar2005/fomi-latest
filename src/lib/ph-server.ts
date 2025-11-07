@@ -297,7 +297,9 @@ const fillGapsWithZeros = (
   intervalStr: string
 ) => {
   if (data.length === 0) {
-    console.warn("⚠️ No data to fill gaps for");
+    if (process.env.NODE_ENV === 'development') {
+      console.warn("⚠️ No data to fill gaps for");
+    }
   }
 
   const intervalMs =
@@ -1363,6 +1365,7 @@ export const enrichFormsWithAnalytics = async (
     return {
       id: form.id,
       name: form.name,
+      slug: form.slug,
       status: form.status,
       createdAt: form.createdAt,
       views,

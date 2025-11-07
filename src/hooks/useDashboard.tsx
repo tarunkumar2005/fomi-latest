@@ -77,7 +77,8 @@ export const useDashboardData = (
     enabled: !!workspaceId, // Only fetch when workspaceId exists
     staleTime: 1000 * 60 * 2, // 2 minutes
     placeholderData: (previousData) => previousData, // Keep previous data while fetching
-    refetchInterval: 1000 * 30, // Auto-refetch every 30 seconds for live updates
+    refetchInterval: 1000 * 60 * 5, // 5 minutes instead of 30 seconds
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     retry: 2,
     // Select only the data we need - this is memoized and prevents unnecessary re-renders

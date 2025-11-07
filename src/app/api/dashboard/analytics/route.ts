@@ -12,7 +12,7 @@ import {
 import { RangeOption } from "@/types/dashboard";
 
 // Enable caching for this route (Next.js 13+)
-export const revalidate = 10; // Revalidate every 10 seconds
+export const revalidate = 120; // Revalidate every 2 minutes
 
 export async function GET(request: NextRequest) {
   try {

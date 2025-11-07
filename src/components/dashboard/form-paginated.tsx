@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,10 +30,13 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ShareFormDialog from "@/components/forms/share-form-dialog";
+import DeleteFormDialog from "@/components/forms/delete-form-dialog";
 
 interface FormData {
   id: string;
   name: string;
+  slug: string;
   status: string;
   createdAt: string;
   views: number;
@@ -110,8 +114,12 @@ export default function FormPaginated({
   currentPage,
   onPageChange,
 }: FormPaginatedProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedForm, setSelectedForm] = useState<FormData | null>(null);
 
   // Client-side filtering of the current page's data
   const filteredForms =
@@ -132,8 +140,38 @@ export default function FormPaginated({
     ? Math.min(formsData.page * pageSize, totalCount)
     : 0;
 
-  const handleAction = (action: string, formName: string) => {
-    console.log(`${action} - ${formName}`);
+  const handleAction = (action: string, form: FormData) => {
+    switch (action) {
+      case "edit":
+        router.push(`/forms/${form.slug}/edit`);
+        break;
+      case "analytics":
+        router.push(`/forms/${form.slug}/analytics`);
+        break;
+      case "share":
+        setSelectedForm(form);
+        setShareDialogOpen(true);
+        break;
+      case "delete":
+        setSelectedForm(form);
+        setDeleteDialogOpen(true);
+        break;
+      default:
+        console.log(`Unknown action: ${action}`);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedForm) return;
+
+    // TODO: Implement actual API call to delete form
+    console.log(`Deleting form: ${selectedForm.id}`);
+
+    // Close dialog and reset selected form
+    setDeleteDialogOpen(false);
+    setSelectedForm(null);
+
+    // Optionally refresh the forms list here
   };
 
   // Format date helper
@@ -318,7 +356,7 @@ export default function FormPaginated({
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem
-                              onClick={() => handleAction("Edit", form.name)}
+                              onClick={() => handleAction("edit", form)}
                               className="cursor-pointer"
                             >
                               <Edit className="h-4 w-4 mr-2" />
@@ -327,9 +365,7 @@ export default function FormPaginated({
                               </span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleAction("Analytics", form.name)
-                              }
+                              onClick={() => handleAction("analytics", form)}
                               className="cursor-pointer"
                             >
                               <BarChart3 className="h-4 w-4 mr-2" />
@@ -338,7 +374,7 @@ export default function FormPaginated({
                               </span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handleAction("Share", form.name)}
+                              onClick={() => handleAction("share", form)}
                               className="cursor-pointer"
                             >
                               <Share2 className="h-4 w-4 mr-2" />
@@ -348,7 +384,7 @@ export default function FormPaginated({
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => handleAction("Delete", form.name)}
+                              onClick={() => handleAction("delete", form)}
                               className="cursor-pointer text-destructive focus:text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
@@ -452,6 +488,27 @@ export default function FormPaginated({
           </CardContent>
         </Card>
       </div>
+
+      {/* Share Form Dialog */}
+      {selectedForm && (
+        <ShareFormDialog
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          formSlug={selectedForm.slug || selectedForm.id}
+          formName={selectedForm.name}
+        />
+      )}
+
+      {/* Delete Form Dialog */}
+      {selectedForm && (
+        <DeleteFormDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          formId={selectedForm.id}
+          formName={selectedForm.name}
+          onDelete={handleDeleteConfirm}
+        />
+      )}
     </div>
   );
 }

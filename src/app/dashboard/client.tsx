@@ -8,6 +8,7 @@ import Audience from "@/components/dashboard/audiance";
 import FunnelAnalysis from "@/components/dashboard/funnel-analysis";
 import FormPaginated from "@/components/dashboard/form-paginated";
 import AIInsights from "@/components/dashboard/ai-insights";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   useWorkspaces,
   useDashboardData,
@@ -70,6 +71,19 @@ export default function DashboardPageClient() {
       </div>
     );
   }
+
+  // Show error toast or banner
+  {dashboardError && (
+    <div className="px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto">
+        <Alert variant="destructive">
+          <AlertDescription>
+            Failed to load dashboard data. Please refresh the page.
+          </AlertDescription>
+        </Alert>
+      </div>
+    </div>
+  )}
 
   // Don't render until we have an active workspace
   if (!activeWorkspace) {
