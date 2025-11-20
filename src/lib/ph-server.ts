@@ -1364,6 +1364,7 @@ export const enrichFormsWithAnalytics = async (
 
     return {
       id: form.id,
+      slug: form.slug,
       name: form.name,
       status: form.status,
       createdAt: form.createdAt,

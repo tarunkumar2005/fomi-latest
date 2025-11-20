@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -132,6 +132,10 @@ export default function FormPaginated({
       return matchesSearch && matchesStatus;
     }) || [];
 
+  useEffect(() => {
+    console.log("Forms Data:", filteredForms);
+  }, [filteredForms]);
+
   const totalPages = formsData?.totalPages || 0;
   const totalCount = formsData?.totalCount || 0;
   const pageSize = formsData?.pageSize || 10;
@@ -141,15 +145,12 @@ export default function FormPaginated({
     : 0;
 
   const handleAction = (action: string, form: FormData) => {
-    // Use slug if available, otherwise fallback to id
-    const formIdentifier = form.slug || form.id;
-
     switch (action) {
       case "edit":
-        router.push(`/forms/${formIdentifier}/edit`);
+        router.push(`/forms/${form.slug}/edit`);
         break;
       case "analytics":
-        router.push(`/forms/${formIdentifier}/analytics`);
+        router.push(`/forms/${form.slug}/analytics`);
         break;
       case "share":
         setSelectedForm(form);

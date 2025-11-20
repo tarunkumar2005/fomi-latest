@@ -89,6 +89,14 @@ export const createNewForm = async (
   return newForm;
 };
 
+export const getFormBySlug = async (slug: string) => {
+  return prisma.form.findUnique({
+    where: {
+      slug,
+    },
+  });
+}
+
 export const getAllWorkspaces = async (userId: string) => {
   return prisma.workspace.findMany({
     where: {

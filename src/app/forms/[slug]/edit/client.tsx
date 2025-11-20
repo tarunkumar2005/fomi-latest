@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useEditForm } from "@/hooks/useEditForm";
 import FormEditHeader from "@/components/forms/edit/header";
 import FormCanvas from "@/components/forms/edit/form-canvas";
 import ShareFormDialog from "@/components/forms/share-form-dialog";
@@ -11,8 +12,25 @@ export default function FormEditClient() {
   const router = useRouter();
   const slug = params.slug as string;
 
+  const { getFormHeaderData } = useEditForm();
+
+  const [formHeaderData, setFormHeaderData] = useState<any>(null);
+
+  useEffect(() => {
+    // Fetch form header data on mount
+    const fetchData = async () => {
+      try {
+        const data = await getFormHeaderData(slug);
+        setFormHeaderData(data);
+      } catch (error) {
+        console.error("Error fetching form header data:", error);
+      }
+    };
+
+    fetchData();
+  }, [slug, getFormHeaderData]);
+
   // Form state
-  const [formName, setFormName] = useState("Customer Feedback Survey");
   const [isSaved, setIsSaved] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
@@ -58,9 +76,9 @@ export default function FormEditClient() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen flex flex-col overflow-hidden bg-background">
       <FormEditHeader
-        formName={formName}
+        formName={formHeaderData?.form?.title || "Untitled Form"}
         formSlug={slug}
         isSaved={isSaved}
         isPublished={isPublished}
@@ -72,8 +90,11 @@ export default function FormEditClient() {
       />
 
       {/* Main Layout - Below Header */}
-      <div className="pt-[73px]">
-        <FormCanvas formSlug={slug} />
+      <div className="flex-1 overflow-hidden">
+        <FormCanvas 
+          formSlug={slug} 
+          formHeaderData={formHeaderData}
+        />
       </div>
 
       {/* Share Form Dialog */}
@@ -81,7 +102,7 @@ export default function FormEditClient() {
         open={shareDialogOpen}
         onOpenChange={setShareDialogOpen}
         formSlug={slug}
-        formName={formName}
+        formName={formHeaderData?.form?.title || "Untitled Form"}
       />
     </div>
   );

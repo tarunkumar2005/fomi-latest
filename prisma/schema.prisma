@@ -40,13 +40,16 @@ enum FieldType {
   SHORT_ANSWER
   EMAIL
   PHONE
+  URL
   PARAGRAPH
   MULTIPLE_CHOICE
   CHECKBOXES
   DROPDOWN
   NUMBER
   RATING
+  LINEAR_SCALE
   DATE
+  DATE_RANGE
   TIME
   FILE_UPLOAD
 }
@@ -137,6 +140,7 @@ model Form {
   title        String
   description  String?
   slug         String       @unique
+  headerImageUrl String?
   status       FormStatus   @default(DRAFT)
   version      Int          @default(1)
   createdAt    DateTime     @default(now())
@@ -211,6 +215,10 @@ model Field {
   // Rating settings
   maxRating     Int?        @default(5)
   ratingStyle   String?     // stars, numbers, emoji
+
+  // Linear Scale settings
+  minLabel      String?     // Label for minimum value
+  maxLabel      String?     // Label for maximum value
 
   // Conditional logic
   conditional   Json?       // e.g., show if another field equals value
