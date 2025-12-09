@@ -5,12 +5,12 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/app/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -65,36 +65,37 @@ enum NotificationType {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  memberships   WorkspaceMember[]
-  chatHistories ChatHistory[]
-  responses     Response[]
+  id                  String                @id
+  name                String
+  email               String
+  emailVerified       Boolean               @default(false)
+  image               String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  sessions            Session[]
+  accounts            Account[]
+  memberships         WorkspaceMember[]
+  chatHistories       ChatHistory[]
+  responses           Response[]
   sentInvitations     WorkspaceInvitation[] @relation("SentInvitations")
   acceptedInvitations WorkspaceInvitation[] @relation("AcceptedInvitations")
-  agentCredit   AgentCredit?
-  notifications Notification[]
-  forms         Form[]
+  agentCredit         AgentCredit?
+  notifications       Notification[]
+  forms               Form[]
+  sectionTemplates    SectionTemplate[]     @relation("CreatedTemplates")
 
   @@unique([email])
   @@map("user")
 }
 
 model Workspace {
-  id          String             @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String             @unique
+  slug        String   @unique
   description String?
-  plan        Plan               @default(FREE)
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  plan        Plan     @default(FREE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   forms       Form[]
@@ -105,100 +106,108 @@ model Workspace {
 }
 
 model WorkspaceMember {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   workspaceId String
   userId      String
-  role        Role        @default(MEMBER)
-  joinedAt    DateTime    @default(now())
+  role        Role     @default(MEMBER)
+  joinedAt    DateTime @default(now())
 
-  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, userId])
 }
 
 model WorkspaceInvitation {
-  id           String   @id @default(cuid())
+  id           String           @id @default(cuid())
   workspaceId  String
   invitedById  String
-  acceptedById String?  
+  acceptedById String?
   email        String
   status       InvitationStatus @default(PENDING)
-  token        String   @unique
-  createdAt    DateTime @default(now())
+  token        String           @unique
+  createdAt    DateTime         @default(now())
   acceptedAt   DateTime?
 
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  invitedBy    User      @relation("SentInvitations", fields: [invitedById], references: [id], onDelete: Cascade)
-  acceptedBy   User?     @relation("AcceptedInvitations", fields: [acceptedById], references: [id], onDelete: SetNull)
+  workspace  Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy  User      @relation("SentInvitations", fields: [invitedById], references: [id], onDelete: Cascade)
+  acceptedBy User?     @relation("AcceptedInvitations", fields: [acceptedById], references: [id], onDelete: SetNull)
 }
 
 model Form {
-  id           String       @id @default(cuid())
-  userId       String
-  workspaceId  String
-  title        String
-  description  String?
-  slug         String       @unique
+  id             String     @id @default(cuid())
+  userId         String
+  workspaceId    String
+  title          String
+  description    String?
+  slug           String     @unique
   headerImageUrl String?
-  status       FormStatus   @default(DRAFT)
-  version      Int          @default(1)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @default(now()) @updatedAt
-  publishedAt  DateTime?
-  archivedAt   DateTime?
+  status         FormStatus @default(DRAFT)
+  version        Int        @default(1)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @default(now()) @updatedAt
+  publishedAt    DateTime?
+  archivedAt     DateTime?
 
-  workspace    Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  owner  User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sections     Section[]
-  responses    Response[]
+  // Form Settings
+  closeDate           DateTime? // When the form stops accepting responses
+  responseLimit       Int?      // Maximum number of responses allowed
+  oneResponsePerUser  Boolean   @default(false) // Limit to 1 response per user
+  thankYouMessage     String?   // Custom confirmation message after submission
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections      Section[]
+  responses     Response[]
   chatHistories ChatHistory[]
 }
 
 model Section {
-  id              String   @id @default(cuid())
-  formId          String
-  title           String
-  order           Int      @default(0)
-  description     String?
-  nextSectionLogic Json?   // Conditional branching rules to decide next section
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now()) @updatedAt
+  id               String   @id @default(cuid())
+  formId           String
+  title            String
+  order            Int      @default(0)
+  description      String?
+  nextSectionLogic Json? // Conditional branching rules to decide next section
+  isRepeatable     Boolean  @default(false)
+  repeatCount      Int?     @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
 
-  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
-  fields    Field[]
+  form   Form    @relation(fields: [formId], references: [id], onDelete: Cascade)
+  fields Field[]
 
   @@index([formId])
   @@index([formId, order])
 }
 
 model Field {
-  id            String      @id @default(cuid())
-  sectionId     String
-  question      String
-  type          FieldType
-  required      Boolean     @default(false)
-  order         Int         @default(0)
+  id        String    @id @default(cuid())
+  sectionId String
+  question  String
+  type      FieldType
+  required  Boolean   @default(false)
+  order     Int       @default(0)
 
   // Field configuration
-  placeholder   String?
-  description   String?
-  options       Json?       // Array of { label, value, default, image? } for choice fields
-  metadata      Json?       // Future-proof storage for extra configs
-  isHidden      Boolean?    @default(false)
+  placeholder String?
+  description String?
+  options     Json? // Array of { label, value, default, image? } for choice fields
+  metadata    Json? // Future-proof storage for extra configs
+  isHidden    Boolean? @default(false)
 
   // Validation rules
-  minLength     Int?        // For text
-  maxLength     Int?        // For text
-  pattern       String?     // Regex for text
-  min           Float?      // For number
-  max           Float?      // For number
-  step          Float?      // For number/slider
-  customValidation Json?    // For advanced/custom validation rules
+  minLength        Int? // For text
+  maxLength        Int? // For text
+  pattern          String? // Regex for text
+  min              Float? // For number
+  max              Float? // For number
+  step             Float? // For number/slider
+  customValidation Json? // For advanced/custom validation rules
 
   // UI hints
-  rows          Int?        // For textarea
-  gridColumns   Int?        // For layout
+  rows        Int? // For textarea
+  gridColumns Int? // For layout
 
   // File upload settings
   acceptedTypes String?
@@ -207,28 +216,28 @@ model Field {
   requiredFiles Int?
 
   // Date/Time constraints
-  minDate       DateTime?
-  maxDate       DateTime?
-  minTime       DateTime?
-  maxTime       DateTime?
+  minDate DateTime?
+  maxDate DateTime?
+  minTime DateTime?
+  maxTime DateTime?
 
   // Rating settings
-  maxRating     Int?        @default(5)
-  ratingStyle   String?     // stars, numbers, emoji
+  maxRating   Int?    @default(5)
+  ratingStyle String? // stars, numbers, emoji
 
   // Linear Scale settings
-  minLabel      String?     // Label for minimum value
-  maxLabel      String?     // Label for maximum value
+  minLabel String? // Label for minimum value
+  maxLabel String? // Label for maximum value
 
   // Conditional logic
-  conditional   Json?       // e.g., show if another field equals value
+  conditional Json? // e.g., show if another field equals value
 
   // Timestamps
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  section    Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  section        Section         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   fieldResponses FieldResponse[]
 
   @@index([sectionId])
@@ -239,7 +248,7 @@ model Field {
 model Response {
   id          String   @id @default(cuid())
   formId      String
-  userId      String?  
+  userId      String?
   formVersion Int      @default(1)
   isComplete  Boolean  @default(true)
   isSpam      Boolean  @default(false)
@@ -250,10 +259,10 @@ model Response {
   submittedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  form        Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  form           Form            @relation(fields: [formId], references: [id], onDelete: Cascade)
+  user           User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   fieldResponses FieldResponse[]
-  
+
   @@index([formId])
   @@index([submittedAt])
   @@index([formId, submittedAt])
@@ -262,13 +271,13 @@ model Response {
 }
 
 model FieldResponse {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   responseId String
   fieldId    String
   value      Json
 
-  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  field      Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  response Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  field    Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   @@index([responseId])
   @@index([fieldId])
@@ -290,13 +299,13 @@ model ChatHistory {
 }
 
 model AgentCredit {
-  id           String    @id @default(cuid())
-  userId       String    @unique
-  dailyLimit   Int       @default(10)
-  usedCount    Int       @default(0)
-  firstUsedAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  dailyLimit  Int       @default(10)
+  usedCount   Int       @default(0)
+  firstUsedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -315,7 +324,7 @@ model Notification {
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
 
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read, createdAt])
   @@index([userId, createdAt])
@@ -354,6 +363,51 @@ model Account {
   updatedAt             DateTime  @updatedAt
 
   @@map("account")
+}
+
+model SectionTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String   // 'personal' | 'business' | 'payment' | 'education' | 'other'
+  icon        String?  // Icon name from lucide-react
+  isBuiltIn   Boolean  @default(false)
+  isPublic    Boolean  @default(false) // For future public sharing
+  createdById String?  // For future user-created templates
+  
+  createdBy User?           @relation("CreatedTemplates", fields: [createdById], references: [id], onDelete: SetNull)
+  fields    TemplateField[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([category])
+  @@index([isBuiltIn])
+  @@index([isPublic])
+  @@index([createdById])
+  @@map("section_templates")
+}
+
+model TemplateField {
+  id          String   @id @default(cuid())
+  templateId  String
+  type        String   // Field type: 'short-answer', 'email', 'phone', etc.
+  question    String
+  description String?
+  required    Boolean  @default(false)
+  order       Int
+  
+  // Field-specific configuration stored as JSON
+  options    Json? // For multiple-choice, dropdown, checkboxes
+  validation Json? // For validation rules, min/max, patterns, etc.
+  metadata   Json? // For any additional field-specific settings
+  
+  template  SectionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  
+  @@index([templateId])
+  @@index([templateId, order])
+  @@map("template_fields")
 }
 
 model Verification {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -132,10 +132,6 @@ export default function FormPaginated({
       return matchesSearch && matchesStatus;
     }) || [];
 
-  useEffect(() => {
-    console.log("Forms Data:", filteredForms);
-  }, [filteredForms]);
-
   const totalPages = formsData?.totalPages || 0;
   const totalCount = formsData?.totalCount || 0;
   const pageSize = formsData?.pageSize || 10;
@@ -161,7 +157,7 @@ export default function FormPaginated({
         setDeleteDialogOpen(true);
         break;
       default:
-        console.log(`Unknown action: ${action}`);
+        break;
     }
   };
 
@@ -169,7 +165,6 @@ export default function FormPaginated({
     if (!selectedForm) return;
 
     // TODO: Implement actual API call to delete form
-    console.log(`Deleting form: ${selectedForm.id}`);
 
     // Close dialog and reset selected form
     setDeleteDialogOpen(false);
@@ -291,8 +286,8 @@ export default function FormPaginated({
                           className={cn(
                             "inline-flex items-center w-fit px-2 py-0.5 rounded text-xs font-medium font-body",
                             form.status === "published"
-                              ? "bg-green-50 text-green-700"
-                              : "bg-gray-100 text-gray-600"
+                              ? "bg-success/10 text-success"
+                              : "bg-muted text-muted-foreground"
                           )}
                         >
                           {form.status === "published"
@@ -335,10 +330,10 @@ export default function FormPaginated({
                               className={cn(
                                 "h-1.5 rounded-full transition-all duration-500",
                                 rate >= 70
-                                  ? "bg-green-500"
+                                  ? "bg-success"
                                   : rate >= 50
-                                  ? "bg-blue-500"
-                                  : "bg-orange-500"
+                                  ? "bg-chart-1"
+                                  : "bg-warning"
                               )}
                               style={{ width: `${Math.min(rate, 100)}%` }}
                             />

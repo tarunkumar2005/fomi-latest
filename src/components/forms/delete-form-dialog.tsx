@@ -42,7 +42,6 @@ export default function DeleteFormDialog({
       } else {
         // TODO: Implement API call to delete form
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-        console.log(`Deleting form: ${formId}`);
       }
       onOpenChange(false);
       setConfirmText("");
@@ -65,8 +64,8 @@ export default function DeleteFormDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-red-100 p-2">
-              <AlertCircle className="h-5 w-5 text-red-600" />
+            <div className="rounded-full bg-destructive/10 p-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
             </div>
             <div>
               <DialogTitle className="font-heading text-xl">

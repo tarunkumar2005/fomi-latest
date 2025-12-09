@@ -38,3 +38,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Future Features i want to add in this project
 1. Branding Customization like adding brand logo and colors and through AI we'll create a custom theme for the form based on brand colors.
+
+2. Adding APIs for section templates so admin or other people can add templates for a better library of templates.
+
+3. When user selects a template, the user can preview the template in their own brand colors and logo. (Theme will automatically changed by AI based on brand colors and logo).
+

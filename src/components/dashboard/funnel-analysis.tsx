@@ -53,26 +53,27 @@ const getPodiumHeight = (rank: number): string => {
 const getPodiumColors = (rank: number) => {
   const colors = {
     1: {
-      border: "border-yellow-300",
-      bg: "bg-gradient-to-br from-yellow-50 to-amber-50",
-      badge: "bg-yellow-100 text-yellow-700",
-      podium: "bg-gradient-to-t from-yellow-400 to-yellow-300",
+      border: "border-warning",
+      bg: "bg-gradient-to-br from-warning/10 to-warning/5",
+      badge: "bg-warning/20 text-warning",
+      podium: "bg-gradient-to-t from-warning to-warning/80",
       badgeSize: "text-2xl",
       rateSize: "text-2xl",
     },
     2: {
-      border: "border-gray-300",
-      bg: "bg-gradient-to-br from-gray-50 to-slate-50",
-      badge: "bg-gray-100 text-gray-700",
-      podium: "bg-gradient-to-t from-gray-400 to-gray-300",
+      border: "border-muted-foreground/30",
+      bg: "bg-gradient-to-br from-muted to-muted/50",
+      badge: "bg-muted text-muted-foreground",
+      podium:
+        "bg-gradient-to-t from-muted-foreground/60 to-muted-foreground/40",
       badgeSize: "text-xl",
       rateSize: "text-xl",
     },
     3: {
-      border: "border-orange-300",
-      bg: "bg-gradient-to-br from-orange-50 to-amber-50",
-      badge: "bg-orange-100 text-orange-700",
-      podium: "bg-gradient-to-t from-orange-400 to-orange-300",
+      border: "border-chart-5/30",
+      bg: "bg-gradient-to-br from-chart-5/10 to-chart-5/5",
+      badge: "bg-chart-5/20 text-chart-5",
+      podium: "bg-gradient-to-t from-chart-5 to-chart-5/80",
       badgeSize: "text-xl",
       rateSize: "text-xl",
     },
@@ -190,7 +191,7 @@ export default function FunnelAnalysis({
                             {stage.stage}
                           </span>
                           {stage.dropoff > 0 && (
-                            <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded flex items-center gap-1">
+                            <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded flex items-center gap-1">
                               <TrendingDown className="h-3 w-3" />-
                               {stage.dropoff}%
                             </span>

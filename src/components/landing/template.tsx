@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,7 +17,7 @@ import {
   Megaphone,
   GraduationCap,
   FileText,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 
 const categories = ["All", "Business", "HR", "Education", "Events", "Feedback"];
@@ -18,87 +25,97 @@ const categories = ["All", "Business", "HR", "Education", "Events", "Feedback"];
 const templates = [
   {
     icon: User,
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
+    iconBg: "bg-chart-1/20",
+    iconColor: "text-chart-1",
     category: "HR",
-    categoryBg: "bg-blue-100",
-    categoryColor: "text-blue-600",
+    categoryBg: "bg-chart-1/20",
+    categoryColor: "text-chart-1",
     title: "Job Application Form",
-    description: "Comprehensive application form with resume upload, experience questions, and availability.",
+    description:
+      "Comprehensive application form with resume upload, experience questions, and availability.",
     fields: "12 fields",
-    pages: "3 pages"
+    pages: "3 pages",
   },
   {
     icon: MessageSquare,
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
+    iconBg: "bg-success/20",
+    iconColor: "text-success",
     category: "Feedback",
-    categoryBg: "bg-green-100",
-    categoryColor: "text-green-600",
+    categoryBg: "bg-success/20",
+    categoryColor: "text-success",
     title: "Customer Feedback Survey",
-    description: "Gather valuable customer insights with rating scales and open-ended questions.",
+    description:
+      "Gather valuable customer insights with rating scales and open-ended questions.",
     fields: "8 fields",
-    pages: "1 page"
+    pages: "1 page",
   },
   {
     icon: Calendar,
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
+    iconBg: "bg-chart-2/20",
+    iconColor: "text-chart-2",
     category: "Events",
-    categoryBg: "bg-purple-100",
-    categoryColor: "text-purple-600",
+    categoryBg: "bg-chart-2/20",
+    categoryColor: "text-chart-2",
     title: "Event Registration",
-    description: "Complete event signup with attendee details, preferences, and payment options.",
+    description:
+      "Complete event signup with attendee details, preferences, and payment options.",
     fields: "15 fields",
-    pages: "2 pages"
+    pages: "2 pages",
   },
   {
     icon: Megaphone,
-    iconBg: "bg-orange-100",
-    iconColor: "text-orange-600",
+    iconBg: "bg-chart-5/20",
+    iconColor: "text-chart-5",
     category: "Business",
-    categoryBg: "bg-orange-100",
-    categoryColor: "text-orange-600",
+    categoryBg: "bg-chart-5/20",
+    categoryColor: "text-chart-5",
     title: "Lead Generation Form",
-    description: "Capture qualified leads with company info, needs assessment, and contact details.",
+    description:
+      "Capture qualified leads with company info, needs assessment, and contact details.",
     fields: "10 fields",
-    pages: "1 page"
+    pages: "1 page",
   },
   {
     icon: GraduationCap,
-    iconBg: "bg-pink-100",
-    iconColor: "text-pink-600",
+    iconBg: "bg-chart-4/20",
+    iconColor: "text-chart-4",
     category: "Education",
-    categoryBg: "bg-pink-100",
-    categoryColor: "text-pink-600",
+    categoryBg: "bg-chart-4/20",
+    categoryColor: "text-chart-4",
     title: "Course Registration",
-    description: "Student enrollment form with course selection, academic background, and payment.",
+    description:
+      "Student enrollment form with course selection, academic background, and payment.",
     fields: "14 fields",
-    pages: "2 pages"
+    pages: "2 pages",
   },
   {
     icon: FileText,
-    iconBg: "bg-cyan-100",
-    iconColor: "text-cyan-600",
+    iconBg: "bg-chart-3/20",
+    iconColor: "text-chart-3",
     category: "Business",
-    categoryBg: "bg-cyan-100",
-    categoryColor: "text-cyan-600",
+    categoryBg: "bg-chart-3/20",
+    categoryColor: "text-chart-3",
     title: "Project Brief Form",
-    description: "Detailed project intake form for agencies and freelancers with scope and timeline.",
+    description:
+      "Detailed project intake form for agencies and freelancers with scope and timeline.",
     fields: "18 fields",
-    pages: "3 pages"
-  }
+    pages: "3 pages",
+  },
 ];
 
 export default function Templates() {
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const filteredTemplates = activeCategory === "All"
-    ? templates
-    : templates.filter(t => t.category === activeCategory);
+  const filteredTemplates =
+    activeCategory === "All"
+      ? templates
+      : templates.filter((t) => t.category === activeCategory);
 
   return (
-    <section className="relative w-full py-20 md:py-32 bg-background overflow-hidden" id="templatesw">
+    <section
+      className="relative w-full py-20 md:py-32 bg-background overflow-hidden"
+      id="templates"
+    >
       {/* Subtle background */}
       <div className="absolute inset-0 bg-linear-to-b from-background via-muted/20 to-background" />
 
@@ -109,7 +126,8 @@ export default function Templates() {
             Start with a template
           </h2>
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            Choose from our library of professionally designed templates, then customize them to match your exact needs.
+            Choose from our library of professionally designed templates, then
+            customize them to match your exact needs.
           </p>
         </div>
 
@@ -121,10 +139,11 @@ export default function Templates() {
               variant={activeCategory === category ? "default" : "outline"}
               size="sm"
               onClick={() => setActiveCategory(category)}
-              className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${activeCategory === category
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground border-border/50"
-                }`}
+              className={`font-medium px-4 py-2 rounded-lg transition-all duration-200 ${
+                activeCategory === category
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground border-border/50"
+              }`}
             >
               {category}
             </Button>

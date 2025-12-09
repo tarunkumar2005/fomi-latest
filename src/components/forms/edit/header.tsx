@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,22 +27,32 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "@/hooks/useSession";
 import { cn } from "@/lib/utils";
+import FormSettingsPopover from "./form-settings-popover";
+
+interface FormSettings {
+  closeDate?: Date | null;
+  responseLimit?: number | null;
+  oneResponsePerUser?: boolean;
+  thankYouMessage?: string | null;
+}
 
 interface FormEditHeaderProps {
   formName: string;
-  formSlug: string;
   isSaved: boolean;
   isPublished: boolean;
-  onSave?: () => void;
+  onSave?: (data: any) => void;
   onPublish?: () => void;
   onPreview?: () => void;
   onShare?: () => void;
   isSaving?: boolean;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
+  formSettings?: FormSettings;
+  onSaveSettings?: (settings: FormSettings) => Promise<void>;
 }
 
 export default function FormEditHeader({
   formName,
-  formSlug,
   isSaved,
   isPublished,
   onSave,
@@ -51,27 +60,16 @@ export default function FormEditHeader({
   onPreview,
   onShare,
   isSaving = false,
+  onDuplicate,
+  onDelete,
+  formSettings,
+  onSaveSettings,
 }: FormEditHeaderProps) {
   const router = useRouter();
   const { data: session } = useSession();
 
   const handleBack = () => {
     router.push("/dashboard");
-  };
-
-  const handleDuplicate = () => {
-    // TODO: Implement duplicate form
-    console.log("Duplicate form");
-  };
-
-  const handleDelete = () => {
-    // TODO: Implement delete form with confirmation
-    console.log("Delete form");
-  };
-
-  const handleSettings = () => {
-    // TODO: Navigate to form settings
-    console.log("Form settings");
   };
 
   return (
@@ -101,9 +99,9 @@ export default function FormEditHeader({
 
               {/* Saved Indicator */}
               {isSaved && !isSaving && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10">
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
-                  <span className="font-body text-xs font-medium text-green-700 dark:text-green-400 hidden sm:inline">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-success/10">
+                  <div className="h-2 w-2 rounded-full bg-success" />
+                  <span className="font-body text-xs font-medium text-success hidden sm:inline">
                     Saved
                   </span>
                 </div>
@@ -111,9 +109,9 @@ export default function FormEditHeader({
 
               {/* Saving Indicator */}
               {isSaving && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-yellow-500/10">
-                  <div className="h-2 w-2 rounded-full bg-yellow-500 animate-pulse" />
-                  <span className="font-body text-xs font-medium text-yellow-700 dark:text-yellow-400 hidden sm:inline">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-warning/10">
+                  <div className="h-2 w-2 rounded-full bg-warning animate-pulse" />
+                  <span className="font-body text-xs font-medium text-warning hidden sm:inline">
                     Saving...
                   </span>
                 </div>
@@ -142,12 +140,29 @@ export default function FormEditHeader({
               className={cn(
                 "h-9 px-3 sm:px-4 font-body text-sm font-semibold",
                 isPublished
-                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  ? "bg-success hover:bg-success/90 text-success-foreground"
                   : "bg-primary hover:bg-primary/90 text-primary-foreground"
               )}
             >
               {isPublished ? "Published" : "Publish"}
             </Button>
+
+            {/* Form Settings Popover */}
+            {formSettings && onSaveSettings && (
+              <FormSettingsPopover
+                settings={formSettings}
+                onSave={onSaveSettings}
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 p-0 hover:bg-muted"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                }
+              />
+            )}
 
             {/* More Options Menu */}
             <DropdownMenu>
@@ -163,16 +178,7 @@ export default function FormEditHeader({
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
                   className="flex items-center gap-2 cursor-pointer"
-                  onClick={handleSettings}
-                >
-                  <Settings className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-body text-sm font-medium">
-                    Form Settings
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={handleDuplicate}
+                  onClick={onDuplicate}
                 >
                   <Copy className="h-4 w-4 text-muted-foreground" />
                   <span className="font-body text-sm font-medium">
@@ -182,7 +188,7 @@ export default function FormEditHeader({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
-                  onClick={handleDelete}
+                  onClick={onDelete}
                 >
                   <Trash2 className="h-4 w-4" />
                   <span className="font-body text-sm font-medium">

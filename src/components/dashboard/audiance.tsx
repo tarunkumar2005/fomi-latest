@@ -80,28 +80,28 @@ const countryCodeToId: Record<string, string> = {
 };
 
 const deviceColors: Record<string, string> = {
-  Mobile: "#3b82f6",
-  Desktop: "#8b5cf6",
-  Tablet: "#10b981",
+  Mobile: "var(--chart-1)",
+  Desktop: "var(--chart-2)",
+  Tablet: "var(--success)",
 };
 
 const browserConfig: Record<
   string,
   { color: string; bgColor: string; icon: any }
 > = {
-  Chrome: { color: "text-blue-600", bgColor: "bg-blue-50", icon: Chrome },
-  Safari: { color: "text-blue-500", bgColor: "bg-blue-50", icon: Globe2 },
-  Firefox: { color: "text-orange-600", bgColor: "bg-orange-50", icon: Globe2 },
-  Edge: { color: "text-blue-700", bgColor: "bg-blue-50", icon: Globe2 },
-  Other: { color: "text-gray-600", bgColor: "bg-gray-50", icon: Globe2 },
+  Chrome: { color: "text-chart-1", bgColor: "bg-chart-1/10", icon: Chrome },
+  Safari: { color: "text-chart-2", bgColor: "bg-chart-2/10", icon: Globe2 },
+  Firefox: { color: "text-warning", bgColor: "bg-warning/10", icon: Globe2 },
+  Edge: { color: "text-primary", bgColor: "bg-primary/10", icon: Globe2 },
+  Other: { color: "text-muted-foreground", bgColor: "bg-muted", icon: Globe2 },
 };
 
 const trafficSourceColors: Record<string, string> = {
-  Direct: "bg-blue-500",
-  "Organic Search": "bg-green-500",
-  Social: "bg-purple-500",
-  Referral: "bg-orange-500",
-  "Paid/Campaign": "bg-pink-500",
+  Direct: "bg-chart-1",
+  "Organic Search": "bg-success",
+  Social: "bg-chart-5",
+  Referral: "bg-warning",
+  "Paid/Campaign": "bg-chart-4",
 };
 
 // ===========================
@@ -214,14 +214,14 @@ const WorldMap = memo(({ countriesData }: { countriesData: any[] }) => {
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    fill={isActive ? "#3b82f6" : "hsl(var(--muted))"}
+                    fill={isActive ? "var(--chart-1)" : "var(--muted)"}
                     fillOpacity={isActive ? fillOpacity : 0.2}
-                    stroke="hsl(var(--border))"
+                    stroke="var(--border)"
                     strokeWidth={0.75}
                     style={{
                       default: { outline: "none" },
                       hover: {
-                        fill: isActive ? "#2563eb" : "hsl(var(--muted))",
+                        fill: isActive ? "var(--primary)" : "var(--muted)",
                         fillOpacity: isActive
                           ? Math.min(fillOpacity + 0.2, 1)
                           : 0.25,
@@ -276,11 +276,11 @@ const WorldMap = memo(({ countriesData }: { countriesData: any[] }) => {
         </p>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-4 bg-blue-500 opacity-50 rounded-sm" />
+            <div className="w-6 h-4 bg-chart-1 opacity-50 rounded-sm" />
             <span className="text-sm text-muted-foreground">Low</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-4 bg-blue-500 opacity-90 rounded-sm" />
+            <div className="w-6 h-4 bg-chart-1 opacity-90 rounded-sm" />
             <span className="text-sm text-muted-foreground">High</span>
           </div>
         </div>
@@ -376,7 +376,7 @@ export default function Audience({
     name: item.deviceType,
     value: item.percentage,
     count: item.count,
-    color: deviceColors[item.deviceType] || "#6b7280",
+    color: deviceColors[item.deviceType] || "var(--muted-foreground)",
   }));
 
   const totalViews = chartData.reduce((sum, item) => sum + item.views, 0);

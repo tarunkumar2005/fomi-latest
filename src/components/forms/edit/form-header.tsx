@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon, FileText, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 
 interface FormHeaderProps {
@@ -12,8 +13,12 @@ interface FormHeaderProps {
   formDescription?: string;
   estimatedTime?: string;
   questionCount?: number;
-  headerImageUrl?: string;
-  onSaveHeader?: (title: string, description: string) => void;
+  headerImageUrl?: string | null;
+  onSaveHeader?: (
+    title: string,
+    description: string,
+    headerImageUrl?: string
+  ) => void;
 }
 
 export default function FormHeader({
@@ -29,8 +34,18 @@ export default function FormHeader({
   const [editTitle, setEditTitle] = useState(formTitle);
   const [editDescription, setEditDescription] = useState(formDescription || "");
   const [isImageHovered, setIsImageHovered] = useState(false);
+
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  // Sync with prop changes
+  useEffect(() => {
+    setEditTitle(formTitle);
+  }, [formTitle]);
+
+  useEffect(() => {
+    setEditDescription(formDescription || "");
+  }, [formDescription]);
 
   // Auto-focus when editing starts
   useEffect(() => {
@@ -47,56 +62,99 @@ export default function FormHeader({
     }
   }, [isEditingDescription]);
 
-  const handleTitleChange = (value: string) => {
-    setEditTitle(value);
-    onSaveHeader?.(value, editDescription);
+  const handleTitleBlur = () => {
+    setIsEditingTitle(false);
+    if (editTitle !== formTitle) {
+      onSaveHeader?.(editTitle, editDescription, headerImageUrl || undefined);
+    }
   };
 
-  const handleDescriptionChange = (value: string) => {
-    setEditDescription(value);
-    onSaveHeader?.(editTitle, value);
+  const handleDescriptionBlur = () => {
+    setIsEditingDescription(false);
+    if (editDescription !== formDescription) {
+      onSaveHeader?.(editTitle, editDescription, headerImageUrl || undefined);
+    }
   };
 
-  const handleChangeImage = () => {
-    // TODO: Implement image upload
-    console.log("Change header image");
+  const handleImageUploadSuccess = (result: any) => {
+    if (typeof result.info === "object" && "secure_url" in result.info) {
+      onSaveHeader?.(editTitle, editDescription, result.info.secure_url);
+    }
   };
 
   return (
     <div className="w-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
       {/* Header Image */}
-      <div
-        className="relative h-64 bg-muted overflow-hidden group cursor-pointer"
-        onMouseEnter={() => setIsImageHovered(true)}
-        onMouseLeave={() => setIsImageHovered(false)}
-        onClick={handleChangeImage}
+      <CldUploadWidget
+        signatureEndpoint="/api/cloudinary/sign-cloudinary"
+        onSuccess={handleImageUploadSuccess}
+        options={{
+          sources: ["local", "url", "camera", "unsplash"],
+          multiple: false,
+          maxFiles: 1,
+          resourceType: "image",
+          clientAllowedFormats: ["png", "jpeg", "jpg", "webp"],
+          styles: {
+            palette: {
+              window: "#FFFFFF",
+              windowBorder: "#90A0B3",
+              tabIcon: "#0078FF",
+              menuIcons: "#5A616A",
+              textDark: "#000000",
+              textLight: "#FFFFFF",
+              link: "#0078FF",
+              action: "#FF620C",
+              inactiveTabIcon: "#0E2F5A",
+              error: "#F44235",
+              inProgress: "#0078FF",
+              complete: "#20B832",
+              sourceBg: "#E4EBF1",
+            },
+          },
+        }}
       >
-        {headerImageUrl && (
-          <Image
-            src={headerImageUrl}
-            alt="Form header"
-            className="w-full h-full object-cover"
-            layout="fill"
-          />
-        )}
+        {({ open }) => {
+          return (
+            <div
+              className="relative h-64 bg-muted overflow-hidden group cursor-pointer"
+              onMouseEnter={() => setIsImageHovered(true)}
+              onMouseLeave={() => setIsImageHovered(false)}
+              onClick={() => open?.()}
+            >
+              {headerImageUrl ? (
+                <Image
+                  src={headerImageUrl}
+                  alt="Form header"
+                  className="w-full h-full object-cover"
+                  layout="fill"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted" />
+              )}
 
-        {/* Hover Overlay */}
-        <div
-          className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-200 ${
-            isImageHovered ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <Button
-            variant="secondary"
-            size="sm"
-            className="bg-white hover:bg-white/90 text-foreground shadow-lg"
-            onClick={handleChangeImage}
-          >
-            <ImageIcon className="h-4 w-4 mr-2" />
-            Change Header Image
-          </Button>
-        </div>
-      </div>
+              {/* Hover Overlay */}
+              <div
+                className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-200 ${
+                  isImageHovered ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="bg-white hover:bg-white/90 text-foreground shadow-lg"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    open?.();
+                  }}
+                >
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  {headerImageUrl ? "Change Header Image" : "Add Header Image"}
+                </Button>
+              </div>
+            </div>
+          );
+        }}
+      </CldUploadWidget>
 
       {/* Form Header Content */}
       <div className="px-8 py-10">
@@ -106,18 +164,18 @@ export default function FormHeader({
             <Input
               ref={titleRef}
               value={editTitle}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              onBlur={() => setIsEditingTitle(false)}
+              onChange={(e) => setEditTitle(e.target.value)}
+              onBlur={handleTitleBlur}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setIsEditingTitle(false);
+                  handleTitleBlur();
                 }
                 if (e.key === "Escape") {
                   setEditTitle(formTitle);
                   setIsEditingTitle(false);
                 }
               }}
-              className="text-4xl font-bold h-auto py-2 border-2 border-primary"
+              className="text-4xl font-bold h-auto py-2 border-2 border-primary font-heading"
               placeholder="Enter form title"
             />
           ) : (
@@ -136,8 +194,8 @@ export default function FormHeader({
             <Textarea
               ref={descriptionRef}
               value={editDescription}
-              onChange={(e) => handleDescriptionChange(e.target.value)}
-              onBlur={() => setIsEditingDescription(false)}
+              onChange={(e) => setEditDescription(e.target.value)}
+              onBlur={handleDescriptionBlur}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   setEditDescription(formDescription || "");
@@ -145,7 +203,7 @@ export default function FormHeader({
                 }
               }}
               rows={3}
-              className="text-base resize-none border-2 border-primary"
+              className="text-base resize-none border-2 border-primary font-body"
               placeholder="Enter form description (optional)"
             />
           ) : (
@@ -163,19 +221,7 @@ export default function FormHeader({
           {/* Estimated Time */}
           <div className="flex items-center gap-2 text-sm">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <svg
-                className="h-4 w-4 text-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <Clock className="h-4 w-4 text-primary" />
             </div>
             <span className="font-body font-medium text-foreground">
               {estimatedTime}
@@ -185,19 +231,7 @@ export default function FormHeader({
           {/* Question Count */}
           <div className="flex items-center gap-2 text-sm">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <svg
-                className="h-4 w-4 text-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+              <FileText className="h-4 w-4 text-primary" />
             </div>
             <span className="font-body font-medium text-foreground">
               {questionCount} question{questionCount !== 1 ? "s" : ""}

@@ -22,7 +22,9 @@ export default function Hero() {
             className="glassmorphism-enhanced text-primary px-6 py-2.5 text-sm font-medium backdrop-blur-xl bg-card/60 border border-primary/20 shadow-lg hover:shadow-primary/20 hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-linear-to-r from-primary/10 via-accent/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10">Beta v2.0 - Free 10 credits per day!</span>
+            <span className="relative z-10">
+              Beta v2.0 - Free 10 credits per day!
+            </span>
           </Badge>
         </div>
 
@@ -54,8 +56,18 @@ export default function Hero() {
           >
             <span className="relative z-10 flex items-center">
               Generate Your First Form
-              <svg className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </span>
             <div className="absolute inset-0 bg-linear-to-r from-primary via-accent to-primary opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
@@ -75,7 +87,7 @@ export default function Hero() {
         {/* Trust Indicators */}
         <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm text-muted-foreground mb-16 md:mb-20 relative z-10">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <CheckCircle2 className="h-4 w-4 text-success" />
             <span>Free forever</span>
           </div>
           <span className="hidden sm:inline">•</span>
@@ -100,7 +112,9 @@ export default function Hero() {
                   <div className="w-3 h-3 rounded-full bg-yellow-500/80 group-hover:bg-yellow-500 transition-colors" />
                   <div className="w-3 h-3 rounded-full bg-green-500/80 group-hover:bg-green-500 transition-colors" />
                 </div>
-                <span className="text-xs text-muted-foreground ml-2">fomi.ai/create</span>
+                <span className="text-xs text-muted-foreground ml-2">
+                  fomi.ai/create
+                </span>
               </div>
 
               {/* Card Header */}
@@ -109,7 +123,9 @@ export default function Hero() {
                   <Sparkles className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-heading font-semibold text-lg mb-1">AI Form Generator</h3>
+                  <h3 className="font-heading font-semibold text-lg mb-1">
+                    AI Form Generator
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     Describe your form and watch it build itself
                   </p>
@@ -153,7 +169,9 @@ export default function Hero() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Full Name</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Full Name
+                  </label>
                   <Input
                     className="bg-background/60 border-border/50 hover:border-primary/30 focus:border-primary/50 transition-colors"
                     placeholder=""
@@ -161,7 +179,9 @@ export default function Hero() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Years of Experience</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Years of Experience
+                  </label>
                   <Input
                     className="bg-background/60 border-border/50 hover:border-primary/30 focus:border-primary/50 transition-colors"
                     placeholder=""
@@ -169,16 +189,16 @@ export default function Hero() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Portfolio URL</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Portfolio URL
+                  </label>
                   <Input
                     className="bg-background/60 border-border/50 hover:border-primary/30 focus:border-primary/50 transition-colors"
                     placeholder=""
                   />
                 </div>
 
-                <Button
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-6 mt-4 shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-300"
-                >
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-6 mt-4 shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-300">
                   Submit Application
                 </Button>
               </div>
@@ -186,48 +206,6 @@ export default function Hero() {
           </Card>
         </div>
       </div>
-
-      {/* Enhanced glassmorphism styles */}
-      <style jsx global>{`
-        .glassmorphism-enhanced {
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-        }
-        
-        .glassmorphism-card {
-          background: rgba(255, 255, 255, 0.02);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-        }
-        
-        @supports (backdrop-filter: blur(20px)) {
-          .glassmorphism-enhanced {
-            background: hsl(var(--card) / 0.6);
-          }
-          .glassmorphism-card {
-            background: hsl(var(--card) / 0.5);
-          }
-        }
-
-        .delay-75 {
-          animation-delay: 75ms;
-        }
-        
-        .delay-150 {
-          animation-delay: 150ms;
-        }
-        
-        /* Smooth gradient animation */
-        @keyframes gradient-shift {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-      `}</style>
     </section>
   );
 }

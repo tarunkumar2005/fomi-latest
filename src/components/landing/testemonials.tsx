@@ -10,7 +10,8 @@ const testimonials = [
     avatar: "",
     initials: "SK",
     rating: 5,
-    content: "Fomi completely transformed how we collect user feedback. What used to take hours now takes minutes. The AI suggestions are incredibly accurate and save us so much time."
+    content:
+      "Fomi completely transformed how we collect user feedback. What used to take hours now takes minutes. The AI suggestions are incredibly accurate and save us so much time.",
   },
   {
     name: "David Park",
@@ -18,7 +19,8 @@ const testimonials = [
     avatar: "",
     initials: "DP",
     rating: 5,
-    content: "As a non-technical founder, I was struggling with complex form builders. Fomi's AI understands exactly what I need and creates professional forms instantly. Game changer!"
+    content:
+      "As a non-technical founder, I was struggling with complex form builders. Fomi's AI understands exactly what I need and creates professional forms instantly. Game changer!",
   },
   {
     name: "Maria Santos",
@@ -26,7 +28,8 @@ const testimonials = [
     avatar: "",
     initials: "MS",
     rating: 5,
-    content: "We use Fomi for all our job applications and employee surveys. The analytics dashboard gives us insights we never had before. Our hiring process is now 3x faster."
+    content:
+      "We use Fomi for all our job applications and employee surveys. The analytics dashboard gives us insights we never had before. Our hiring process is now 3x faster.",
   },
   {
     name: "Alex Thompson",
@@ -34,7 +37,8 @@ const testimonials = [
     avatar: "",
     initials: "AT",
     rating: 5,
-    content: "The template library is fantastic, but the real magic happens when you describe your custom needs. Fomi creates forms that look like they were designed by a professional UX team."
+    content:
+      "The template library is fantastic, but the real magic happens when you describe your custom needs. Fomi creates forms that look like they were designed by a professional UX team.",
   },
   {
     name: "Lisa Wang",
@@ -42,8 +46,9 @@ const testimonials = [
     avatar: "",
     initials: "LW",
     rating: 5,
-    content: "I organize 20+ events per year and need different registration forms for each. Fomi's AI creates perfect forms every time, and the analytics help me understand my attendees better."
-  }
+    content:
+      "I organize 20+ events per year and need different registration forms for each. Fomi's AI creates perfect forms every time, and the analytics help me understand my attendees better.",
+  },
 ];
 
 export default function Testimonials() {
@@ -76,7 +81,10 @@ export default function Testimonials() {
                   {/* Avatar and Info */}
                   <div className="flex items-start gap-4 mb-4">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                      <AvatarImage
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                      />
                       <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                         {testimonial.initials}
                       </AvatarFallback>
@@ -96,7 +104,7 @@ export default function Testimonials() {
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
                       <Star
                         key={i}
-                        className="h-4 w-4 fill-yellow-500 text-yellow-500"
+                        className="h-4 w-4 fill-warning text-warning"
                       />
                     ))}
                   </div>
@@ -121,7 +129,10 @@ export default function Testimonials() {
                   {/* Avatar and Info */}
                   <div className="flex items-start gap-4 mb-4">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                      <AvatarImage
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                      />
                       <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                         {testimonial.initials}
                       </AvatarFallback>
@@ -141,7 +152,7 @@ export default function Testimonials() {
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
                       <Star
                         key={i}
-                        className="h-4 w-4 fill-yellow-500 text-yellow-500"
+                        className="h-4 w-4 fill-warning text-warning"
                       />
                     ))}
                   </div>

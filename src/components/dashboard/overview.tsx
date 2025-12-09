@@ -71,8 +71,8 @@ function MetricCard({
             className={cn(
               "font-body text-xs font-bold px-2.5 py-1 rounded-md",
               isPositive
-                ? "bg-green-50 text-green-600"
-                : "bg-red-50 text-red-600"
+                ? "bg-success/10 text-success"
+                : "bg-destructive/10 text-destructive"
             )}
           >
             {changeSign}
@@ -98,57 +98,57 @@ const METRIC_CONFIGS: MetricConfig[] = [
     key: "totalForms",
     label: "Total Forms",
     icon: <FileText className="w-5 h-5" />,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
+    iconBg: "bg-chart-1/10",
+    iconColor: "text-chart-1",
   },
   {
     key: "publishedForms",
     label: "Published Forms",
     icon: <Send className="w-5 h-5" />,
-    iconBg: "bg-green-50",
-    iconColor: "text-green-600",
+    iconBg: "bg-success/10",
+    iconColor: "text-success",
   },
   {
     key: "totalViews",
     label: "Total Views",
     icon: <Eye className="w-5 h-5" />,
-    iconBg: "bg-purple-50",
-    iconColor: "text-purple-600",
+    iconBg: "bg-chart-5/10",
+    iconColor: "text-chart-5",
   },
   {
     key: "formStarts",
     label: "Form Starts",
     icon: <PlayCircle className="w-5 h-5" />,
-    iconBg: "bg-indigo-50",
-    iconColor: "text-indigo-600",
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
   },
   {
     key: "formSubmissions",
     label: "Form Submissions",
     icon: <CheckCircle className="w-5 h-5" />,
-    iconBg: "bg-emerald-50",
-    iconColor: "text-emerald-600",
+    iconBg: "bg-chart-3/10",
+    iconColor: "text-chart-3",
   },
   {
     key: "dropoffs",
     label: "Dropoffs",
     icon: <XCircle className="w-5 h-5" />,
-    iconBg: "bg-red-50",
-    iconColor: "text-red-600",
+    iconBg: "bg-destructive/10",
+    iconColor: "text-destructive",
   },
   {
     key: "dropoffRate",
     label: "Dropoff Rate",
     icon: <TrendingDown className="w-5 h-5" />,
-    iconBg: "bg-orange-50",
-    iconColor: "text-orange-600",
+    iconBg: "bg-warning/10",
+    iconColor: "text-warning",
   },
   {
     key: "avgCompletionTime",
     label: "Avg. Completion Time",
     icon: <Clock className="w-5 h-5" />,
-    iconBg: "bg-cyan-50",
-    iconColor: "text-cyan-600",
+    iconBg: "bg-chart-2/10",
+    iconColor: "text-chart-2",
   },
 ];
 
@@ -243,7 +243,7 @@ export default function Overview({
                       <div className={cn("p-3 rounded-xl", config.iconBg)}>
                         <div className={config.iconColor}>{config.icon}</div>
                       </div>
-                      <span className="font-body text-xs font-bold px-2.5 py-1 rounded-md bg-gray-50 text-gray-400">
+                      <span className="font-body text-xs font-bold px-2.5 py-1 rounded-md bg-muted text-muted-foreground">
                         N/A
                       </span>
                     </div>

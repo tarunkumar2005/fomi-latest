@@ -177,7 +177,7 @@ export default function ShareFormDialog({
                     size="icon"
                   >
                     {copied === "link" ? (
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-success" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
@@ -236,7 +236,7 @@ export default function ShareFormDialog({
                     className="shrink-0"
                   >
                     {copied === "embed" ? (
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-success" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
@@ -274,7 +274,7 @@ export default function ShareFormDialog({
                     variant="outline"
                     className="justify-start gap-3"
                   >
-                    <Facebook className="h-5 w-5 text-blue-600" />
+                    <Facebook className="h-5 w-5 text-chart-1" />
                     <span className="font-body">Facebook</span>
                   </Button>
                   <Button
@@ -282,7 +282,7 @@ export default function ShareFormDialog({
                     variant="outline"
                     className="justify-start gap-3"
                   >
-                    <Twitter className="h-5 w-5 text-sky-500" />
+                    <Twitter className="h-5 w-5 text-chart-2" />
                     <span className="font-body">Twitter</span>
                   </Button>
                   <Button
@@ -290,7 +290,7 @@ export default function ShareFormDialog({
                     variant="outline"
                     className="justify-start gap-3"
                   >
-                    <Linkedin className="h-5 w-5 text-blue-700" />
+                    <Linkedin className="h-5 w-5 text-primary" />
                     <span className="font-body">LinkedIn</span>
                   </Button>
                   <Button
@@ -298,7 +298,7 @@ export default function ShareFormDialog({
                     variant="outline"
                     className="justify-start gap-3"
                   >
-                    <MessageCircle className="h-5 w-5 text-green-600" />
+                    <MessageCircle className="h-5 w-5 text-success" />
                     <span className="font-body">WhatsApp</span>
                   </Button>
                   <Button
@@ -306,7 +306,7 @@ export default function ShareFormDialog({
                     variant="outline"
                     className="justify-start gap-3 col-span-2"
                   >
-                    <Mail className="h-5 w-5 text-gray-600" />
+                    <Mail className="h-5 w-5 text-muted-foreground" />
                     <span className="font-body">Email</span>
                   </Button>
                 </div>

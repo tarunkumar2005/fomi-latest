@@ -192,28 +192,28 @@ export default function EngagementTrends({
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
+                    stroke="var(--border)"
                     opacity={0.3}
                   />
                   <XAxis
                     dataKey="date"
                     tick={{
-                      fill: "hsl(var(--muted-foreground))",
+                      fill: "var(--muted-foreground)",
                       fontSize: 11,
                     }}
-                    axisLine={{ stroke: "hsl(var(--border))" }}
-                    tickLine={{ stroke: "hsl(var(--border))" }}
+                    axisLine={{ stroke: "var(--border)" }}
+                    tickLine={{ stroke: "var(--border)" }}
                     angle={-45}
                     textAnchor="end"
                     height={60}
                   />
                   <YAxis
                     tick={{
-                      fill: "hsl(var(--muted-foreground))",
+                      fill: "var(--muted-foreground)",
                       fontSize: 11,
                     }}
-                    axisLine={{ stroke: "hsl(var(--border))" }}
-                    tickLine={{ stroke: "hsl(var(--border))" }}
+                    axisLine={{ stroke: "var(--border)" }}
+                    tickLine={{ stroke: "var(--border)" }}
                     allowDecimals={false}
                   />
                   <Tooltip content={<CustomTooltip />} />
@@ -225,9 +225,9 @@ export default function EngagementTrends({
                     type="monotone"
                     dataKey="views"
                     name="Views"
-                    stroke="#3b82f6"
+                    stroke="var(--chart-1)"
                     strokeWidth={2.5}
-                    dot={{ fill: "#3b82f6", r: 4 }}
+                    dot={{ fill: "var(--chart-1)", r: 4 }}
                     activeDot={{ r: 6 }}
                     connectNulls
                   />
@@ -235,9 +235,9 @@ export default function EngagementTrends({
                     type="monotone"
                     dataKey="starts"
                     name="Starts"
-                    stroke="#8b5cf6"
+                    stroke="var(--chart-2)"
                     strokeWidth={2.5}
-                    dot={{ fill: "#8b5cf6", r: 4 }}
+                    dot={{ fill: "var(--chart-2)", r: 4 }}
                     activeDot={{ r: 6 }}
                     connectNulls
                   />
@@ -245,9 +245,9 @@ export default function EngagementTrends({
                     type="monotone"
                     dataKey="submissions"
                     name="Submissions"
-                    stroke="#10b981"
+                    stroke="var(--success)"
                     strokeWidth={2.5}
-                    dot={{ fill: "#10b981", r: 4 }}
+                    dot={{ fill: "var(--success)", r: 4 }}
                     activeDot={{ r: 6 }}
                     connectNulls
                   />

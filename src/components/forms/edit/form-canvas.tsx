@@ -18,7 +18,6 @@ import {
   DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
@@ -26,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import FormHeader from "./form-header";
 import AddQuestionButton from "./add-question-button";
+import SectionContainer from "./section-container";
 import DraggableFieldWrapper from "./shared/DraggableFieldWrapper";
 import ShortAnswerField from "../form-fields/short-answer-field";
 import ParagraphField from "../form-fields/paragraph-field";
@@ -43,15 +43,133 @@ import TimeField from "../form-fields/time-field";
 import DateRangeField from "../form-fields/date-range-field";
 import FileUploadField from "../form-fields/file-upload-field";
 
+import { calculateFormEstimatedTime } from "@/lib/field-time-estimation";
+import type { NextSectionLogic } from "@/types/conditional-logic";
+import SectionLogicDialog from "./section-logic-dialog";
+import SectionRepeatDialog from "./section-repeat-dialog";
+import SectionTemplateDialog from "./section-templates/section-template-dialog";
+
+interface Section {
+  id: string;
+  title: string;
+  description: string | null;
+  order: number;
+  nextSectionLogic: any;
+  isRepeatable?: boolean;
+  repeatCount?: number | null;
+  fields: any[];
+}
+
+interface Field {
+  id: string;
+  type: string;
+  question: string;
+  order: number;
+}
+
 interface FormCanvasProps {
   formSlug: string;
   formHeaderData: any;
+  onHeaderSave?: (title: string, description: string) => void;
+  // Section props
+  sections: Section[];
+  isLoadingSections: boolean;
+  activeSectionId: string | null;
+  onActiveSectionChange: (sectionId: string) => void;
+  onAddSection: (
+    formId: string,
+    title?: string,
+    description?: string
+  ) => Promise<any>;
+  onAddSectionFromTemplate?: (
+    formId: string,
+    templateId: string
+  ) => Promise<any>;
+  onUpdateSection: (
+    sectionId: string,
+    data: { title?: string; description?: string; nextSectionLogic?: any }
+  ) => Promise<any>;
+  onDeleteSection: (sectionId: string) => Promise<void>;
+  onDuplicateSection: (sectionId: string) => Promise<void>;
+  onReorderSections: (
+    sectionOrders: Array<{ sectionId: string; order: number }>
+  ) => Promise<void>;
+  // Field props
+  onAddField?: (
+    sectionId: string,
+    fieldType: string,
+    question?: string
+  ) => Promise<any>;
+  onUpdateField?: (fieldId: string, data: Partial<Field>) => Promise<any>;
+  onDeleteField?: (fieldId: string) => Promise<void>;
+  onDuplicateField?: (fieldId: string) => Promise<void>;
+  onReorderFields?: (
+    fieldOrders: Array<{ fieldId: string; order: number }>
+  ) => Promise<void>;
+  onMoveField?: (
+    fieldId: string,
+    targetSectionId: string,
+    newOrder?: number
+  ) => Promise<void>;
+  // Conditional logic props
+  onUpdateSectionLogic: (
+    sectionId: string,
+    logic: NextSectionLogic
+  ) => Promise<any>;
+  onGetSectionDetails: (sectionId: string) => Promise<any>;
+  onGetConditionalFields: (sectionId: string) => Promise<Field[]>;
+  onGetSectionsForNavigation: (
+    formId: string
+  ) => Promise<Array<{ id: string; title: string; order: number }>>;
+  onValidateLogic: (
+    formId: string,
+    sectionId: string,
+    logic: NextSectionLogic
+  ) => Promise<{ valid: boolean; errors: string[] }>;
+  onCheckCircularReferences: (formId: string) => Promise<{
+    hasCircularReference: boolean;
+    cycles: string[][];
+  }>;
+  // Repeatability props
+  onUpdateRepeatability?: (
+    sectionId: string,
+    isRepeatable: boolean,
+    repeatCount?: number
+  ) => Promise<any>;
 }
 
-export default function FormCanvas({ 
+export default function FormCanvas({
   formSlug,
   formHeaderData,
- }: FormCanvasProps) {
+  onHeaderSave,
+  // Section props
+  sections,
+  isLoadingSections,
+  activeSectionId,
+  onActiveSectionChange,
+  onAddSection,
+  onAddSectionFromTemplate,
+  onUpdateSection,
+  onDeleteSection,
+  onDuplicateSection,
+  onReorderSections,
+  // Field props
+  onAddField,
+  onUpdateField,
+  onDeleteField,
+  onDuplicateField,
+  onReorderFields,
+  onMoveField,
+  // Conditional logic props
+  onUpdateSectionLogic,
+  onGetSectionDetails,
+  onGetConditionalFields,
+  onGetSectionsForNavigation,
+  onValidateLogic,
+  onCheckCircularReferences,
+  // Repeatability props
+  onUpdateRepeatability,
+}: FormCanvasProps) {
   // Drag & drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -73,263 +191,32 @@ export default function FormCanvas({
     null
   );
 
-  // Form fields state
-  const [formFields, setFormFields] = useState([
-    {
-      id: "field-1",
-      type: "short-answer",
-      question: "What is your full name?",
-      description: "Please enter your first and last name",
-      placeholder: "Your answer here...",
-      required: true,
-      minLength: 2,
-      maxLength: 100,
-      pattern: undefined,
-      customValidation: undefined,
-      isHidden: false,
-      gridColumns: 1,
-    },
-    {
-      id: "field-2",
-      type: "email",
-      question: "What is your email address?",
-      description: "We'll use this to contact you",
-      placeholder: "name@example.com",
-      required: true,
-      pattern: undefined, // Will use default email pattern
-      customValidation: undefined,
-      isHidden: false,
-      gridColumns: 1,
-    },
-    {
-      id: "field-3",
-      type: "paragraph",
-      question: "Tell us about your experience",
-      description: "Share your thoughts and feedback in detail",
-      placeholder: "Write your detailed response here...",
-      required: false,
-      rows: 5,
-      minLength: 50,
-      isHidden: false,
-      gridColumns: 1,
-    },
-    {
-      id: "field-4",
-      type: "number",
-      question: "What is your age?",
-      description: "Please enter your current age",
-      placeholder: "Enter your age",
-      required: true,
-      min: 18,
-      max: 120,
-      step: 1,
-      isHidden: false,
-      gridColumns: 1,
-    },
-    {
-      id: "field-5",
-      type: "phone",
-      question: "Phone Number",
-      description: "We may contact you at this number",
-      placeholder: "+1 (555) 000-0000",
-      required: false,
-      minLength: 10,
-      maxLength: 15,
-      isHidden: false,
-      gridColumns: 1,
-    },
-    {
-      id: "field-6",
-      type: "multiple-choice",
-      question: "What is your preferred contact method?",
-      description: "Choose how you'd like us to reach you",
-      placeholder: "Select your preferred option",
-      required: true,
-      allowMultiple: false,
-      options: [
-        {
-          id: "opt-1",
-          label: "Email",
-          value: "email",
-          default: true,
-        },
-        {
-          id: "opt-2",
-          label: "Phone Call",
-          value: "phone_call",
-          default: false,
-        },
-        {
-          id: "opt-3",
-          label: "Text Message",
-          value: "text_message",
-          default: false,
-        },
-        {
-          id: "opt-4",
-          label: "Video Call",
-          value: "video_call",
-          default: false,
-        },
-      ],
-      isHidden: false,
-      customValidation: undefined,
-    },
-    {
-      id: "field-7",
-      type: "checkboxes",
-      question: "Which features are most important to you?",
-      description: "Select all that apply",
-      placeholder: "Choose one or more features",
-      required: false,
-      options: [
-        {
-          id: "opt-1",
-          label: "Easy to use",
-          value: "easy_to_use",
-          default: false,
-        },
-        {
-          id: "opt-2",
-          label: "Fast performance",
-          value: "fast_performance",
-          default: true,
-        },
-        {
-          id: "opt-3",
-          label: "Good design",
-          value: "good_design",
-          default: true,
-        },
-        {
-          id: "opt-4",
-          label: "Affordable pricing",
-          value: "affordable_pricing",
-          default: false,
-        },
-        {
-          id: "opt-5",
-          label: "Great support",
-          value: "great_support",
-          default: false,
-        },
-      ],
-      isHidden: false,
-      customValidation: undefined,
-    },
-    {
-      id: "field-8",
-      type: "dropdown",
-      question: "What is your current role?",
-      description: "Select the option that best describes your position",
-      placeholder: "Choose your role",
-      required: true,
-      options: [
-        {
-          id: "opt-1",
-          label: "Software Developer",
-          value: "software_developer",
-          default: true,
-        },
-        {
-          id: "opt-2",
-          label: "Product Manager",
-          value: "product_manager",
-          default: false,
-        },
-        {
-          id: "opt-3",
-          label: "Designer",
-          value: "designer",
-          default: false,
-        },
-        {
-          id: "opt-4",
-          label: "Marketing Specialist",
-          value: "marketing_specialist",
-          default: false,
-        },
-        {
-          id: "opt-5",
-          label: "Other",
-          value: "other",
-          default: false,
-        },
-      ],
-      isHidden: false,
-      customValidation: undefined,
-    },
-    {
-      id: "field-9",
-      type: "rating",
-      question: "How would you rate your experience?",
-      description: "Your feedback helps us improve our service",
-      required: false,
-      maxRating: 5,
-      ratingStyle: "stars" as "stars" | "numbers" | "emoji",
-    },
-    {
-      id: "field-10",
-      type: "linear-scale",
-      question: "How likely are you to recommend us to a friend?",
-      description: "0 = Not at all likely, 10 = Extremely likely",
-      required: true,
-      min: 0,
-      max: 10,
-      minLabel: "Not at all likely",
-      maxLabel: "Extremely likely",
-    },
-    {
-      id: "field-11",
-      type: "url",
-      question: "What is your website or portfolio URL?",
-      description: "Please provide a link to your work",
-      placeholder: "https://example.com",
-      required: false,
-      minLength: undefined,
-      maxLength: undefined,
-      pattern: undefined,
-      customValidation: undefined,
-    },
-    {
-      id: "field-12",
-      type: "date",
-      question: "What is your date of birth?",
-      description: "We need this for verification purposes",
-      required: true,
-      minDate: undefined,
-      maxDate: undefined,
-    },
-    {
-      id: "field-13",
-      type: "time",
-      question: "What time should we call you?",
-      description: "Please select your preferred time slot",
-      required: false,
-      minTime: undefined,
-      maxTime: undefined,
-    },
-    {
-      id: "field-14",
-      type: "date-range",
-      question: "Select your travel dates",
-      description: "When do you plan to travel?",
-      required: true,
-      minDate: undefined,
-      maxDate: undefined,
-    },
-    {
-      id: "field-15",
-      type: "file-upload",
-      question: "Upload your resume or CV",
-      description: "Please upload your most recent resume in PDF or DOC format",
-      required: true,
-      acceptedTypes: ".pdf,.doc,.docx",
-      maxFileSize: 5242880, // 5MB
-      maxFiles: 1,
-      requiredFiles: 1,
-    },
-  ]);
+  // Section collapsed states
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Section Logic Dialog state
+  const [logicDialogOpen, setLogicDialogOpen] = useState(false);
+  const [selectedSectionForLogic, setSelectedSectionForLogic] =
+    useState<Section | null>(null);
+  const [logicDialogData, setLogicDialogData] = useState<{
+    fields: any[];
+    sections: Array<{ id: string; title: string; order: number }>;
+  }>({ fields: [], sections: [] });
+
+  // Section Repeat Dialog state
+  const [repeatDialogOpen, setRepeatDialogOpen] = useState(false);
+  const [selectedSectionForRepeat, setSelectedSectionForRepeat] =
+    useState<Section | null>(null);
+
+  // Section Template Dialog state
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+
+  // Calculate stats from actual sections
+  const allFields = sections.flatMap((section) => section.fields || []);
+  const questionCount = allFields.length;
+  const timeEstimate = calculateFormEstimatedTime(allFields);
 
   // Close sidebars on Escape key
   useEffect(() => {
@@ -359,49 +246,47 @@ export default function FormCanvas({
   };
 
   // Field handlers
-  const handleFieldUpdate = (fieldId: string, updates: any) => {
-    setFormFields((prev) =>
-      prev.map((field) =>
-        field.id === fieldId ? { ...field, ...updates } : field
-      )
-    );
-  };
-
-  const handleFieldDelete = (fieldId: string) => {
-    setFormFields((prev) => prev.filter((field) => field.id !== fieldId));
-  };
-
-  const handleFieldDuplicate = (fieldId: string) => {
-    const fieldToDuplicate = formFields.find((f) => f.id === fieldId);
-    if (fieldToDuplicate) {
-      const newField = {
-        ...fieldToDuplicate,
-        id: `field-${Date.now()}`,
-      };
-      setFormFields((prev) => [...prev, newField]);
+  const handleFieldUpdate = async (fieldId: string, updates: any) => {
+    if (!onUpdateField) return;
+    try {
+      await onUpdateField(fieldId, updates);
+    } catch (error) {
+      console.error("Failed to update field:", error);
     }
   };
 
-  const handleAddQuestion = () => {
-    const newField = {
-      id: `field-${Date.now()}`,
-      type: "short-answer",
-      question: "New Question",
-      description: "",
-      placeholder: "Your answer here...",
-      required: false,
-      isHidden: false,
-      gridColumns: 1,
-      minLength: undefined,
-      maxLength: undefined,
-      pattern: undefined,
-      customValidation: undefined,
-    };
-    setFormFields((prev) => [...prev, newField]);
+  const handleFieldDelete = async (fieldId: string) => {
+    if (!onDeleteField) return;
+    try {
+      await onDeleteField(fieldId);
+    } catch (error) {
+      console.error("Failed to delete field:", error);
+    }
+  };
+
+  const handleFieldDuplicate = async (fieldId: string) => {
+    if (!onDuplicateField) return;
+    try {
+      await onDuplicateField(fieldId);
+    } catch (error) {
+      console.error("Failed to duplicate field:", error);
+    }
+  };
+
+  const handleAddQuestion = async (fieldType: string, sectionId?: string) => {
+    const targetSectionId = sectionId || activeSectionId;
+    if (!onAddField || !targetSectionId) {
+      console.warn("Cannot add field: No active section or handler missing");
+      return;
+    }
+    try {
+      await onAddField(targetSectionId, fieldType);
+    } catch (error) {
+      console.error("Failed to add field:", error);
+    }
   };
 
   const handleEnhanceField = (fieldId: string) => {
-    console.log("AI Enhance triggered for field:", fieldId);
     // TODO: Implement AI enhancement
   };
 
@@ -409,16 +294,296 @@ export default function FormCanvas({
     setOpenAdvancedFieldId((prev) => (prev === fieldId ? null : fieldId));
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  // Section handlers
+  const handleSectionTitleChange = async (sectionId: string, title: string) => {
+    try {
+      await onUpdateSection(sectionId, { title });
+    } catch (error) {
+      console.error("Failed to update section title:", error);
+    }
+  };
+
+  const handleSectionDescriptionChange = async (
+    sectionId: string,
+    description: string
+  ) => {
+    try {
+      await onUpdateSection(sectionId, { description });
+    } catch (error) {
+      console.error("Failed to update section description:", error);
+    }
+  };
+
+  const handleSectionDuplicate = async (sectionId: string) => {
+    try {
+      await onDuplicateSection(sectionId);
+    } catch (error) {
+      console.error("Failed to duplicate section:", error);
+      alert("Failed to duplicate section. Please try again.");
+    }
+  };
+
+  const handleNavigationSettings = async (sectionId: string) => {
+    try {
+      const section = sections.find((s) => s.id === sectionId);
+      if (!section) {
+        console.error("Section not found:", sectionId);
+        return;
+      }
+
+      // Load data for the dialog
+      const [fields, availableSections] = await Promise.all([
+        onGetConditionalFields(sectionId),
+        onGetSectionsForNavigation(formHeaderData?.id),
+      ]);
+
+      setSelectedSectionForLogic(section);
+      setLogicDialogData({ fields, sections: availableSections });
+      setLogicDialogOpen(true);
+    } catch (error) {
+      console.error("Failed to open navigation settings:", error);
+    }
+  };
+
+  const handleRepeatSettings = (sectionId: string) => {
+    const section = sections.find((s) => s.id === sectionId);
+    if (!section) {
+      console.error("Section not found:", sectionId);
+      return;
+    }
+
+    setSelectedSectionForRepeat(section);
+    setRepeatDialogOpen(true);
+  };
+
+  // Section Logic Handlers
+  const handleSaveLogic = async (logic: NextSectionLogic) => {
+    if (!selectedSectionForLogic) return;
+
+    try {
+      await onUpdateSectionLogic(selectedSectionForLogic.id, logic);
+    } catch (error) {
+      console.error("Failed to save section logic:", error);
+      throw error; // Re-throw to let dialog handle it
+    }
+  };
+
+  const handleValidateLogic = async (logic: NextSectionLogic) => {
+    if (!selectedSectionForLogic || !formHeaderData?.id) {
+      return { valid: false, errors: ["Invalid section or form data"] };
+    }
+
+    try {
+      const validation = await onValidateLogic(
+        formHeaderData.id,
+        selectedSectionForLogic.id,
+        logic
+      );
+      return validation;
+    } catch (error) {
+      console.error("Failed to validate logic:", error);
+      return { valid: false, errors: ["Validation failed"] };
+    }
+  };
+
+  // Section Repeat Handlers
+  const handleSaveRepeatability = async (
+    isRepeatable: boolean,
+    repeatCount?: number
+  ) => {
+    if (!selectedSectionForRepeat || !onUpdateRepeatability) return;
+
+    try {
+      await onUpdateRepeatability(
+        selectedSectionForRepeat.id,
+        isRepeatable,
+        repeatCount
+      );
+    } catch (error) {
+      console.error("Failed to save repeatability:", error);
+      throw error; // Re-throw to let dialog handle it
+    }
+  };
+
+  const handleCheckCircularReferences = async () => {
+    if (!formHeaderData?.id) {
+      return { hasCircularReference: false, cycles: [] };
+    }
+
+    try {
+      const result = await onCheckCircularReferences(formHeaderData.id);
+      return result;
+    } catch (error) {
+      console.error("Failed to check circular references:", error);
+      return { hasCircularReference: false, cycles: [] };
+    }
+  };
+
+  // Handle template selection (including blank template)
+  const handleTemplateSelect = async (templateId: string) => {
+    if (templateId === "blank") {
+      // Create blank section
+      if (!formHeaderData?.id) return;
+      try {
+        await onAddSection(
+          formHeaderData.id,
+          `Section ${sections.length + 1}`,
+          ""
+        );
+        setTemplateDialogOpen(false);
+      } catch (error) {
+        console.error("Failed to create blank section:", error);
+      }
+    } else {
+      // Create section from template
+      if (!formHeaderData?.id || !onAddSectionFromTemplate) return;
+      try {
+        await onAddSectionFromTemplate(formHeaderData.id, templateId);
+        setTemplateDialogOpen(false);
+      } catch (error) {
+        console.error("Failed to create section from template:", error);
+      }
+    }
+  };
+
+  // Handle section deletion with logic cleanup
+  const handleSectionDelete = async (sectionId: string) => {
+    try {
+      // Check if any other sections reference this section in their logic
+      const referencingSections = sections.filter((section) => {
+        if (!section.nextSectionLogic || section.id === sectionId) return false;
+
+        const logic = section.nextSectionLogic as NextSectionLogic;
+
+        // Check default target
+        if (logic.defaultTarget === sectionId) return true;
+
+        // Check rules
+        return logic.rules?.some((rule) => rule.targetSectionId === sectionId);
+      });
+
+      if (referencingSections.length > 0) {
+        const sectionNames = referencingSections.map((s) => s.title).join(", ");
+        const confirmDelete = window.confirm(
+          `Warning: This section is referenced in the navigation logic of the following sections: ${sectionNames}.\n\n` +
+            `If you delete this section, those navigation rules will become invalid and will be reset to "Next Section".\n\n` +
+            `Do you want to continue?`
+        );
+
+        if (!confirmDelete) return;
+
+        // Clean up references in other sections
+        for (const refSection of referencingSections) {
+          const logic = refSection.nextSectionLogic as NextSectionLogic;
+          let needsUpdate = false;
+
+          // Update default target if it references deleted section
+          if (logic.defaultTarget === sectionId) {
+            logic.defaultTarget = "NEXT";
+            needsUpdate = true;
+          }
+
+          // Remove or update rules that reference deleted section
+          if (logic.rules) {
+            const updatedRules = logic.rules.filter((rule) => {
+              if (rule.targetSectionId === sectionId) {
+                // Reset to NEXT instead of removing the rule
+                rule.targetSectionId = "NEXT";
+                needsUpdate = true;
+              }
+              return true;
+            });
+
+            logic.rules = updatedRules;
+          }
+
+          if (needsUpdate) {
+            await onUpdateSectionLogic(refSection.id, logic);
+          }
+        }
+      }
+
+      // Now delete the section
+      await onDeleteSection(sectionId);
+    } catch (error) {
+      console.error("Failed to delete section:", error);
+      alert("Failed to delete section. Please try again.");
+    }
+  };
+
+  const handleToggleSectionCollapse = (sectionId: string) => {
+    setCollapsedSections((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (over && active.id !== over.id) {
-      setFormFields((fields) => {
-        const oldIndex = fields.findIndex((field) => field.id === active.id);
-        const newIndex = fields.findIndex((field) => field.id === over.id);
+    if (!over || active.id === over.id) return;
 
-        return arrayMove(fields, oldIndex, newIndex);
-      });
+    const oldIndex = sections.findIndex((s) => s.id === active.id);
+    const newIndex = sections.findIndex((s) => s.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      // Create reordered sections array
+      const reorderedSections = [...sections];
+      const [movedSection] = reorderedSections.splice(oldIndex, 1);
+      reorderedSections.splice(newIndex, 0, movedSection);
+
+      // Create array with updated order values
+      const sectionOrders = reorderedSections.map((section, index) => ({
+        sectionId: section.id,
+        order: index,
+      }));
+
+      // Call the reorder function
+      onReorderSections(sectionOrders);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !onReorderFields) return;
+
+    // Find which section contains the active field
+    const sourceSection = sections.find((section) =>
+      section.fields.some((field) => field.id === active.id)
+    );
+
+    if (!sourceSection) return;
+
+    const oldIndex = sourceSection.fields.findIndex(
+      (field) => field.id === active.id
+    );
+    const newIndex = sourceSection.fields.findIndex(
+      (field) => field.id === over.id
+    );
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Reorder fields within the same section
+    const reorderedFields = [...sourceSection.fields];
+    const [movedField] = reorderedFields.splice(oldIndex, 1);
+    reorderedFields.splice(newIndex, 0, movedField);
+
+    // Create array with updated order values
+    const fieldOrders = reorderedFields.map((field, index) => ({
+      fieldId: field.id,
+      order: index,
+    }));
+
+    try {
+      await onReorderFields(fieldOrders);
+    } catch (error) {
+      console.error("Failed to reorder fields:", error);
     }
   };
 
@@ -589,92 +754,234 @@ export default function FormCanvas({
             <div className="max-w-4xl mx-auto space-y-6">
               {/* Form Header */}
               <FormHeader
-                formTitle={formHeaderData?.form?.title || "Untitled Form"}
-                formDescription={formHeaderData?.form?.description || ""}
-                estimatedTime="~3 min"
-                questionCount={formFields.length}
-                headerImageUrl={formHeaderData?.form?.headerImageUrl || null}
-                onEditHeader={() => console.log("Edit header")}
-                onSaveHeader={(title, description) => {
-                  console.log("Save header:", { title, description });
-                }}
+                formTitle={formHeaderData?.title || "Untitled Form"}
+                formDescription={formHeaderData?.description || ""}
+                estimatedTime={timeEstimate.formatted}
+                questionCount={questionCount}
+                headerImageUrl={formHeaderData?.headerImageUrl || null}
+                onSaveHeader={onHeaderSave}
               />
 
-              {/* Form Fields Area */}
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={formFields.map((field) => field.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="space-y-6">
-                    {formFields.map((field, index) => {
-                      const commonProps = {
-                        field,
-                        index: index + 1,
-                        onUpdate: (updates: any) =>
-                          handleFieldUpdate(field.id, updates),
-                        onDelete: () => handleFieldDelete(field.id),
-                        onDuplicate: () => handleFieldDuplicate(field.id),
-                        onEnhance: () => handleEnhanceField(field.id),
-                        isAdvancedOpen: openAdvancedFieldId === field.id,
-                        onAdvancedToggle: () => handleAdvancedToggle(field.id),
-                      };
+              {/* Sections Info - Temporary Debug Display */}
+              {isLoadingSections ? (
+                <div className="bg-card rounded-xl border border-border p-8 text-center">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+                  <p className="text-sm text-muted-foreground">
+                    Loading sections...
+                  </p>
+                </div>
+              ) : sections.length > 0 ? (
+                <div className="space-y-6">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleSectionDragEnd}
+                  >
+                    <SortableContext
+                      items={sections.map((s) => s.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {sections.map((section, idx) => {
+                        // Check if section has conditional logic
+                        const hasConditionalLogic =
+                          section.nextSectionLogic &&
+                          (section.nextSectionLogic as NextSectionLogic)
+                            .type === "conditional" &&
+                          (section.nextSectionLogic as NextSectionLogic).rules
+                            ?.length > 0;
 
-                      // Render field component based on type
-                      let fieldComponent;
+                        return (
+                          <SectionContainer
+                            key={section.id}
+                            sectionId={section.id}
+                            sectionNumber={idx + 1}
+                            title={section.title}
+                            description={section.description}
+                            isActive={activeSectionId === section.id}
+                            isCollapsed={collapsedSections.has(section.id)}
+                            hasConditionalLogic={hasConditionalLogic}
+                            isRepeatable={section.isRepeatable}
+                            repeatCount={section.repeatCount}
+                            onTitleChange={(title: string) =>
+                              handleSectionTitleChange(section.id, title)
+                            }
+                            onDescriptionChange={(description: string) =>
+                              handleSectionDescriptionChange(
+                                section.id,
+                                description
+                              )
+                            }
+                            onToggleCollapse={() =>
+                              handleToggleSectionCollapse(section.id)
+                            }
+                            onDelete={() => handleSectionDelete(section.id)}
+                            onDuplicate={() =>
+                              handleSectionDuplicate(section.id)
+                            }
+                            onNavigationSettings={() =>
+                              handleNavigationSettings(section.id)
+                            }
+                            onRepeatSettings={() =>
+                              handleRepeatSettings(section.id)
+                            }
+                            onActivate={() => onActiveSectionChange(section.id)}
+                          >
+                            {/* Render fields belonging to this section */}
+                            {section.fields && section.fields.length > 0 ? (
+                              <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                              >
+                                <SortableContext
+                                  items={section.fields.map(
+                                    (field) => field.id
+                                  )}
+                                  strategy={verticalListSortingStrategy}
+                                >
+                                  <div className="space-y-4">
+                                    {section.fields.map((field, fieldIdx) => {
+                                      const commonProps = {
+                                        field,
+                                        index: fieldIdx + 1,
+                                        onUpdate: (updates: any) =>
+                                          handleFieldUpdate(field.id, updates),
+                                        onDelete: () =>
+                                          handleFieldDelete(field.id),
+                                        onDuplicate: () =>
+                                          handleFieldDuplicate(field.id),
+                                        onEnhance: () =>
+                                          handleEnhanceField(field.id),
+                                        isAdvancedOpen:
+                                          openAdvancedFieldId === field.id,
+                                        onAdvancedToggle: () =>
+                                          handleAdvancedToggle(field.id),
+                                      };
 
-                      if (field.type === "paragraph") {
-                        fieldComponent = <ParagraphField {...commonProps} />;
-                      } else if (field.type === "email") {
-                        fieldComponent = <EmailField {...commonProps} />;
-                      } else if (field.type === "number") {
-                        fieldComponent = <NumberField {...commonProps} />;
-                      } else if (field.type === "phone") {
-                        fieldComponent = <PhoneField {...commonProps} />;
-                      } else if (field.type === "multiple-choice") {
-                        fieldComponent = (
-                          <MultipleChoiceField {...commonProps} />
+                                      let fieldComponent;
+                                      if (field.type === "paragraph") {
+                                        fieldComponent = (
+                                          <ParagraphField {...commonProps} />
+                                        );
+                                      } else if (field.type === "email") {
+                                        fieldComponent = (
+                                          <EmailField {...commonProps} />
+                                        );
+                                      } else if (field.type === "number") {
+                                        fieldComponent = (
+                                          <NumberField {...commonProps} />
+                                        );
+                                      } else if (field.type === "phone") {
+                                        fieldComponent = (
+                                          <PhoneField {...commonProps} />
+                                        );
+                                      } else if (
+                                        field.type === "multiple-choice"
+                                      ) {
+                                        fieldComponent = (
+                                          <MultipleChoiceField
+                                            {...commonProps}
+                                          />
+                                        );
+                                      } else if (field.type === "checkboxes") {
+                                        fieldComponent = (
+                                          <CheckboxesField {...commonProps} />
+                                        );
+                                      } else if (field.type === "dropdown") {
+                                        fieldComponent = (
+                                          <DropdownField {...commonProps} />
+                                        );
+                                      } else if (field.type === "rating") {
+                                        fieldComponent = (
+                                          <RatingField {...commonProps} />
+                                        );
+                                      } else if (
+                                        field.type === "linear-scale"
+                                      ) {
+                                        fieldComponent = (
+                                          <LinearScaleField {...commonProps} />
+                                        );
+                                      } else if (field.type === "url") {
+                                        fieldComponent = (
+                                          <UrlField {...commonProps} />
+                                        );
+                                      } else if (field.type === "date") {
+                                        fieldComponent = (
+                                          <DateField {...commonProps} />
+                                        );
+                                      } else if (field.type === "time") {
+                                        fieldComponent = (
+                                          <TimeField {...commonProps} />
+                                        );
+                                      } else if (field.type === "date-range") {
+                                        fieldComponent = (
+                                          <DateRangeField {...commonProps} />
+                                        );
+                                      } else if (field.type === "file-upload") {
+                                        fieldComponent = (
+                                          <FileUploadField {...commonProps} />
+                                        );
+                                      } else {
+                                        fieldComponent = (
+                                          <ShortAnswerField {...commonProps} />
+                                        );
+                                      }
+
+                                      return (
+                                        <DraggableFieldWrapper
+                                          key={field.id}
+                                          id={field.id}
+                                        >
+                                          {fieldComponent}
+                                        </DraggableFieldWrapper>
+                                      );
+                                    })}
+                                  </div>
+                                </SortableContext>
+                              </DndContext>
+                            ) : (
+                              <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-border rounded-lg">
+                                <p className="text-sm mb-3">
+                                  No fields in this section yet
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Add Question Button at the end of section */}
+                            {!collapsedSections.has(section.id) && (
+                              <div className="mt-4">
+                                <AddQuestionButton
+                                  onAddQuestion={handleAddQuestion}
+                                  sectionId={section.id}
+                                />
+                              </div>
+                            )}
+                          </SectionContainer>
                         );
-                      } else if (field.type === "checkboxes") {
-                        fieldComponent = <CheckboxesField {...commonProps} />;
-                      } else if (field.type === "dropdown") {
-                        fieldComponent = <DropdownField {...commonProps} />;
-                      } else if (field.type === "rating") {
-                        fieldComponent = <RatingField {...commonProps} />;
-                      } else if (field.type === "linear-scale") {
-                        fieldComponent = <LinearScaleField {...commonProps} />;
-                      } else if (field.type === "url") {
-                        fieldComponent = <UrlField {...commonProps} />;
-                      } else if (field.type === "date") {
-                        fieldComponent = <DateField {...commonProps} />;
-                      } else if (field.type === "time") {
-                        fieldComponent = <TimeField {...commonProps} />;
-                      } else if (field.type === "date-range") {
-                        fieldComponent = <DateRangeField {...commonProps} />;
-                      } else if (field.type === "file-upload") {
-                        fieldComponent = <FileUploadField {...commonProps} />;
-                      } else {
-                        // Default to short answer
-                        fieldComponent = <ShortAnswerField {...commonProps} />;
-                      }
+                      })}
+                    </SortableContext>
+                  </DndContext>
 
-                      // Wrap with DraggableFieldWrapper
-                      return (
-                        <DraggableFieldWrapper key={field.id} id={field.id}>
-                          {fieldComponent}
-                        </DraggableFieldWrapper>
-                      );
-                    })}
-                  </div>
-                </SortableContext>
-              </DndContext>
-
-              {/* Add Question Button */}
-              <AddQuestionButton onAddQuestion={handleAddQuestion} />
+                  {/* Add Section Button */}
+                  <button
+                    onClick={() => setTemplateDialogOpen(true)}
+                    className="w-full max-w-md mx-auto py-2.5 px-4 border border-dashed border-border/60 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors text-muted-foreground/70 hover:text-primary text-sm flex items-center justify-center gap-1.5"
+                  >
+                    <span className="text-base">+</span>
+                    <span>Add Section</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-card rounded-xl border border-border p-8 text-center">
+                  <p className="text-muted-foreground mb-4">No sections yet</p>
+                  <button
+                    onClick={() => setTemplateDialogOpen(true)}
+                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                  >
+                    Add Your First Section
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -735,6 +1042,50 @@ export default function FormCanvas({
           </div>
         )}
       </div>
+
+      {/* Section Logic Dialog */}
+      {selectedSectionForLogic && (
+        <SectionLogicDialog
+          open={logicDialogOpen}
+          onOpenChange={setLogicDialogOpen}
+          sectionId={selectedSectionForLogic.id}
+          sectionTitle={selectedSectionForLogic.title}
+          currentLogic={
+            selectedSectionForLogic.nextSectionLogic as NextSectionLogic | null
+          }
+          fields={logicDialogData.fields}
+          availableSections={logicDialogData.sections}
+          onSave={handleSaveLogic}
+          onValidate={handleValidateLogic}
+        />
+      )}
+
+      {/* Section Repeat Dialog */}
+      {selectedSectionForRepeat && (
+        <SectionRepeatDialog
+          open={repeatDialogOpen}
+          onOpenChange={setRepeatDialogOpen}
+          sectionId={selectedSectionForRepeat.id}
+          sectionTitle={selectedSectionForRepeat.title}
+          currentIsRepeatable={selectedSectionForRepeat.isRepeatable || false}
+          currentRepeatCount={selectedSectionForRepeat.repeatCount || 1}
+          hasConditionalLogic={
+            selectedSectionForRepeat.nextSectionLogic &&
+            (selectedSectionForRepeat.nextSectionLogic as any).type ===
+              "conditional" &&
+            (selectedSectionForRepeat.nextSectionLogic as NextSectionLogic)
+              .rules?.length > 0
+          }
+          onSave={handleSaveRepeatability}
+        />
+      )}
+
+      {/* Section Template Dialog */}
+      <SectionTemplateDialog
+        open={templateDialogOpen}
+        onOpenChange={setTemplateDialogOpen}
+        onSelectTemplate={handleTemplateSelect}
+      />
     </div>
   );
 }

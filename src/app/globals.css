@@ -1,12 +1,49 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Custom scrollbar hiding */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @theme inline {
+  /* ------------------------------ */
+  /* BASE COLORS                    */
+  /* ------------------------------ */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /* ------------------------------ */
+  /* FORM BUILDER SPECIFIC (NEW)    */
+  /* ------------------------------ */
+  /* This allows you to use className="bg-canvas" */
+  --color-canvas: var(--canvas);
+  --color-canvas-foreground: var(--canvas-foreground);
+
+  /* Feedback States */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  /* ------------------------------ */
+  /* TYPOGRAPHY                     */
+  /* ------------------------------ */
+  /* Set Inter as the default sans font */
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-sora);
+  --font-body: var(--font-inter);
+
+  /* ------------------------------ */
+  /* COMPONENTS                     */
+  /* ------------------------------ */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -15,89 +52,161 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* ------------------------------ */
+  /* CHARTS                         */
+  /* ------------------------------ */
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
+
+  /* ------------------------------ */
+  /* RADIUS                         */
+  /* ------------------------------ */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-heading: var(--font-sora);
-  --font-body: var(--font-inter);
-  
-  /* Additional gradient colors using theme colors */
-  --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
-  --gradient-accent: linear-gradient(135deg, var(--accent), var(--primary));
-  --gradient-muted: linear-gradient(135deg, var(--muted), var(--card));
-  --gradient-destructive: linear-gradient(135deg, var(--destructive), var(--primary));
+
+  /* ------------------------------ */
+  /* CUSTOM GRADIENTS               */
+  /* ------------------------------ */
+  /* In Tailwind v4, it is safer to map these as background images 
+     if you want to use them as 'bg-gradient-primary' */
+  --background-image-gradient-primary: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--secondary)
+  );
+  --background-image-gradient-accent: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--primary)
+  );
+  --background-image-gradient-muted: linear-gradient(
+    135deg,
+    var(--muted),
+    var(--card)
+  );
 }
 
 :root {
   --radius: 0.5rem;
-  /* Base */
+
+  /* ------------------------------ */
+  /* TYPOGRAPHY                     */
+  /* ------------------------------ */
+  --font-sora: "Sora", sans-serif; /* Good choice for Headers */
+  --font-inter: "Inter", sans-serif; /* Excellent for dense UI text */
+
+  /* ------------------------------ */
+  /* BACKGROUNDS & SURFACES         */
+  /* ------------------------------ */
+  /* The main app background */
   --background: #ffffff;
-  --foreground: #374151;
-  /* Card / Surfaces */
-  --card: #fafcff;
-  --card-foreground: #374151;
+  /* The text color on top of background */
+  --foreground: #0f172a; /* Slate 900 - darker/sharper than your previous gray */
+
+  /* Cards/Panels (e.g., The Properties Panel) */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  /* The "Canvas" - Where the user drags & drops form elements */
+  /* A slight off-white/slate tint to distinguish it from the white sidebar */
+  --canvas: #f8fafc;
+  --canvas-foreground: #334155;
+
+  /* Popovers/Dropdowns */
   --popover: #ffffff;
-  --popover-foreground: #374151;
-  /* Primary (Indigo) */
+  --popover-foreground: #0f172a;
+
+  /* ------------------------------ */
+  /* BRANDING (INDIGO)              */
+  /* ------------------------------ */
+  /* Primary Action (Save, Publish) */
   --primary: #4f46e5;
   --primary-foreground: #ffffff;
-  /* Secondary (Blue) */
-  --secondary: #3b83f6;
-  --secondary-foreground: #ffffff;
-  /* Muted / Subtle surfaces */
-  --muted: #f1f5f9;
-  --muted-foreground: #6b7280;
-  /* Accent (Interactive highlights) */
-  --accent: #3b82f6;
-  --accent-foreground: #ffffff;
-  /* Destructive / Errors */
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  /* Borders / Inputs / Focus */
-  --border: #e5e7eb;
-  --input: #ffffff;
-  --ring: rgba(79, 70, 229, 0.5);
-  /* Charts / Data visuals */
-  --chart-1: #4f46e5;
-  --chart-2: #3b82f6;
-  --chart-3: #60a5fa;
-  --chart-4: #a5b4fc;
-  --chart-5: #c7d2fe;
-  /* Sidebar / Navigation */
-  --sidebar: #f8fafc;
-  --sidebar-foreground: #374151;
-  --sidebar-primary: #4f46e5;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #3b82f6;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #e5e7eb;
-  --sidebar-ring: rgba(79, 70, 229, 0.5);
 
-  --font-sora: 'Sora', sans-serif;
-  --font-inter: 'Inter', sans-serif;
+  /* Secondary Action (Cancel, Back, Preview) */
+  /* CHANGED: Made this neutral to stop fighting with Primary */
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+
+  /* Accent (Selected items, Hover states in dropdowns) */
+  /* CHANGED: A very light Indigo tint, not a bright blue */
+  --accent: #eef2ff;
+  --accent-foreground: #4f46e5;
+
+  /* ------------------------------ */
+  /* STATUS & FEEDBACK              */
+  /* ------------------------------ */
+  /* Muted (Subtext, placeholders) */
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* Destructive (Delete field) */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Success (Form Published) - NEW */
+  --success: #10b981;
+  --success-foreground: #ffffff;
+
+  /* Warning (Unsaved changes) - NEW */
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+
+  /* ------------------------------ */
+  /* BORDERS & INPUTS               */
+  /* ------------------------------ */
+  --border: #e2e8f0; /* Lighter, cleaner slate border */
+  --input: #ffffff;
+
+  /* Focus Ring - Crucial for accessibility */
+  --ring: #4f46e5; /* Matches primary */
+
+  /* ------------------------------ */
+  /* SIDEBAR SPECIFIC               */
+  /* ------------------------------ */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #334155;
+  --sidebar-border: #e2e8f0;
+  --sidebar-accent: #f8fafc; /* Subtle hover in sidebar */
+  --sidebar-accent-foreground: #0f172a;
+
+  /* ------------------------------ */
+  /* DATA VISUALIZATION             */
+  /* ------------------------------ */
+  /* Adjusted to be distinct from one another */
+  --chart-1: #4f46e5; /* Indigo */
+  --chart-2: #0ea5e9; /* Sky */
+  --chart-3: #10b981; /* Emerald */
+  --chart-4: #f59e0b; /* Amber */
+  --chart-5: #ec4899; /* Pink */
 }
 
 @layer base {
@@ -107,7 +216,12 @@
   body {
     @apply bg-background text-foreground font-body;
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading;
   }
 }
@@ -127,6 +241,40 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* Glassmorphism Utilities - Centralized for consistency */
+  .glassmorphism-card {
+    background: hsl(var(--card) / 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glassmorphism-enhanced {
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Animation delays for staggered animations */
+  .delay-75 {
+    animation-delay: 75ms;
+  }
+
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .delay-500 {
+    animation-delay: 500ms;
+  }
+
+  .delay-1000 {
+    animation-delay: 1000ms;
   }
 }
 

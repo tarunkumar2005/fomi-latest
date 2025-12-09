@@ -21,7 +21,6 @@ export const DragHandleContext = createContext<{
   attributes?: any;
 } | null>(null);
 
-
 export interface FieldWrapperProps {
   // Field identification
   index: number;
@@ -102,7 +101,7 @@ export default function FieldWrapper({
 }: FieldWrapperProps) {
   // Try to get drag handle context if available
   const dragHandleContext = useContext(DragHandleContext);
-  
+
   return (
     <div className="relative">
       {/* Main Card */}
@@ -201,7 +200,7 @@ export default function FieldWrapper({
             ) : (
               <p
                 onClick={onDescriptionClick}
-                className="text-sm text-muted-foreground/70 cursor-text hover:text-muted-foreground transition-colors duration-150 leading-relaxed"
+                className="text-sm text-muted-foreground cursor-text hover:text-foreground/70 transition-colors duration-150 leading-relaxed"
               >
                 {description || "Add description (optional)"}
               </p>
@@ -212,7 +211,7 @@ export default function FieldWrapper({
           <div className="mb-5">{children}</div>
 
           {/* Footer Row */}
-          <div className="flex items-center justify-between pt-3 border-t border-border/50">
+          <div className="flex items-center justify-between pt-3 mt-1 -mx-6 -mb-6 px-6 py-3 border-t border-border bg-muted/30 rounded-b-xl">
             {/* Left: Required & Advanced */}
             <div className="flex items-center gap-4">
               {/* Required Toggle */}

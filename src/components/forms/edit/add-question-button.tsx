@@ -156,11 +156,13 @@ const fieldTypes: FieldType[] = [
 ];
 
 interface AddQuestionButtonProps {
-  onAddQuestion: (fieldType: string) => void;
+  onAddQuestion: (fieldType: string, sectionId?: string) => void;
+  sectionId?: string;
 }
 
 export default function AddQuestionButton({
   onAddQuestion,
+  sectionId,
 }: AddQuestionButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -200,27 +202,19 @@ export default function AddQuestionButton({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant={"default"}
+        <button
           className={cn(
-            "w-full h-auto py-4 px-6 rounded-xl",
-            "border-2 border-dashed",
-            "transition-colors duration-200",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+            "w-full max-w-md mx-auto py-2.5 px-4",
+            "border border-dashed rounded-lg",
+            "transition-colors text-sm flex items-center justify-center gap-1.5",
             isOpen
-              ? "border-primary/50 bg-primary/10"
-              : "border-primary/30 bg-transparent hover:bg-primary/8 hover:border-primary/50"
+              ? "border-primary/50 bg-primary/5 text-primary"
+              : "border-border/60 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground/70 hover:text-primary"
           )}
         >
-          <div className="flex items-center justify-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary">
-              <Plus className="h-4.5 w-4.5" />
-            </div>
-            <span className="font-medium text-base text-primary">
-              Add Question
-            </span>
-          </div>
-        </Button>
+          <span className="text-base">+</span>
+          <span>Add Question</span>
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
@@ -252,7 +246,7 @@ export default function AddQuestionButton({
                   <DropdownMenuItem
                     key={field.id}
                     onClick={() => {
-                      onAddQuestion(field.id);
+                      onAddQuestion(field.id, sectionId);
                       setIsOpen(false);
                     }}
                     className={cn(

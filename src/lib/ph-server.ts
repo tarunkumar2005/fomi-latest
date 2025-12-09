@@ -1,11 +1,11 @@
 import {
   getFormsByWorkspaceId,
-  getTotalFormCountbyWorkspaceId,
-  getPublishedFormCountbyWorkspaceId,
-  getSubmissionsCountbyWorkspaceId,
+  getTotalFormCountByWorkspaceId,
+  getPublishedFormCountByWorkspaceId,
+  getSubmissionsCountByWorkspaceId,
   getWorkspaceFormSubmissionsByDate,
   getSubmissionsGroupedByForm,
-  getWorkspaceFormsSummary
+  getWorkspaceFormsSummary,
 } from "./prisma";
 import {
   getDateRange,
@@ -297,7 +297,7 @@ const fillGapsWithZeros = (
   intervalStr: string
 ) => {
   if (data.length === 0) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.warn("⚠️ No data to fill gaps for");
     }
   }
@@ -909,17 +909,17 @@ export const getMetricsForRange = async (
   const slugs = forms.map((f) => f.slug);
 
   // Get form counts
-  const totalForms = await getTotalFormCountbyWorkspaceId(
+  const totalForms = await getTotalFormCountByWorkspaceId(
     workspaceId,
     dateFrom,
     dateTo
   );
-  const publishedForms = await getPublishedFormCountbyWorkspaceId(
+  const publishedForms = await getPublishedFormCountByWorkspaceId(
     workspaceId,
     dateFrom,
     dateTo
   );
-  const totalSubmissions = await getSubmissionsCountbyWorkspaceId(
+  const totalSubmissions = await getSubmissionsCountByWorkspaceId(
     workspaceId,
     dateFrom,
     dateTo
@@ -1187,7 +1187,7 @@ export const getConversionFunnel = async (
 
   const totalViews = await getTotalViewsBySlugs(slugs, dateFrom, dateTo);
   const totalStarts = await getTotalFormStartsBySlugs(slugs, dateFrom, dateTo);
-  const totalSubmissions = await getSubmissionsCountbyWorkspaceId(
+  const totalSubmissions = await getSubmissionsCountByWorkspaceId(
     workspaceId,
     dateFrom,
     dateTo
@@ -1347,20 +1347,19 @@ export const enrichFormsWithAnalytics = async (
   if (!formsSummary.length) return [];
 
   // Extract slugs
-  const slugs = formsSummary.map(f => f.slug);
+  const slugs = formsSummary.map((f) => f.slug);
 
   // Get views from PostHog (all time)
-  const allTimeStart = new Date('2025-01-01').toISOString();
+  const allTimeStart = new Date("2025-01-01").toISOString();
   const now = new Date().toISOString();
-  
+
   const viewsByForm = await getViewsGroupedByForm(slugs, allTimeStart, now);
 
   // Enrich forms with views and calculate rates
-  return formsSummary.map(form => {
+  return formsSummary.map((form) => {
     const views = viewsByForm[form.slug] || 0;
-    const rate = views > 0 
-      ? parseFloat(((form.completions / views) * 100).toFixed(1))
-      : 0;
+    const rate =
+      views > 0 ? parseFloat(((form.completions / views) * 100).toFixed(1)) : 0;
 
     return {
       id: form.id,

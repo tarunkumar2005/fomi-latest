@@ -1,52 +1,49 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  MessageSquare,
-  Palette,
-  Share2,
-  Check,
-  Copy
-} from "lucide-react";
+import { MessageSquare, Palette, Share2, Check, Copy } from "lucide-react";
 
 const steps = [
   {
     number: "1",
     title: "Describe Your Form",
-    description: 'Tell Fomi what kind of form you need in plain English. "Create a customer feedback survey" or "Build a job application form."',
+    description:
+      'Tell Fomi what kind of form you need in plain English. "Create a customer feedback survey" or "Build a job application form."',
     example: {
       label: "Example prompt:",
-      text: '"Create a restaurant reservation form with date, time, party size, and special requests"'
+      text: '"Create a restaurant reservation form with date, time, party size, and special requests"',
     },
-    color: "bg-purple-500/10",
-    textColor: "text-purple-500",
-    borderColor: "border-purple-500/20"
+    color: "bg-primary/10",
+    textColor: "text-primary",
+    borderColor: "border-primary/20",
   },
   {
     number: "2",
     title: "Customize & Perfect",
-    description: "Edit questions, adjust styling, and fine-tune the logic. Our intuitive editor makes customization effortless.",
+    description:
+      "Edit questions, adjust styling, and fine-tune the logic. Our intuitive editor makes customization effortless.",
     features: [
-      { icon: "✏️", text: "Edit questions", color: "text-orange-500" },
-      { icon: "🎨", text: "Choose theme", color: "text-pink-500" },
-      { icon: "⚡", text: "Add logic", color: "text-yellow-500" }
+      { icon: "✏️", text: "Edit questions", color: "text-chart-5" },
+      { icon: "🎨", text: "Choose theme", color: "text-chart-4" },
+      { icon: "⚡", text: "Add logic", color: "text-warning" },
     ],
-    color: "bg-purple-500/10",
-    textColor: "text-purple-500",
-    borderColor: "border-purple-500/20"
+    color: "bg-chart-2/10",
+    textColor: "text-chart-2",
+    borderColor: "border-chart-2/20",
   },
   {
     number: "3",
     title: "Share & Collect",
-    description: "Get your unique form link instantly. Share it anywhere and watch responses flow into your dashboard in real-time.",
+    description:
+      "Get your unique form link instantly. Share it anywhere and watch responses flow into your dashboard in real-time.",
     link: {
       label: "Your form link:",
-      url: "fomi-forms.vercel.app/forms/form-xyz"
+      url: "fomi-forms.vercel.app/forms/form-xyz",
     },
-    color: "bg-green-500/10",
-    textColor: "text-green-500",
-    borderColor: "border-green-500/20"
-  }
+    color: "bg-success/10",
+    textColor: "text-success",
+    borderColor: "border-success/20",
+  },
 ];
 
 export default function Steps() {
@@ -62,7 +59,8 @@ export default function Steps() {
             Create forms in three simple steps
           </h2>
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            From idea to deployed form in under 30 seconds. No technical skills required.
+            From idea to deployed form in under 30 seconds. No technical skills
+            required.
           </p>
         </div>
 
@@ -72,7 +70,9 @@ export default function Steps() {
             <div key={index} className="flex flex-col items-center">
               {/* Step Number Badge */}
               <div className="mb-6">
-                <div className={`${step.color} ${step.textColor} w-16 h-16 rounded-2xl flex items-center justify-center font-heading text-2xl font-bold shadow-sm`}>
+                <div
+                  className={`${step.color} ${step.textColor} w-16 h-16 rounded-2xl flex items-center justify-center font-heading text-2xl font-bold shadow-sm`}
+                >
                   {step.number}
                 </div>
               </div>
@@ -118,7 +118,7 @@ export default function Steps() {
                               {feature.text}
                             </span>
                           </div>
-                          <Check className="h-4 w-4 text-green-500 shrink-0" />
+                          <Check className="h-4 w-4 text-success shrink-0" />
                         </div>
                       ))}
                     </div>
@@ -149,21 +149,6 @@ export default function Steps() {
           ))}
         </div>
       </div>
-
-      {/* Glassmorphism styles */}
-      <style jsx global>{`
-        .glassmorphism-card {
-          background: rgba(255, 255, 255, 0.02);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-        }
-        
-        @supports (backdrop-filter: blur(20px)) {
-          .glassmorphism-card {
-            background: hsl(var(--card) / 0.4);
-          }
-        }
-      `}</style>
     </section>
   );
 }
