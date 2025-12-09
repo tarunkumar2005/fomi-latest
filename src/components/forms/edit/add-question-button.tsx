@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState } from "react"
 import {
   Plus,
   Type,
@@ -11,15 +11,14 @@ import {
   Link,
   ListOrdered,
   CheckSquare,
-  ChevronDown as ChevronDownIcon,
+  ChevronDownIcon,
   Star,
   Sliders,
   Calendar,
   Clock,
   CalendarRange,
   Upload,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,15 +26,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
 
 interface FieldType {
-  id: string;
-  label: string;
-  description: string;
-  icon: typeof Type;
-  category: "text" | "choice" | "advanced" | "date" | "file";
+  id: string
+  label: string
+  description: string
+  icon: typeof Type
+  category: "text" | "choice" | "advanced" | "date" | "file"
 }
 
 const fieldTypes: FieldType[] = [
@@ -82,7 +81,6 @@ const fieldTypes: FieldType[] = [
     icon: Link,
     category: "text",
   },
-
   // Choice Fields
   {
     id: "multiple-choice",
@@ -105,7 +103,6 @@ const fieldTypes: FieldType[] = [
     icon: ChevronDownIcon,
     category: "choice",
   },
-
   // Advanced Fields
   {
     id: "rating",
@@ -121,7 +118,6 @@ const fieldTypes: FieldType[] = [
     icon: Sliders,
     category: "advanced",
   },
-
   // Date & Time Fields
   {
     id: "date",
@@ -144,7 +140,6 @@ const fieldTypes: FieldType[] = [
     icon: CalendarRange,
     category: "date",
   },
-
   // File Upload
   {
     id: "file-upload",
@@ -153,117 +148,110 @@ const fieldTypes: FieldType[] = [
     icon: Upload,
     category: "file",
   },
-];
+]
 
 interface AddQuestionButtonProps {
-  onAddQuestion: (fieldType: string, sectionId?: string) => void;
-  sectionId?: string;
+  onAddQuestion: (fieldType: string, sectionId?: string) => void
+  sectionId?: string
 }
 
-export default function AddQuestionButton({
-  onAddQuestion,
-  sectionId,
-}: AddQuestionButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function AddQuestionButton({ onAddQuestion, sectionId }: AddQuestionButtonProps) {
+  const [isOpen, setIsOpen] = useState(false)
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
       case "text":
-        return "Text Inputs";
+        return "Text Inputs"
       case "choice":
-        return "Choice Fields";
+        return "Choice Fields"
       case "advanced":
-        return "Interactive";
+        return "Interactive"
       case "date":
-        return "Date & Time";
+        return "Date & Time"
       case "file":
-        return "File Upload";
+        return "File Upload"
       default:
-        return "";
+        return ""
     }
-  };
+  }
 
-  const groupedFields = fieldTypes.reduce((acc, field) => {
-    if (!acc[field.category]) {
-      acc[field.category] = [];
-    }
-    acc[field.category].push(field);
-    return acc;
-  }, {} as Record<string, FieldType[]>);
+  const groupedFields = fieldTypes.reduce(
+    (acc, field) => {
+      if (!acc[field.category]) {
+        acc[field.category] = []
+      }
+      acc[field.category].push(field)
+      return acc
+    },
+    {} as Record<string, FieldType[]>,
+  )
 
-  const categoryOrder: Array<FieldType["category"]> = [
-    "text",
-    "choice",
-    "advanced",
-    "date",
-    "file",
-  ];
+  const categoryOrder: Array<FieldType["category"]> = ["text", "choice", "advanced", "date", "file"]
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "w-full max-w-md mx-auto py-2.5 px-4",
-            "border border-dashed rounded-lg",
-            "transition-colors text-sm flex items-center justify-center gap-1.5",
+            "w-full max-w-sm mx-auto py-2.5 sm:py-3 px-4",
+            "border-2 border-dashed rounded-xl",
+            "transition-all duration-200 text-sm flex items-center justify-center gap-2",
+            "group",
             isOpen
               ? "border-primary/50 bg-primary/5 text-primary"
-              : "border-border/60 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground/70 hover:text-primary"
+              : "border-border/50 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary",
           )}
         >
-          <span className="text-base">+</span>
-          <span>Add Question</span>
+          <Plus className="h-4 w-4 group-hover:scale-110 transition-transform" />
+          <span className="font-medium">Add Question</span>
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="center"
-        className="w-[320px] p-2 max-h-[600px] overflow-y-auto"
+        className="w-[300px] sm:w-[340px] p-2 max-h-[500px] sm:max-h-[600px] overflow-y-auto rounded-xl border-border/60 shadow-2xl"
       >
-        <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground px-2 py-1.5">
+        <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground px-2 py-2">
           Select Field Type
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="my-1" />
 
         {categoryOrder.map((category, categoryIndex) => {
-          const fields = groupedFields[category];
-          if (!fields || fields.length === 0) return null;
+          const fields = groupedFields[category]
+          if (!fields || fields.length === 0) return null
 
           return (
             <div key={category}>
-              {categoryIndex > 0 && <DropdownMenuSeparator className="my-1" />}
+              {categoryIndex > 0 && <DropdownMenuSeparator className="my-1.5" />}
 
-              <div className="px-2 py-1">
-                <p className="text-xs font-semibold text-muted-foreground mb-1">
-                  {getCategoryLabel(category)}
-                </p>
+              <div className="px-2 py-1.5">
+                <p className="text-xs font-semibold text-muted-foreground">{getCategoryLabel(category)}</p>
               </div>
 
               {fields.map((field) => {
-                const Icon = field.icon;
+                const Icon = field.icon
                 return (
                   <DropdownMenuItem
                     key={field.id}
                     onClick={() => {
-                      onAddQuestion(field.id, sectionId);
-                      setIsOpen(false);
+                      onAddQuestion(field.id, sectionId)
+                      setIsOpen(false)
                     }}
                     className={cn(
                       "flex items-start gap-3 px-3 py-2.5 cursor-pointer rounded-lg",
                       "transition-all duration-200 group/item",
-                      "hover:bg-primary/8"
+                      "hover:bg-primary/5",
                     )}
                   >
                     <div
                       className={cn(
-                        "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5",
+                        "w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5",
                         "bg-primary/10 text-primary border border-primary/20",
                         "transition-all duration-200",
-                        "group-hover/item:bg-primary/20 group-hover/item:border-primary/40 group-hover/item:scale-105"
+                        "group-hover/item:bg-primary/15 group-hover/item:border-primary/30 group-hover/item:scale-105",
                       )}
                     >
-                      <Icon className="h-4 w-4 transition-transform duration-200 group-hover/item:scale-110" />
+                      <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200 group-hover/item:scale-110" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground leading-tight transition-colors duration-200 group-hover/item:text-primary">
@@ -274,12 +262,12 @@ export default function AddQuestionButton({
                       </p>
                     </div>
                   </DropdownMenuItem>
-                );
+                )
               })}
             </div>
-          );
+          )
         })}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

@@ -1,40 +1,40 @@
-"use client";
+"use client"
+
 import Image from "next/image";
-import { Card } from "@/components/ui/card";
-import { BarChart3 } from "lucide-react";
+import { Card } from "@/components/ui/card"
 import dashboardImage from "@/assets/dashboard.png";
 
 export default function Analytics() {
   return (
-    <section className="relative w-full py-20 md:py-32 bg-background overflow-hidden">
+    <section className="relative w-full py-16 sm:py-20 md:py-28 lg:py-32 bg-background overflow-hidden">
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-linear-to-b from-muted/40 via-background to-muted/40" />
 
-      {/* Decorative gradient orbs */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+      {/* Decorative gradient orbs - Scaled for mobile */}
+      <div className="absolute top-10 sm:top-20 right-5 sm:right-10 w-48 sm:w-72 h-48 sm:h-72 bg-primary/10 rounded-full blur-2xl sm:blur-3xl" />
+      <div className="absolute bottom-10 sm:bottom-20 left-5 sm:left-10 w-64 sm:w-96 h-64 sm:h-96 bg-accent/10 rounded-full blur-2xl sm:blur-3xl" />
 
-      <div className="container relative z-10 mx-auto px-4">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header - Better responsive typography */}
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 md:mb-16 lg:mb-20">
+          <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 sm:mb-4 text-balance">
             Powerful analytics built-in
           </h2>
-          <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            Track form performance, analyze responses, and gain insights with real-time dashboards and detailed reporting.
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed px-2 text-pretty">
+            Track form performance, analyze responses, and gain insights with real-time dashboards and detailed
+            reporting.
           </p>
         </div>
 
-        {/* Analytics Dashboard Image */}
         <div className="max-w-6xl mx-auto">
-          <Card className="bg-card border border-border/60 shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden group">
-            {/* Dashboard Image Container */}
-            <div className="relative w-full aspect-16/10 bg-linear-to-br from-muted/20 to-muted/40">
+          <Card className="bg-card border border-border/60 shadow-xl sm:shadow-2xl hover:shadow-2xl sm:hover:shadow-3xl transition-all duration-500 overflow-hidden group">
+            {/* Dashboard Image Container - Using placeholder */}
+            <div className="relative w-full aspect-16/10 bg-linear-to-br from-muted/40 to-muted/60">
               <Image
                 src={dashboardImage}
                 alt="Fomi Analytics Dashboard - Track form performance and responses"
+                className="w-full h-full object-cover object-top"
                 fill
-                className="object-cover object-top"
                 priority
               />
 
@@ -42,13 +42,8 @@ export default function Analytics() {
               <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-border/20" />
             </div>
           </Card>
-
-          {/* Decorative glow effect */}
-          <div className="absolute inset-0 -z-10 blur-3xl opacity-30">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-linear-to-r from-primary/20 via-accent/20 to-primary/20" />
-          </div>
         </div>
       </div>
     </section>
-  );
+  )
 }

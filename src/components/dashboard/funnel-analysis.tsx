@@ -1,40 +1,40 @@
-"use client";
+"use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { Award, TrendingDown } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+import { TrendingDown, Filter, Trophy, Eye, MousePointer, CheckCircle } from "lucide-react"
 
 // ===========================
 // TYPES
 // ===========================
 
 interface FunnelStage {
-  stage: string;
-  value: number;
-  percentage: number;
-  color: string;
-  dropoff: number;
+  stage: string
+  value: number
+  percentage: number
+  color: string
+  dropoff: number
 }
 
 interface TopForm {
-  rank: number;
-  name: string;
-  slug: string;
-  conversionRate: number;
-  avgTime: string;
-  views: number;
-  starts: number;
-  submissions: number;
+  rank: number
+  name: string
+  slug: string
+  conversionRate: number
+  avgTime: string
+  views: number
+  starts: number
+  submissions: number
 }
 
 interface FunnelData {
-  conversionFunnel?: FunnelStage[];
-  topForms?: TopForm[];
+  conversionFunnel?: FunnelStage[]
+  topForms?: TopForm[]
 }
 
 interface FunnelAnalysisProps {
-  isLoading?: boolean;
-  funnelData?: FunnelData;
+  isLoading?: boolean
+  funnelData?: FunnelData
 }
 
 // ===========================
@@ -42,95 +42,92 @@ interface FunnelAnalysisProps {
 // ===========================
 
 const getPodiumHeight = (rank: number): string => {
-  const heights = {
-    1: "h-32",
-    2: "h-24",
-    3: "h-20",
-  };
-  return heights[rank as keyof typeof heights] || "h-16";
-};
+  const heights = { 1: "h-28", 2: "h-20", 3: "h-16" }
+  return heights[rank as keyof typeof heights] || "h-14"
+}
 
 const getPodiumColors = (rank: number) => {
   const colors = {
     1: {
-      border: "border-warning",
-      bg: "bg-gradient-to-br from-warning/10 to-warning/5",
-      badge: "bg-warning/20 text-warning",
-      podium: "bg-gradient-to-t from-warning to-warning/80",
-      badgeSize: "text-2xl",
-      rateSize: "text-2xl",
+      border: "border-amber-400/50",
+      bg: "bg-gradient-to-br from-amber-500/10 to-amber-600/5",
+      badge: "bg-gradient-to-br from-amber-400 to-amber-500 text-amber-950",
+      podium: "bg-gradient-to-t from-amber-500 to-amber-400",
+      shadow: "shadow-amber-500/20",
     },
     2: {
-      border: "border-muted-foreground/30",
-      bg: "bg-gradient-to-br from-muted to-muted/50",
-      badge: "bg-muted text-muted-foreground",
-      podium:
-        "bg-gradient-to-t from-muted-foreground/60 to-muted-foreground/40",
-      badgeSize: "text-xl",
-      rateSize: "text-xl",
+      border: "border-slate-400/50",
+      bg: "bg-gradient-to-br from-slate-400/10 to-slate-500/5",
+      badge: "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900",
+      podium: "bg-gradient-to-t from-slate-400 to-slate-300",
+      shadow: "shadow-slate-400/20",
     },
     3: {
-      border: "border-chart-5/30",
-      bg: "bg-gradient-to-br from-chart-5/10 to-chart-5/5",
-      badge: "bg-chart-5/20 text-chart-5",
-      podium: "bg-gradient-to-t from-chart-5 to-chart-5/80",
-      badgeSize: "text-xl",
-      rateSize: "text-xl",
+      border: "border-orange-400/50",
+      bg: "bg-gradient-to-br from-orange-400/10 to-orange-500/5",
+      badge: "bg-gradient-to-br from-orange-300 to-orange-400 text-orange-900",
+      podium: "bg-gradient-to-t from-orange-400 to-orange-300",
+      shadow: "shadow-orange-400/20",
     },
-  };
-  return colors[rank as keyof typeof colors] || colors[3];
-};
+  }
+  return colors[rank as keyof typeof colors] || colors[3]
+}
+
+const stageIcons: Record<string, any> = {
+  Views: Eye,
+  Starts: MousePointer,
+  Submissions: CheckCircle,
+}
 
 // ===========================
 // COMPONENTS
 // ===========================
 
 const LoadingSkeleton = () => (
-  <div className="px-4 sm:px-6 py-8 bg-background">
+  <div className="px-4 sm:px-6 py-6 bg-background">
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="space-y-2">
-        <div className="h-6 w-64 bg-muted rounded animate-pulse" />
+        <div className="h-7 w-64 bg-muted rounded animate-pulse" />
         <div className="h-4 w-96 bg-muted rounded animate-pulse" />
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {[1, 2].map((i) => (
-          <Card key={i} className="border-border bg-card">
-            <CardHeader className="pb-4">
-              <div className="h-5 w-32 bg-muted rounded animate-pulse" />
+          <Card key={i} className="border-border/50 bg-card overflow-hidden">
+            <CardHeader className="pb-4 border-b border-border/50">
+              <div className="h-6 w-40 bg-muted rounded animate-pulse" />
             </CardHeader>
-            <CardContent className="pb-5">
-              <div className="h-64 bg-muted rounded animate-pulse" />
+            <CardContent className="pt-6 pb-4">
+              <div className="h-64 bg-muted/50 rounded-xl animate-pulse" />
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
   </div>
-);
+)
 
 const EmptyState = ({ message }: { message: string }) => (
   <div className="h-64 flex items-center justify-center">
-    <p className="text-sm text-muted-foreground">{message}</p>
+    <div className="text-center space-y-3 max-w-xs">
+      <div className="mx-auto w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
+        <Filter className="h-7 w-7 text-muted-foreground/60" />
+      </div>
+      <p className="text-sm text-muted-foreground">{message}</p>
+    </div>
   </div>
-);
+)
 
 // ===========================
 // MAIN COMPONENT
 // ===========================
 
-export default function FunnelAnalysis({
-  isLoading = false,
-  funnelData,
-}: FunnelAnalysisProps) {
-  // Extract data with fallbacks
-  const { conversionFunnel = [], topForms = [] } = funnelData || {};
+export default function FunnelAnalysis({ isLoading = false, funnelData }: FunnelAnalysisProps) {
+  const { conversionFunnel = [], topForms = [] } = funnelData || {}
 
-  // Loading state
   if (isLoading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton />
   }
 
-  // Create empty form placeholder
   const createEmptyForm = (rank: number): TopForm => ({
     rank,
     name: "No Form",
@@ -140,135 +137,137 @@ export default function FunnelAnalysis({
     views: 0,
     starts: 0,
     submissions: 0,
-  });
+  })
 
-  // Ensure we always have exactly 3 forms for podium display
   const podiumForms: TopForm[] = [
     topForms.find((f) => f.rank === 1) || createEmptyForm(1),
     topForms.find((f) => f.rank === 2) || createEmptyForm(2),
     topForms.find((f) => f.rank === 3) || createEmptyForm(3),
-  ];
+  ]
 
-  // Sort for podium display: 2nd, 1st, 3rd
-  const podiumOrder = [podiumForms[1], podiumForms[0], podiumForms[2]];
-
-  // Check if we have any real forms
-  const hasAnyForms = topForms.length > 0;
+  const podiumOrder = [podiumForms[1], podiumForms[0], podiumForms[2]]
+  const hasAnyForms = topForms.length > 0
 
   return (
-    <div className="px-4 sm:px-6 py-8 bg-background">
+    <div className="px-4 sm:px-6 py-6 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Section Header */}
         <div>
-          <h2 className="font-heading text-xl font-semibold text-foreground">
-            Funnel & Behavior Analytics
-          </h2>
-          <p className="font-body text-sm text-muted-foreground mt-1">
-            Visualize user journey and identify drop-off points
-          </p>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Funnel & Performance</h2>
+          <p className="text-sm text-muted-foreground mt-1">Visualize user journey and identify top performers</p>
         </div>
 
         {/* Side by Side Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* ===== CONVERSION FUNNEL ===== */}
-          <Card className="border-border bg-card hover:shadow-sm transition-all duration-200">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-heading text-base font-semibold text-foreground">
-                Conversion Funnel
-              </CardTitle>
+          <Card className="border-border/50 bg-card overflow-hidden">
+            <CardHeader className="pb-4 border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-primary/10">
+                  <Filter className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-semibold text-foreground">Conversion Funnel</CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">User journey stages</p>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="pb-5">
+            <CardContent className="pt-6 pb-4">
               {conversionFunnel.length === 0 ? (
                 <EmptyState message="No funnel data available" />
               ) : (
-                <div className="space-y-3">
-                  {conversionFunnel.map((stage, index) => (
-                    <div key={index} className="space-y-2">
-                      {/* Stage Header */}
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="font-body font-semibold text-foreground">
-                            {stage.stage}
+                <div className="space-y-4">
+                  {conversionFunnel.map((stage, index) => {
+                    const StageIcon = stageIcons[stage.stage] || Eye
+                    return (
+                      <div key={index} className="space-y-2">
+                        {/* Stage Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <StageIcon className="h-4 w-4" style={{ color: stage.color }} />
+                            <span className="text-sm font-semibold text-foreground">{stage.stage}</span>
+                            {stage.dropoff > 0 && (
+                              <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <TrendingDown className="h-3 w-3" />-{stage.dropoff}%
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {stage.value.toLocaleString()} ({stage.percentage}%)
                           </span>
-                          {stage.dropoff > 0 && (
-                            <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded flex items-center gap-1">
-                              <TrendingDown className="h-3 w-3" />-
-                              {stage.dropoff}%
-                            </span>
-                          )}
                         </div>
-                        <span className="font-body text-xs text-muted-foreground">
-                          {stage.value.toLocaleString()} ({stage.percentage}%)
-                        </span>
-                      </div>
 
-                      {/* Funnel Bar */}
-                      <div className="relative h-14 bg-muted/20 rounded-xl overflow-hidden">
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-xl transition-all duration-700 flex items-center justify-between px-4"
-                          style={{
-                            width: `${stage.percentage}%`,
-                            background: `linear-gradient(90deg, ${stage.color}, ${stage.color}dd)`,
-                          }}
-                        >
-                          <span className="font-heading text-sm font-bold text-white">
-                            {stage.value.toLocaleString()}
-                          </span>
-                          <span className="font-body text-xs font-semibold text-white/90">
-                            {stage.percentage}%
-                          </span>
+                        <div className="relative h-12 bg-muted/30 rounded-xl overflow-hidden">
+                          <div
+                            className="absolute inset-y-0 left-0 rounded-xl transition-all duration-700 flex items-center justify-between px-4"
+                            style={{
+                              width: `${Math.max(stage.percentage, 5)}%`,
+                              background: `linear-gradient(90deg, ${stage.color}, ${stage.color}99)`,
+                            }}
+                          >
+                            <span className="text-sm font-bold text-white drop-shadow-sm">
+                              {stage.value.toLocaleString()}
+                            </span>
+                            {stage.percentage > 20 && (
+                              <span className="text-xs font-semibold text-white/90 drop-shadow-sm">
+                                {stage.percentage}%
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* ===== TOP PERFORMING FORMS ===== */}
-          <Card className="border-border bg-card hover:shadow-sm transition-all duration-200">
-            <CardHeader className="pb-4">
+          <Card className="border-border/50 bg-card overflow-hidden">
+            <CardHeader className="pb-4 border-b border-border/50">
               <div className="flex items-center justify-between">
-                <CardTitle className="font-heading text-base font-semibold text-foreground">
-                  Top Performing Forms
-                </CardTitle>
-                <Award className="h-5 w-5 text-yellow-600" />
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10">
+                    <Trophy className="h-5 w-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-foreground">Top Performers</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">Best converting forms</p>
+                  </div>
+                </div>
               </div>
             </CardHeader>
-            <CardContent className="pb-5">
+            <CardContent className="pt-6 pb-4">
               {!hasAnyForms ? (
-                <EmptyState message="No forms yet. Create a form to see performance data." />
+                <EmptyState message="Create a form to see performance data" />
               ) : (
-                <div className="flex items-end justify-center gap-3">
+                <div className="flex items-end justify-center gap-3 sm:gap-4">
                   {podiumOrder.map((form) => {
-                    const colors = getPodiumColors(form.rank);
-                    const height = getPodiumHeight(form.rank);
-                    const isEmpty = form.name === "No Form";
+                    const colors = getPodiumColors(form.rank)
+                    const height = getPodiumHeight(form.rank)
+                    const isEmpty = form.name === "No Form"
 
                     return (
-                      <div
-                        key={form.slug}
-                        className="flex flex-col items-center flex-1"
-                      >
+                      <div key={form.slug} className="flex flex-col items-center flex-1 max-w-[140px]">
                         {/* Form Card */}
                         <div className="w-full mb-2">
                           <div
                             className={cn(
-                              "p-3 rounded-lg border bg-card transition-all",
+                              "p-3 rounded-xl border bg-card transition-all duration-300",
                               colors.border,
                               colors.bg,
-                              !isEmpty && "hover:shadow-md cursor-pointer",
-                              isEmpty && "opacity-50"
+                              !isEmpty && "hover:shadow-lg cursor-pointer",
+                              isEmpty && "opacity-40",
                             )}
                           >
                             {/* Rank Badge */}
-                            <div className="flex justify-center mb-2">
+                            <div className="flex justify-center mb-3">
                               <div
                                 className={cn(
-                                  "w-12 h-12 rounded-full flex items-center justify-center font-heading font-bold",
+                                  "w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-lg",
                                   colors.badge,
-                                  colors.badgeSize
+                                  colors.shadow,
                                 )}
                               >
                                 {form.rank}
@@ -279,10 +278,8 @@ export default function FunnelAnalysis({
                             <div className="text-center">
                               <p
                                 className={cn(
-                                  "font-body text-xs font-semibold mb-1.5 truncate",
-                                  isEmpty
-                                    ? "text-muted-foreground italic"
-                                    : "text-foreground"
+                                  "text-xs font-semibold mb-2 truncate",
+                                  isEmpty ? "text-muted-foreground italic" : "text-foreground",
                                 )}
                                 title={form.name}
                               >
@@ -290,50 +287,27 @@ export default function FunnelAnalysis({
                               </p>
                               {!isEmpty ? (
                                 <>
-                                  <p
-                                    className={cn(
-                                      "font-heading font-bold text-foreground mb-1",
-                                      colors.rateSize
-                                    )}
-                                  >
-                                    {form.conversionRate}%
-                                  </p>
-                                  <p className="font-body text-xs text-muted-foreground">
-                                    Avg: {form.avgTime}
-                                  </p>
-                                  <div className="mt-2 pt-2 border-t border-border/50">
+                                  <p className="text-xl font-bold text-foreground mb-1">{form.conversionRate}%</p>
+                                  <p className="text-xs text-muted-foreground">Avg: {form.avgTime}</p>
+                                  <div className="mt-3 pt-3 border-t border-border/50">
                                     <div className="grid grid-cols-3 gap-1 text-xs">
                                       <div>
-                                        <p className="text-muted-foreground">
-                                          Views
-                                        </p>
-                                        <p className="font-semibold text-foreground">
-                                          {form.views}
-                                        </p>
+                                        <p className="text-muted-foreground">Views</p>
+                                        <p className="font-semibold text-foreground">{form.views}</p>
                                       </div>
                                       <div>
-                                        <p className="text-muted-foreground">
-                                          Starts
-                                        </p>
-                                        <p className="font-semibold text-foreground">
-                                          {form.starts}
-                                        </p>
+                                        <p className="text-muted-foreground">Starts</p>
+                                        <p className="font-semibold text-foreground">{form.starts}</p>
                                       </div>
                                       <div>
-                                        <p className="text-muted-foreground">
-                                          Done
-                                        </p>
-                                        <p className="font-semibold text-foreground">
-                                          {form.submissions}
-                                        </p>
+                                        <p className="text-muted-foreground">Done</p>
+                                        <p className="font-semibold text-foreground">{form.submissions}</p>
                                       </div>
                                     </div>
                                   </div>
                                 </>
                               ) : (
-                                <p className="font-body text-xs text-muted-foreground italic mt-2">
-                                  No data
-                                </p>
+                                <p className="text-xs text-muted-foreground italic mt-2">No data</p>
                               )}
                             </div>
                           </div>
@@ -342,14 +316,15 @@ export default function FunnelAnalysis({
                         {/* Podium Base */}
                         <div
                           className={cn(
-                            "w-full rounded-t-lg transition-all",
+                            "w-full rounded-t-lg transition-all shadow-lg",
                             height,
                             colors.podium,
-                            isEmpty && "opacity-30"
+                            colors.shadow,
+                            isEmpty && "opacity-30",
                           )}
                         />
                       </div>
-                    );
+                    )
                   })}
                 </div>
               )}
@@ -358,5 +333,5 @@ export default function FunnelAnalysis({
         </div>
       </div>
     </div>
-  );
+  )
 }

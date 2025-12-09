@@ -1,6 +1,8 @@
-"use client";
+"use client"
 
-import { useState, useRef, useEffect } from "react";
+import type React from "react"
+
+import { useState, useRef, useEffect } from "react"
 import {
   Trash2,
   Copy,
@@ -11,20 +13,20 @@ import {
   ChevronUp,
   GitBranch,
   Repeat,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,28 +36,28 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog"
 
 interface SectionContainerProps {
-  sectionId: string;
-  sectionNumber: number;
-  title: string;
-  description: string | null;
-  isActive: boolean;
-  isCollapsed?: boolean;
-  hasConditionalLogic?: boolean;
-  isRepeatable?: boolean;
-  repeatCount?: number | null;
-  children: React.ReactNode;
-  onTitleChange: (title: string) => void;
-  onDescriptionChange: (description: string) => void;
-  onDelete: () => void;
-  onDuplicate?: () => void;
-  onSettings?: () => void;
-  onNavigationSettings?: () => void;
-  onRepeatSettings?: () => void;
-  onToggleCollapse?: () => void;
-  onActivate: () => void;
+  sectionId: string
+  sectionNumber: number
+  title: string
+  description: string | null
+  isActive: boolean
+  isCollapsed?: boolean
+  hasConditionalLogic?: boolean
+  isRepeatable?: boolean
+  repeatCount?: number | null
+  children: React.ReactNode
+  onTitleChange: (title: string) => void
+  onDescriptionChange: (description: string) => void
+  onDelete: () => void
+  onDuplicate?: () => void
+  onSettings?: () => void
+  onNavigationSettings?: () => void
+  onRepeatSettings?: () => void
+  onToggleCollapse?: () => void
+  onActivate: () => void
 }
 
 export default function SectionContainer({
@@ -79,71 +81,64 @@ export default function SectionContainer({
   onToggleCollapse,
   onActivate,
 }: SectionContainerProps) {
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [editTitle, setEditTitle] = useState(title);
-  const [editDescription, setEditDescription] = useState(description || "");
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [isEditingDescription, setIsEditingDescription] = useState(false)
+  const [editTitle, setEditTitle] = useState(title)
+  const [editDescription, setEditDescription] = useState(description || "")
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
-  const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null)
+  const descriptionRef = useRef<HTMLTextAreaElement>(null)
 
   // Drag and drop functionality
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: sectionId });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: sectionId })
 
   // Sync with prop changes
   useEffect(() => {
-    setEditTitle(title);
-  }, [title]);
+    setEditTitle(title)
+  }, [title])
 
   useEffect(() => {
-    setEditDescription(description || "");
-  }, [description]);
+    setEditDescription(description || "")
+  }, [description])
 
   // Auto-focus when editing starts
   useEffect(() => {
     if (isEditingTitle && titleRef.current) {
-      titleRef.current.focus();
-      titleRef.current.select();
+      titleRef.current.focus()
+      titleRef.current.select()
     }
-  }, [isEditingTitle]);
+  }, [isEditingTitle])
 
   useEffect(() => {
     if (isEditingDescription && descriptionRef.current) {
-      descriptionRef.current.focus();
-      descriptionRef.current.select();
+      descriptionRef.current.focus()
+      descriptionRef.current.select()
     }
-  }, [isEditingDescription]);
+  }, [isEditingDescription])
 
   const handleTitleBlur = () => {
-    setIsEditingTitle(false);
+    setIsEditingTitle(false)
     if (editTitle.trim() !== title) {
-      onTitleChange(editTitle.trim() || "Untitled Section");
+      onTitleChange(editTitle.trim() || "Untitled Section")
     }
-  };
+  }
 
   const handleDescriptionBlur = () => {
-    setIsEditingDescription(false);
+    setIsEditingDescription(false)
     if (editDescription !== description) {
-      onDescriptionChange(editDescription);
+      onDescriptionChange(editDescription)
     }
-  };
+  }
 
   const handleDeleteClick = () => {
-    setShowDeleteDialog(true);
-  };
+    setShowDeleteDialog(true)
+  }
 
   const handleDeleteConfirm = () => {
-    setShowDeleteDialog(false);
-    onDelete();
-  };
+    setShowDeleteDialog(false)
+    onDelete()
+  }
 
   return (
     <>
@@ -154,33 +149,36 @@ export default function SectionContainer({
           transition,
         }}
         className={cn(
-          "group relative bg-card rounded-lg border transition-all duration-200",
+          "group relative bg-card rounded-xl sm:rounded-2xl border-2 transition-all duration-200 shadow-sm hover:shadow-md",
           isActive
-            ? "border-primary shadow-lg ring-1 ring-primary/20 border-l-4 border-l-primary"
-            : "border-border hover:border-border/80 hover:shadow-sm",
-          isDragging && "opacity-50 shadow-2xl z-50"
+            ? "border-primary/50 shadow-lg ring-2 ring-primary/10 border-l-4 border-l-primary"
+            : "border-border/40 hover:border-border/60",
+          isDragging && "opacity-50 shadow-2xl z-50 scale-[1.02]",
         )}
         onClick={() => !isActive && onActivate()}
       >
-        {/* Drag Handle */}
         <div
           {...attributes}
           {...listeners}
           className={cn(
-            "absolute -left-10 top-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing",
-            isActive && "opacity-100"
+            "absolute -left-6 sm:-left-10 top-5 sm:top-6 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-grab active:cursor-grabbing",
+            isActive && "opacity-100",
           )}
         >
-          <div className="p-2 rounded-md hover:bg-muted">
-            <GripVertical className="h-5 w-5 text-muted-foreground" />
+          <div className="p-1.5 sm:p-2 rounded-lg hover:bg-muted bg-card border border-border/60 shadow-sm">
+            <GripVertical className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
           </div>
         </div>
-        {/* Section Header */}
-        <div className="p-6 border-b border-border space-y-3">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0 space-y-2">
+
+        <div className="p-4 sm:p-6 border-b border-border/40 space-y-2 sm:space-y-3">
+          <div className="flex items-start justify-between gap-3 sm:gap-4">
+            <div className="flex-1 min-w-0 space-y-1.5 sm:space-y-2">
               {/* Section Title with Badge */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-primary/10 text-primary text-xs font-semibold">
+                  {sectionNumber}
+                </span>
+
                 {isEditingTitle ? (
                   <Input
                     ref={titleRef}
@@ -189,26 +187,26 @@ export default function SectionContainer({
                     onBlur={handleTitleBlur}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        handleTitleBlur();
+                        handleTitleBlur()
                       }
                       if (e.key === "Escape") {
-                        setEditTitle(title);
-                        setIsEditingTitle(false);
+                        setEditTitle(title)
+                        setIsEditingTitle(false)
                       }
                     }}
-                    className="text-lg font-semibold h-auto py-1 px-2 border-2 border-primary flex-1"
+                    className="text-base sm:text-lg font-semibold h-auto py-1 px-2 border-2 border-primary flex-1 rounded-lg"
                     placeholder="Section title"
                   />
                 ) : (
                   <>
                     <h3
                       onClick={(e) => {
-                        e.stopPropagation();
-                        setIsEditingTitle(true);
+                        e.stopPropagation()
+                        setIsEditingTitle(true)
                       }}
                       className={cn(
-                        "text-lg font-semibold text-foreground cursor-text hover:text-primary transition-colors flex-1",
-                        !title && "text-muted-foreground"
+                        "text-base sm:text-lg font-semibold text-foreground cursor-text hover:text-primary transition-colors flex-1 truncate",
+                        !title && "text-muted-foreground",
                       )}
                     >
                       {title || "Click to add section title"}
@@ -216,21 +214,19 @@ export default function SectionContainer({
                     {hasConditionalLogic && (
                       <Badge
                         variant="secondary"
-                        className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20"
+                        className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20 text-xs px-2 py-0.5"
                       >
                         <GitBranch className="h-3 w-3" />
-                        <span className="text-xs">Conditional</span>
+                        <span className="hidden sm:inline">Conditional</span>
                       </Badge>
                     )}
                     {isRepeatable && repeatCount && (
                       <Badge
                         variant="secondary"
-                        className="flex items-center gap-1 bg-warning/10 text-warning border-warning/20"
+                        className="flex items-center gap-1 bg-amber-500/10 text-amber-600 border-amber-500/20 text-xs px-2 py-0.5"
                       >
                         <Repeat className="h-3 w-3" />
-                        <span className="text-xs">
-                          Repeatable (Max: {repeatCount})
-                        </span>
+                        <span className="hidden sm:inline">Repeat (Max: {repeatCount})</span>
                       </Badge>
                     )}
                   </>
@@ -246,25 +242,23 @@ export default function SectionContainer({
                   onBlur={handleDescriptionBlur}
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
-                      setEditDescription(description || "");
-                      setIsEditingDescription(false);
+                      setEditDescription(description || "")
+                      setIsEditingDescription(false)
                     }
                   }}
                   rows={2}
-                  className="text-sm resize-none border-2 border-primary px-2 py-1"
+                  className="text-sm resize-none border-2 border-primary px-2 py-1 rounded-lg"
                   placeholder="Add description (optional)"
                 />
               ) : (
                 <p
                   onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditingDescription(true);
+                    e.stopPropagation()
+                    setIsEditingDescription(true)
                   }}
                   className={cn(
-                    "text-sm cursor-text hover:text-foreground transition-colors",
-                    description
-                      ? "text-muted-foreground"
-                      : "text-muted-foreground/50 italic"
+                    "text-sm cursor-text hover:text-foreground transition-colors pl-8",
+                    description ? "text-muted-foreground" : "text-muted-foreground/50 italic",
                   )}
                 >
                   {description || "Click to add description"}
@@ -272,23 +266,18 @@ export default function SectionContainer({
               )}
             </div>
 
-            {/* Actions Menu */}
             <div className="flex items-center gap-1">
               {/* Collapse/Expand Button */}
               {onToggleCollapse && (
                 <button
                   onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleCollapse();
+                    e.stopPropagation()
+                    onToggleCollapse()
                   }}
-                  className="p-2 rounded-md transition-colors hover:bg-muted text-muted-foreground hover:text-foreground"
+                  className="p-1.5 sm:p-2 rounded-lg transition-colors hover:bg-muted text-muted-foreground hover:text-foreground"
                   title={isCollapsed ? "Expand section" : "Collapse section"}
                 >
-                  {isCollapsed ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronUp className="h-4 w-4" />
-                  )}
+                  {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
                 </button>
               )}
 
@@ -297,83 +286,70 @@ export default function SectionContainer({
                   <button
                     onClick={(e) => e.stopPropagation()}
                     className={cn(
-                      "p-2 rounded-md transition-colors",
+                      "p-1.5 sm:p-2 rounded-lg transition-colors",
                       "hover:bg-muted text-muted-foreground hover:text-foreground",
                       "opacity-0 group-hover:opacity-100",
-                      isActive && "opacity-100"
+                      isActive && "opacity-100",
                     )}
                   >
                     <MoreVertical className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52 p-1.5 rounded-xl border-border/60 shadow-xl">
                   {onDuplicate && (
-                    <DropdownMenuItem onClick={onDuplicate}>
-                      <Copy className="h-4 w-4 mr-2" />
+                    <DropdownMenuItem onClick={onDuplicate} className="rounded-lg px-3 py-2.5 cursor-pointer">
+                      <Copy className="h-4 w-4 mr-2.5" />
                       Duplicate Section
                     </DropdownMenuItem>
                   )}
 
-                  {/* Settings submenu */}
                   {(onSettings || onNavigationSettings || onRepeatSettings) && (
                     <>
-                      {onDuplicate && <DropdownMenuSeparator />}
+                      {onDuplicate && <DropdownMenuSeparator className="my-1.5" />}
 
-                      {/* Legacy single settings option */}
-                      {onSettings &&
-                        !onNavigationSettings &&
-                        !onRepeatSettings && (
-                          <DropdownMenuItem onClick={onSettings}>
-                            <Settings className="h-4 w-4 mr-2" />
-                            Section Settings
-                          </DropdownMenuItem>
-                        )}
+                      {onSettings && !onNavigationSettings && !onRepeatSettings && (
+                        <DropdownMenuItem onClick={onSettings} className="rounded-lg px-3 py-2.5 cursor-pointer">
+                          <Settings className="h-4 w-4 mr-2.5" />
+                          Section Settings
+                        </DropdownMenuItem>
+                      )}
 
-                      {/* Navigation settings */}
                       {onNavigationSettings && (
                         <DropdownMenuItem
                           onClick={onNavigationSettings}
                           disabled={isRepeatable}
-                          className={isRepeatable ? "opacity-50" : ""}
+                          className={cn("rounded-lg px-3 py-2.5 cursor-pointer", isRepeatable && "opacity-50")}
                         >
-                          <GitBranch className="h-4 w-4 mr-2" />
+                          <GitBranch className="h-4 w-4 mr-2.5" />
                           Navigation Logic
-                          {isRepeatable && (
-                            <span className="ml-auto text-xs text-muted-foreground">
-                              (Disabled)
-                            </span>
-                          )}
+                          {isRepeatable && <span className="ml-auto text-xs text-muted-foreground">(Disabled)</span>}
                         </DropdownMenuItem>
                       )}
 
-                      {/* Repeat settings */}
                       {onRepeatSettings && (
                         <DropdownMenuItem
                           onClick={onRepeatSettings}
                           disabled={hasConditionalLogic}
-                          className={hasConditionalLogic ? "opacity-50" : ""}
+                          className={cn("rounded-lg px-3 py-2.5 cursor-pointer", hasConditionalLogic && "opacity-50")}
                         >
-                          <Repeat className="h-4 w-4 mr-2" />
+                          <Repeat className="h-4 w-4 mr-2.5" />
                           Repeat Settings
                           {hasConditionalLogic && (
-                            <span className="ml-auto text-xs text-muted-foreground">
-                              (Disabled)
-                            </span>
+                            <span className="ml-auto text-xs text-muted-foreground">(Disabled)</span>
                           )}
                         </DropdownMenuItem>
                       )}
                     </>
                   )}
 
-                  {(onDuplicate ||
-                    onSettings ||
-                    onNavigationSettings ||
-                    onRepeatSettings) && <DropdownMenuSeparator />}
+                  {(onDuplicate || onSettings || onNavigationSettings || onRepeatSettings) && (
+                    <DropdownMenuSeparator className="my-1.5" />
+                  )}
                   <DropdownMenuItem
                     onClick={handleDeleteClick}
-                    className="text-destructive focus:text-destructive"
+                    className="text-destructive focus:text-destructive rounded-lg px-3 py-2.5 cursor-pointer hover:bg-destructive/10"
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash2 className="h-4 w-4 mr-2.5" />
                     Delete Section
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -382,25 +358,22 @@ export default function SectionContainer({
           </div>
         </div>
 
-        {/* Section Body - Fields will be rendered here (Hidden when collapsed) */}
-        {!isCollapsed && <div className="p-6">{children}</div>}
+        {!isCollapsed && <div className="p-4 sm:p-6">{children}</div>}
       </div>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl border-border/60 shadow-2xl max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Section?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete &quot;{title}&quot; and all its
-              fields. This action cannot be undone.
+            <AlertDialogTitle className="font-heading text-xl">Delete Section?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              This will permanently delete &quot;{title}&quot; and all its fields. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2 sm:gap-3">
+            <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg"
             >
               Delete
             </AlertDialogAction>
@@ -408,5 +381,5 @@ export default function SectionContainer({
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }

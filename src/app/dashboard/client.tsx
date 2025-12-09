@@ -1,38 +1,31 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import Header from "@/components/dashboard/header";
-import Overview from "@/components/dashboard/overview";
-import EngagementTrends from "@/components/dashboard/engagement";
-import Audience from "@/components/dashboard/audiance";
-import FunnelAnalysis from "@/components/dashboard/funnel-analysis";
-import FormPaginated from "@/components/dashboard/form-paginated";
-import AIInsights from "@/components/dashboard/ai-insights";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  useWorkspaces,
-  useDashboardData,
-  useWorkspaceFormsData,
-} from "@/hooks/useDashboard";
-import { RangeOption, Workspace } from "@/types/dashboard";
+import { useState, useEffect } from "react"
+import Header from "@/components/dashboard/header"
+import Overview from "@/components/dashboard/overview"
+import EngagementTrends from "@/components/dashboard/engagement"
+import Audience from "@/components/dashboard/audiance"
+import FunnelAnalysis from "@/components/dashboard/funnel-analysis"
+import FormPaginated from "@/components/dashboard/form-paginated"
+import AIInsights from "@/components/dashboard/ai-insights"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useWorkspaces, useDashboardData, useWorkspaceFormsData } from "@/hooks/useDashboard"
+import { RangeOption, type Workspace } from "@/types/dashboard"
 
 export default function DashboardPageClient() {
   // Get workspaces
-  const { data: workspaces = [], isLoading: isLoadingWorkspaces } =
-    useWorkspaces();
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
-    null
-  );
-  const [range, setRange] = useState<RangeOption>(RangeOption["24h"]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
+  const { data: workspaces = [], isLoading: isLoadingWorkspaces } = useWorkspaces()
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+  const [range, setRange] = useState<RangeOption>(RangeOption["24h"])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize] = useState<number>(10)
 
   // Initialize activeWorkspace once workspaces are loaded
   useEffect(() => {
     if (!activeWorkspace && workspaces.length > 0) {
-      setActiveWorkspace(workspaces[0]);
+      setActiveWorkspace(workspaces[0])
     }
-  }, [workspaces, activeWorkspace]);
+  }, [workspaces, activeWorkspace])
 
   // Fetch dashboard data with TanStack Query (data is already memoized via select)
   const {
@@ -40,62 +33,73 @@ export default function DashboardPageClient() {
     isLoading: isDashboardLoading,
     isFetching: isDashboardFetching,
     error: dashboardError,
-  } = useDashboardData(activeWorkspace?.id, range);
+  } = useDashboardData(activeWorkspace?.id, range)
 
   // Fetch forms data with TanStack Query
   const {
     data: formsData,
     isLoading: isLoadingForms,
     error: formsError,
-  } = useWorkspaceFormsData(activeWorkspace?.id, currentPage, pageSize);
+  } = useWorkspaceFormsData(activeWorkspace?.id, currentPage, pageSize)
 
-  // Show loading state while workspaces are loading
   if (isLoadingWorkspaces) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="h-16 w-16 rounded-full border-4 border-muted"></div>
+            <div className="absolute inset-0 h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+          </div>
+          <p className="text-sm text-muted-foreground font-medium">Loading your workspace...</p>
+        </div>
       </div>
-    );
+    )
   }
 
-  // Show error state if workspaces failed to load
   if (!workspaces.length && !isLoadingWorkspaces) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-lg text-muted-foreground">No workspaces found</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Please create a workspace to continue
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center max-w-md px-6">
+          <div className="mx-auto w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-foreground mb-2">No workspaces found</h2>
+          <p className="text-sm text-muted-foreground">
+            Create your first workspace to start building and managing your forms.
           </p>
         </div>
       </div>
-    );
+    )
   }
-
-  // Show error toast or banner
-  {dashboardError && (
-    <div className="px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto">
-        <Alert variant="destructive">
-          <AlertDescription>
-            Failed to load dashboard data. Please refresh the page.
-          </AlertDescription>
-        </Alert>
-      </div>
-    </div>
-  )}
 
   // Don't render until we have an active workspace
   if (!activeWorkspace) {
-    return null;
+    return null
   }
 
   return (
-    <>
-      <Header
-        activeWorkspace={activeWorkspace}
-        setActiveWorkspace={setActiveWorkspace}
-      />
+    <div className="min-h-screen bg-linear-to-b from-background via-background to-muted/20">
+      <Header activeWorkspace={activeWorkspace} setActiveWorkspace={setActiveWorkspace} />
+
+      {dashboardError && (
+        <div className="px-4 sm:px-6 pt-20">
+          <div className="max-w-7xl mx-auto">
+            <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+              <AlertDescription className="text-destructive">
+                Failed to load dashboard data. Please refresh the page.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      )}
+
       <Overview
         range={range}
         setRange={setRange}
@@ -103,19 +107,9 @@ export default function DashboardPageClient() {
         isLoading={isDashboardLoading}
         isFetching={isDashboardFetching}
       />
-      <EngagementTrends
-        range={range}
-        isLoading={isDashboardLoading}
-        trendsChartData={dashboardData?.trendsChartData}
-      />
-      <Audience
-        isLoading={isDashboardLoading}
-        audienceData={dashboardData?.audienceData}
-      />
-      <FunnelAnalysis
-        isLoading={isDashboardLoading}
-        funnelData={dashboardData?.funnelData}
-      />
+      <EngagementTrends range={range} isLoading={isDashboardLoading} trendsChartData={dashboardData?.trendsChartData} />
+      <Audience isLoading={isDashboardLoading} audienceData={dashboardData?.audienceData} />
+      <FunnelAnalysis isLoading={isDashboardLoading} funnelData={dashboardData?.funnelData} />
       <FormPaginated
         formsData={formsData}
         isLoading={isLoadingForms}
@@ -123,6 +117,8 @@ export default function DashboardPageClient() {
         onPageChange={setCurrentPage}
       />
       <AIInsights />
-    </>
-  );
+
+      <div className="h-12" />
+    </div>
+  )
 }

@@ -1,15 +1,7 @@
-"use client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Sparkles,
-  Palette,
-  ShieldCheck,
-  Share2,
-  BarChart3,
-  Library,
-  ArrowRight,
-} from "lucide-react";
+"use client"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Sparkles, Palette, ShieldCheck, Share2, BarChart3, Library, ArrowRight } from "lucide-react"
 
 const features = [
   {
@@ -72,71 +64,62 @@ const features = [
     hoverColor: "hover:border-chart-5/30",
     linkColor: "text-chart-5",
   },
-];
+]
 
 export default function Features() {
   return (
-    <section
-      className="relative w-full py-20 md:py-32 bg-background overflow-hidden"
-      id="features"
-    >
+    <section className="relative w-full py-16 sm:py-20 md:py-28 lg:py-32 bg-background overflow-hidden" id="features">
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-linear-to-b from-background via-muted/20 to-background" />
 
-      <div className="container relative z-10 mx-auto px-4">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header - Better responsive typography */}
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 md:mb-16 lg:mb-20">
+          <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 sm:mb-4 text-balance">
             Everything you need to create intelligent forms
           </h2>
-          <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            From AI generation to response analytics, Fomi provides all the
-            tools you need to collect information efficiently and
-            professionally.
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg leading-relaxed px-2 text-pretty">
+            From AI generation to response analytics, Fomi provides all the tools you need to collect information
+            efficiently and professionally.
           </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+        {/* Features Grid - Better responsive grid with single column on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-7xl mx-auto">
           {features.map((feature, index) => {
-            const Icon = feature.icon;
+            const Icon = feature.icon
             return (
               <Card
                 key={index}
-                className={`glassmorphism-card backdrop-blur-xl bg-card/40 border-border/50 shadow-lg hover:shadow-xl ${feature.hoverColor} transition-all duration-300 group`}
+                className={`backdrop-blur-xl bg-card/40 border-border/50 shadow-md hover:shadow-lg ${feature.hoverColor} transition-all duration-300 group`}
               >
-                <CardContent className="p-6 md:p-8">
+                <CardContent className="p-5 sm:p-6 md:p-8">
                   {/* Icon */}
                   <div
-                    className={`inline-flex p-3 rounded-xl ${feature.bgColor} mb-6 group-hover:scale-110 transition-transform duration-300`}
+                    className={`inline-flex p-2.5 sm:p-3 rounded-xl ${feature.bgColor} mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300`}
                   >
-                    <Icon className={`h-6 w-6 ${feature.color}`} />
+                    <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${feature.color}`} />
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-heading font-semibold text-xl mb-3">
-                    {feature.title}
-                  </h3>
+                  <h3 className="font-heading font-semibold text-lg sm:text-xl mb-2 sm:mb-3">{feature.title}</h3>
 
                   {/* Description */}
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+                  <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
                     {feature.description}
                   </p>
 
                   {/* Learn More Link */}
-                  <Button
-                    variant="link"
-                    className={`${feature.linkColor} p-0 h-auto font-medium group/link`}
-                  >
+                  <Button variant="link" className={`${feature.linkColor} p-0 h-auto font-medium group/link text-sm`}>
                     Learn more
                     <ArrowRight className="ml-1 h-4 w-4 group-hover/link:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>
-            );
+            )
           })}
         </div>
       </div>
     </section>
-  );
+  )
 }

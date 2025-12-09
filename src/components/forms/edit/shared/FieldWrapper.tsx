@@ -1,70 +1,68 @@
-"use client";
+"use client"
 
-import { ReactNode, useContext } from "react";
-import {
-  GripVertical,
-  Copy,
-  Trash2,
-  Settings,
-  Sparkles,
-  LucideIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { createContext } from "react";
+import type React from "react"
+
+import { type ReactNode, useContext } from "react"
+import { GripVertical, Copy, Trash2, Settings, Sparkles, type LucideIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { createContext } from "react"
+import { cn } from "@/lib/utils"
+import Image from "next/image"
+import AIEnhance from "@/assets/icon/ai-enhance.png"
 
 // Context for drag handle - provided by DraggableFieldWrapper
 export const DragHandleContext = createContext<{
-  listeners?: any;
-  attributes?: any;
-} | null>(null);
+  listeners?: any
+  attributes?: any
+} | null>(null)
 
 export interface FieldWrapperProps {
   // Field identification
-  index: number;
-  fieldType: string;
-  fieldIcon?: LucideIcon;
-  fieldId: string;
+  index: number
+  fieldType: string
+  fieldIcon?: LucideIcon
+  fieldId: string
 
   // Content
-  question: string;
-  description?: string;
-  required: boolean;
+  question: string
+  description?: string
+  required: boolean
 
   // Edit states
-  isEditingQuestion: boolean;
-  isEditingDescription: boolean;
-  isHovered: boolean;
+  isEditingQuestion: boolean
+  isEditingDescription: boolean
+  isHovered: boolean
 
   // Handlers
-  onQuestionClick: () => void;
-  onDescriptionClick: () => void;
-  onQuestionChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
-  onQuestionBlur: () => void;
-  onDescriptionBlur: () => void;
-  onQuestionKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onDescriptionKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onRequiredToggle: () => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  onAdvancedClick?: () => void;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
+  onQuestionClick: () => void
+  onDescriptionClick: () => void
+  onQuestionChange: (value: string) => void
+  onDescriptionChange: (value: string) => void
+  onQuestionBlur: () => void
+  onDescriptionBlur: () => void
+  onQuestionKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  onDescriptionKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  onRequiredToggle: () => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  onAdvancedClick?: () => void
+  onMouseEnter: () => void
+  onMouseLeave: () => void
 
   // Refs
-  questionRef?: React.RefObject<HTMLInputElement | null>;
-  descriptionRef?: React.RefObject<HTMLInputElement | null>;
+  questionRef?: React.RefObject<HTMLInputElement | null>
+  descriptionRef?: React.RefObject<HTMLInputElement | null>
 
   // Slots for field-specific content
-  children: ReactNode; // Preview area content
+  children: ReactNode // Preview area content
 
   // Optional features
-  showAdvanced?: boolean;
-  advancedLabel?: string;
+  showAdvanced?: boolean
+  advancedLabel?: string
 }
 
 export default function FieldWrapper({
@@ -100,71 +98,74 @@ export default function FieldWrapper({
   advancedLabel = "Advanced",
 }: FieldWrapperProps) {
   // Try to get drag handle context if available
-  const dragHandleContext = useContext(DragHandleContext);
+  const dragHandleContext = useContext(DragHandleContext)
 
   return (
-    <div className="relative">
+    <div className="relative group">
       {/* Main Card */}
       <div
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        className="bg-card rounded-xl border border-border/50 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 ease-out"
+        className={cn(
+          "bg-card rounded-xl sm:rounded-2xl border border-border/50 shadow-sm transition-all duration-200 ease-out",
+          isHovered && "shadow-md border-primary/30 ring-1 ring-primary/10",
+        )}
       >
-        <div className="p-6">
+        <div className="p-4 sm:p-5 lg:p-6">
           {/* Header Row with Type Badge and Actions */}
-          <div className="flex items-start justify-between mb-5">
-            <div className="flex items-center gap-3">
+          <div className="flex items-start justify-between gap-2 mb-4 sm:mb-5">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               {/* Index Pill */}
-              <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-linear-to-br from-primary/20 to-primary/10 text-primary flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm">
                 {index}
               </div>
 
               {/* Field Type Badge with Optional Icon */}
-              <div className="flex items-center gap-1.5 text-xs font-medium text-primary px-2.5 py-1 rounded-md bg-primary/10">
-                {FieldIcon && <FieldIcon className="h-3.5 w-3.5" />}
-                <span>{fieldType}</span>
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-medium text-primary px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-primary/10 border border-primary/20">
+                {FieldIcon && <FieldIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
+                <span className="hidden sm:inline">{fieldType}</span>
               </div>
             </div>
 
             {/* Action Icons - Show on Hover */}
             <div
-              className={`
-                flex items-center gap-1 transition-opacity duration-200
-                ${isHovered ? "opacity-100" : "opacity-0"}
-              `}
+              className={cn(
+                "flex items-center gap-0.5 sm:gap-1 transition-all duration-200",
+                isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none",
+              )}
             >
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 cursor-grab active:cursor-grabbing"
+                className="h-7 w-7 sm:h-8 sm:w-8 cursor-grab active:cursor-grabbing rounded-lg hover:bg-muted/80"
                 aria-label="Drag to reorder"
                 {...(dragHandleContext?.listeners || {})}
               >
-                <GripVertical className="h-4 w-4" />
+                <GripVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onDuplicate}
-                className="h-8 w-8"
+                className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted/80"
                 aria-label="Duplicate field"
               >
-                <Copy className="h-4 w-4" />
+                <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onDelete}
-                className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                className="h-7 w-7 sm:h-8 sm:w-8 hover:bg-destructive/10 hover:text-destructive rounded-lg"
                 aria-label="Delete field"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </div>
 
           {/* Question Title */}
-          <div className="mb-3">
+          <div className="mb-2 sm:mb-3">
             {isEditingQuestion ? (
               <Input
                 ref={questionRef}
@@ -172,21 +173,22 @@ export default function FieldWrapper({
                 onChange={(e) => onQuestionChange(e.target.value)}
                 onBlur={onQuestionBlur}
                 onKeyDown={onQuestionKeyDown}
-                className="text-base font-semibold text-foreground border-2 border-primary h-auto py-2"
+                className="text-sm sm:text-base font-semibold text-foreground border-2 border-primary h-auto py-2 px-3 rounded-lg"
                 placeholder="Enter your question"
               />
             ) : (
               <h3
                 onClick={onQuestionClick}
-                className="text-base font-semibold text-foreground cursor-text hover:text-primary/80 transition-colors duration-150 leading-relaxed"
+                className="text-sm sm:text-base font-semibold text-foreground cursor-text hover:text-primary/80 transition-colors duration-150 leading-relaxed"
               >
                 {question || "Click to add question"}
+                {required && <span className="text-destructive ml-1">*</span>}
               </h3>
             )}
           </div>
 
           {/* Description */}
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             {isEditingDescription ? (
               <Input
                 ref={descriptionRef}
@@ -194,13 +196,13 @@ export default function FieldWrapper({
                 onChange={(e) => onDescriptionChange(e.target.value)}
                 onBlur={onDescriptionBlur}
                 onKeyDown={onDescriptionKeyDown}
-                className="text-sm text-muted-foreground border-2 border-primary h-auto py-1.5"
+                className="text-xs sm:text-sm text-muted-foreground border-2 border-primary h-auto py-1.5 px-3 rounded-lg"
                 placeholder="Add description (optional)"
               />
             ) : (
               <p
                 onClick={onDescriptionClick}
-                className="text-sm text-muted-foreground cursor-text hover:text-foreground/70 transition-colors duration-150 leading-relaxed"
+                className="text-xs sm:text-sm text-muted-foreground cursor-text hover:text-foreground/70 transition-colors duration-150 leading-relaxed"
               >
                 {description || "Add description (optional)"}
               </p>
@@ -208,12 +210,12 @@ export default function FieldWrapper({
           </div>
 
           {/* Field-Specific Preview Content */}
-          <div className="mb-5">{children}</div>
+          <div className="mb-4 sm:mb-5">{children}</div>
 
           {/* Footer Row */}
-          <div className="flex items-center justify-between pt-3 mt-1 -mx-6 -mb-6 px-6 py-3 border-t border-border bg-muted/30 rounded-b-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 sm:pt-4 -mx-4 sm:-mx-5 lg:-mx-6 -mb-4 sm:-mb-5 lg:-mb-6 px-4 sm:px-5 lg:px-6 py-3 sm:py-4 border-t border-border/50 bg-muted/20 rounded-b-xl sm:rounded-b-2xl">
             {/* Left: Required & Advanced */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               {/* Required Toggle */}
               <div className="flex items-center gap-2">
                 <Checkbox
@@ -224,7 +226,7 @@ export default function FieldWrapper({
                 />
                 <Label
                   htmlFor={`required-${fieldId}`}
-                  className="text-sm font-medium text-foreground cursor-pointer select-none"
+                  className="text-xs sm:text-sm font-medium text-foreground cursor-pointer select-none"
                 >
                   Required
                 </Label>
@@ -236,10 +238,10 @@ export default function FieldWrapper({
                   variant="ghost"
                   size="sm"
                   onClick={onAdvancedClick}
-                  className="h-8 px-3 text-sm font-medium hover:bg-muted/80 text-muted-foreground hover:text-foreground"
+                  className="h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm font-medium hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-lg"
                 >
-                  <Settings className="h-3.5 w-3.5 mr-1.5" />
-                  {advancedLabel}
+                  <Settings className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 sm:mr-1.5" />
+                  <span className="hidden sm:inline">{advancedLabel}</span>
                 </Button>
               )}
             </div>
@@ -250,9 +252,9 @@ export default function FieldWrapper({
                 variant="outline"
                 size="sm"
                 onClick={onEnhance}
-                className="h-8 px-3 text-sm font-medium border-primary/30 text-primary hover:bg-primary/10 hover:border-primary hover:text-primary group"
+                className="h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm font-medium border-primary/30 text-primary hover:bg-primary/10 hover:border-primary hover:text-primary group rounded-lg w-full sm:w-auto bg-transparent"
               >
-                <Sparkles className="h-3.5 w-3.5 mr-1.5 transition-transform group-hover:scale-110" />
+                <Image src={AIEnhance} alt="AI Enhance" className="h-4 w-4 mr-1 sm:mr-1.5 inline-block" />
                 <span>AI Enhance</span>
               </Button>
             )}
@@ -260,5 +262,5 @@ export default function FieldWrapper({
         </div>
       </div>
     </div>
-  );
+  )
 }

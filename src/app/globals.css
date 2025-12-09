@@ -14,16 +14,17 @@
 }
 
 @theme inline {
-  /* ------------------------------ */
-  /* BASE COLORS                    */
-  /* ------------------------------ */
+  /* Typography */
+  --font-sans: "Inter", sans-serif;
+  --font-heading: "Sora", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+
+  /* Base Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* ------------------------------ */
-  /* FORM BUILDER SPECIFIC (NEW)    */
-  /* ------------------------------ */
-  /* This allows you to use className="bg-canvas" */
+  /* Canvas */
   --color-canvas: var(--canvas);
   --color-canvas-foreground: var(--canvas-foreground);
 
@@ -33,17 +34,7 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
 
-  /* ------------------------------ */
-  /* TYPOGRAPHY                     */
-  /* ------------------------------ */
-  /* Set Inter as the default sans font */
-  --font-sans: var(--font-inter);
-  --font-heading: var(--font-sora);
-  --font-body: var(--font-inter);
-
-  /* ------------------------------ */
-  /* COMPONENTS                     */
-  /* ------------------------------ */
+  /* Components */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -75,68 +66,32 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* ------------------------------ */
-  /* CHARTS                         */
-  /* ------------------------------ */
+  /* Charts */
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
 
-  /* ------------------------------ */
-  /* RADIUS                         */
-  /* ------------------------------ */
+  /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-
-  /* ------------------------------ */
-  /* CUSTOM GRADIENTS               */
-  /* ------------------------------ */
-  /* In Tailwind v4, it is safer to map these as background images 
-     if you want to use them as 'bg-gradient-primary' */
-  --background-image-gradient-primary: linear-gradient(
-    135deg,
-    var(--primary),
-    var(--secondary)
-  );
-  --background-image-gradient-accent: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--primary)
-  );
-  --background-image-gradient-muted: linear-gradient(
-    135deg,
-    var(--muted),
-    var(--card)
-  );
 }
 
 :root {
   --radius: 0.5rem;
 
-  /* ------------------------------ */
-  /* TYPOGRAPHY                     */
-  /* ------------------------------ */
-  --font-sora: "Sora", sans-serif; /* Good choice for Headers */
-  --font-inter: "Inter", sans-serif; /* Excellent for dense UI text */
-
-  /* ------------------------------ */
-  /* BACKGROUNDS & SURFACES         */
-  /* ------------------------------ */
-  /* The main app background */
+  /* Backgrounds & Surfaces */
   --background: #ffffff;
-  /* The text color on top of background */
-  --foreground: #0f172a; /* Slate 900 - darker/sharper than your previous gray */
+  --foreground: #0f172a;
 
-  /* Cards/Panels (e.g., The Properties Panel) */
+  /* Cards/Panels */
   --card: #ffffff;
   --card-foreground: #0f172a;
 
-  /* The "Canvas" - Where the user drags & drops form elements */
-  /* A slight off-white/slate tint to distinguish it from the white sidebar */
+  /* Canvas */
   --canvas: #f8fafc;
   --canvas-foreground: #334155;
 
@@ -144,69 +99,55 @@
   --popover: #ffffff;
   --popover-foreground: #0f172a;
 
-  /* ------------------------------ */
-  /* BRANDING (INDIGO)              */
-  /* ------------------------------ */
-  /* Primary Action (Save, Publish) */
+  /* Primary Action */
   --primary: #4f46e5;
   --primary-foreground: #ffffff;
 
-  /* Secondary Action (Cancel, Back, Preview) */
-  /* CHANGED: Made this neutral to stop fighting with Primary */
+  /* Secondary Action */
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
 
-  /* Accent (Selected items, Hover states in dropdowns) */
-  /* CHANGED: A very light Indigo tint, not a bright blue */
+  /* Accent */
   --accent: #eef2ff;
   --accent-foreground: #4f46e5;
 
-  /* ------------------------------ */
-  /* STATUS & FEEDBACK              */
-  /* ------------------------------ */
-  /* Muted (Subtext, placeholders) */
+  /* Muted */
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
 
-  /* Destructive (Delete field) */
+  /* Destructive */
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  /* Success (Form Published) - NEW */
+  /* Success */
   --success: #10b981;
   --success-foreground: #ffffff;
 
-  /* Warning (Unsaved changes) - NEW */
+  /* Warning */
   --warning: #f59e0b;
   --warning-foreground: #ffffff;
 
-  /* ------------------------------ */
-  /* BORDERS & INPUTS               */
-  /* ------------------------------ */
-  --border: #e2e8f0; /* Lighter, cleaner slate border */
+  /* Borders & Inputs */
+  --border: #e2e8f0;
   --input: #ffffff;
+  --ring: #4f46e5;
 
-  /* Focus Ring - Crucial for accessibility */
-  --ring: #4f46e5; /* Matches primary */
-
-  /* ------------------------------ */
-  /* SIDEBAR SPECIFIC               */
-  /* ------------------------------ */
+  /* Sidebar */
   --sidebar: #ffffff;
   --sidebar-foreground: #334155;
   --sidebar-border: #e2e8f0;
-  --sidebar-accent: #f8fafc; /* Subtle hover in sidebar */
+  --sidebar-accent: #f8fafc;
   --sidebar-accent-foreground: #0f172a;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-ring: #4f46e5;
 
-  /* ------------------------------ */
-  /* DATA VISUALIZATION             */
-  /* ------------------------------ */
-  /* Adjusted to be distinct from one another */
-  --chart-1: #4f46e5; /* Indigo */
-  --chart-2: #0ea5e9; /* Sky */
-  --chart-3: #10b981; /* Emerald */
-  --chart-4: #f59e0b; /* Amber */
-  --chart-5: #ec4899; /* Pink */
+  /* Charts */
+  --chart-1: #4f46e5;
+  --chart-2: #0ea5e9;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #ec4899;
 }
 
 @layer base {
@@ -214,7 +155,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
   h1,
   h2,
@@ -222,57 +164,31 @@
   h4,
   h5,
   h6 {
-    @apply font-heading;
+    font-family: var(--font-heading);
   }
 }
 
 @layer utilities {
-  .bg-gradient-primary {
-    background: var(--gradient-primary);
+  .font-heading {
+    font-family: var(--font-heading);
   }
-  .bg-gradient-accent {
-    background: var(--gradient-accent);
-  }
-  .bg-gradient-muted {
-    background: var(--gradient-muted);
-  }
-  .text-gradient-primary {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* Glassmorphism Utilities - Centralized for consistency */
-  .glassmorphism-card {
-    background: hsl(var(--card) / 0.4);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  .glassmorphism-enhanced {
-    background: hsl(var(--card) / 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+  .font-body {
+    font-family: var(--font-body);
   }
 
   /* Animation delays for staggered animations */
   .delay-75 {
     animation-delay: 75ms;
   }
-
   .delay-150 {
     animation-delay: 150ms;
   }
-
   .delay-300 {
     animation-delay: 300ms;
   }
-
   .delay-500 {
     animation-delay: 500ms;
   }
-
   .delay-1000 {
     animation-delay: 1000ms;
   }
@@ -280,8 +196,8 @@
 
 /* Custom Scrollbar Styles */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -290,19 +206,13 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--primary);
   border-radius: 10px;
   border: 2px solid var(--muted);
-  transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, var(--secondary), var(--accent));
-  border-color: var(--background);
-}
-
-::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--chart-2);
 }
 
 /* Firefox Scrollbar */
