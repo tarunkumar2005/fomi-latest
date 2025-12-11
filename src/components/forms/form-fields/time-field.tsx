@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +35,7 @@ interface TimeFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function TimeField({
+const TimeField = memo(function TimeField({
   field,
   index,
   onUpdate,
@@ -244,4 +244,19 @@ export default function TimeField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.placeholder === nextProps.field.placeholder &&
+    prevProps.field.timeFormat === nextProps.field.timeFormat &&
+    prevProps.field.minTime === nextProps.field.minTime &&
+    prevProps.field.maxTime === nextProps.field.maxTime &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default TimeField;

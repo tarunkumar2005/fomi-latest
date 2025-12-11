@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { Upload, File } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +29,7 @@ interface FileUploadFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function FileUploadField({
+const FileUploadField = memo(function FileUploadField({
   field,
   index,
   onUpdate,
@@ -279,4 +279,19 @@ export default function FileUploadField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.acceptedTypes === nextProps.field.acceptedTypes &&
+    prevProps.field.maxFileSize === nextProps.field.maxFileSize &&
+    prevProps.field.maxFiles === nextProps.field.maxFiles &&
+    prevProps.field.requiredFiles === nextProps.field.requiredFiles &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default FileUploadField;

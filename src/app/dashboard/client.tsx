@@ -11,6 +11,7 @@ import AIInsights from "@/components/dashboard/ai-insights"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useWorkspaces, useDashboardData, useWorkspaceFormsData } from "@/hooks/useDashboard"
 import { RangeOption, type Workspace } from "@/types/dashboard"
+import ErrorBoundary from "@/components/shared/ErrorBoundary"
 
 export default function DashboardPageClient() {
   // Get workspaces
@@ -100,23 +101,70 @@ export default function DashboardPageClient() {
         </div>
       )}
 
-      <Overview
-        range={range}
-        setRange={setRange}
-        overviewData={dashboardData?.overviewData}
-        isLoading={isDashboardLoading}
-        isFetching={isDashboardFetching}
-      />
-      <EngagementTrends range={range} isLoading={isDashboardLoading} trendsChartData={dashboardData?.trendsChartData} />
-      <Audience isLoading={isDashboardLoading} audienceData={dashboardData?.audienceData} />
-      <FunnelAnalysis isLoading={isDashboardLoading} funnelData={dashboardData?.funnelData} />
-      <FormPaginated
-        formsData={formsData}
-        isLoading={isLoadingForms}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
-      <AIInsights />
+      <ErrorBoundary
+        componentName="Dashboard Overview"
+        onError={(error, errorInfo) => {
+          console.error("Dashboard overview error:", error, errorInfo)
+        }}
+      >
+        <Overview
+          range={range}
+          setRange={setRange}
+          overviewData={dashboardData?.overviewData}
+          isLoading={isDashboardLoading}
+          isFetching={isDashboardFetching}
+        />
+      </ErrorBoundary>
+
+      <ErrorBoundary
+        componentName="Engagement Trends"
+        onError={(error, errorInfo) => {
+          console.error("Engagement trends error:", error, errorInfo)
+        }}
+      >
+        <EngagementTrends range={range} isLoading={isDashboardLoading} trendsChartData={dashboardData?.trendsChartData} />
+      </ErrorBoundary>
+
+      <ErrorBoundary
+        componentName="Audience"
+        onError={(error, errorInfo) => {
+          console.error("Audience error:", error, errorInfo)
+        }}
+      >
+        <Audience isLoading={isDashboardLoading} audienceData={dashboardData?.audienceData} />
+      </ErrorBoundary>
+
+      <ErrorBoundary
+        componentName="Funnel Analysis"
+        onError={(error, errorInfo) => {
+          console.error("Funnel analysis error:", error, errorInfo)
+        }}
+      >
+        <FunnelAnalysis isLoading={isDashboardLoading} funnelData={dashboardData?.funnelData} />
+      </ErrorBoundary>
+
+      <ErrorBoundary
+        componentName="Forms List"
+        onError={(error, errorInfo) => {
+          console.error("Forms list error:", error, errorInfo)
+        }}
+      >
+        <FormPaginated
+          formsData={formsData}
+          isLoading={isLoadingForms}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </ErrorBoundary>
+
+      <ErrorBoundary
+        componentName="AI Insights"
+        onError={(error, errorInfo) => {
+          console.error("AI insights error:", error, errorInfo)
+        }}
+      >
+        <AIInsights />
+      </ErrorBoundary>
 
       <div className="h-12" />
     </div>

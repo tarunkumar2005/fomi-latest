@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { AlignLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,7 +29,7 @@ interface ParagraphFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function ParagraphField({
+const ParagraphField = memo(function ParagraphField({
   field,
   index,
   onUpdate,
@@ -237,4 +237,19 @@ export default function ParagraphField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.placeholder === nextProps.field.placeholder &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.minLength === nextProps.field.minLength &&
+    prevProps.field.maxLength === nextProps.field.maxLength &&
+    prevProps.field.rows === nextProps.field.rows &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default ParagraphField;

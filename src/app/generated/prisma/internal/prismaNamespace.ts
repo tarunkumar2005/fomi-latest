@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.0.0
- * Query Engine version: 0c19ccc313cf9911a90d99d2ac2eb0280c76c513
+ * Prisma Client JS version: 7.1.0
+ * Query Engine version: ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.0.0",
-  engine: "0c19ccc313cf9911a90d99d2ac2eb0280c76c513"
+  client: "7.1.0",
+  engine: "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba"
 }
 
 /**
@@ -389,6 +389,7 @@ export const ModelName = {
   WorkspaceMember: 'WorkspaceMember',
   WorkspaceInvitation: 'WorkspaceInvitation',
   Form: 'Form',
+  FormTheme: 'FormTheme',
   Section: 'Section',
   Field: 'Field',
   Response: 'Response',
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "workspaceMember" | "workspaceInvitation" | "form" | "section" | "field" | "response" | "fieldResponse" | "chatHistory" | "agentCredit" | "notification" | "session" | "account" | "sectionTemplate" | "templateField" | "verification"
+    modelProps: "user" | "workspace" | "workspaceMember" | "workspaceInvitation" | "form" | "formTheme" | "section" | "field" | "response" | "fieldResponse" | "chatHistory" | "agentCredit" | "notification" | "session" | "account" | "sectionTemplate" | "templateField" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -787,6 +788,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FormCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FormCountAggregateOutputType> | number
+        }
+      }
+    }
+    FormTheme: {
+      payload: Prisma.$FormThemePayload<ExtArgs>
+      fields: Prisma.FormThemeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FormThemeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FormThemeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        findFirst: {
+          args: Prisma.FormThemeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FormThemeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        findMany: {
+          args: Prisma.FormThemeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
+        }
+        create: {
+          args: Prisma.FormThemeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        createMany: {
+          args: Prisma.FormThemeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FormThemeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
+        }
+        delete: {
+          args: Prisma.FormThemeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        update: {
+          args: Prisma.FormThemeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        deleteMany: {
+          args: Prisma.FormThemeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FormThemeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FormThemeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
+        }
+        upsert: {
+          args: Prisma.FormThemeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        aggregate: {
+          args: Prisma.FormThemeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFormTheme>
+        }
+        groupBy: {
+          args: Prisma.FormThemeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FormThemeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FormThemeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FormThemeCountAggregateOutputType> | number
         }
       }
     }
@@ -1786,10 +1861,31 @@ export const FormScalarFieldEnum = {
   closeDate: 'closeDate',
   responseLimit: 'responseLimit',
   oneResponsePerUser: 'oneResponsePerUser',
-  thankYouMessage: 'thankYouMessage'
+  thankYouMessage: 'thankYouMessage',
+  themeId: 'themeId',
+  customTheme: 'customTheme'
 } as const
 
 export type FormScalarFieldEnum = (typeof FormScalarFieldEnum)[keyof typeof FormScalarFieldEnum]
+
+
+export const FormThemeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  category: 'category',
+  thumbnail: 'thumbnail',
+  isBuiltIn: 'isBuiltIn',
+  isPublic: 'isPublic',
+  createdById: 'createdById',
+  colors: 'colors',
+  typography: 'typography',
+  layout: 'layout',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FormThemeScalarFieldEnum = (typeof FormThemeScalarFieldEnum)[keyof typeof FormThemeScalarFieldEnum]
 
 
 export const SectionScalarFieldEnum = {
@@ -2257,7 +2353,7 @@ export type PrismaClientOptions = ({
    *  { emit: 'stdout', level: 'error' }
    * 
    * ```
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
+   * Read more in our [docs](https://pris.ly/d/logging).
    */
   log?: (LogLevel | LogDefinition)[]
   /**
@@ -2285,6 +2381,22 @@ export type PrismaClientOptions = ({
    * ```
    */
   omit?: GlobalOmitConfig
+  /**
+   * SQL commenter plugins that add metadata to SQL queries as comments.
+   * Comments follow the sqlcommenter format: https://google.github.io/sqlcommenter/
+   * 
+   * @example
+   * ```
+   * const prisma = new PrismaClient({
+   *   adapter,
+   *   comments: [
+   *     traceContext(),
+   *     queryInsights(),
+   *   ],
+   * })
+   * ```
+   */
+  comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
@@ -2292,6 +2404,7 @@ export type GlobalOmitConfig = {
   workspaceMember?: Prisma.WorkspaceMemberOmit
   workspaceInvitation?: Prisma.WorkspaceInvitationOmit
   form?: Prisma.FormOmit
+  formTheme?: Prisma.FormThemeOmit
   section?: Prisma.SectionOmit
   field?: Prisma.FieldOmit
   response?: Prisma.ResponseOmit

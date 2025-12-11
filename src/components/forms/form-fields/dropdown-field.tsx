@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import {
   X,
   ChevronDown as ChevronDownIcon,
@@ -49,7 +49,7 @@ interface DropdownFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function DropdownField({
+const DropdownField = memo(function DropdownField({
   field,
   index,
   onUpdate,
@@ -457,4 +457,19 @@ export default function DropdownField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.placeholder === nextProps.field.placeholder &&
+    prevProps.field.required === nextProps.field.required &&
+    JSON.stringify(prevProps.field.options) === JSON.stringify(nextProps.field.options) &&
+    prevProps.field.randomizeOptions === nextProps.field.randomizeOptions &&
+    prevProps.field.allowOther === nextProps.field.allowOther &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default DropdownField;

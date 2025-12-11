@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,7 @@ interface DateRangeFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function DateRangeField({
+const DateRangeField = memo(function DateRangeField({
   field,
   index,
   onUpdate,
@@ -241,4 +241,18 @@ export default function DateRangeField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.placeholder === nextProps.field.placeholder &&
+    prevProps.field.minDate === nextProps.field.minDate &&
+    prevProps.field.maxDate === nextProps.field.maxDate &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default DateRangeField;

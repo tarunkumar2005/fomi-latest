@@ -209,6 +209,7 @@ export type UserWhereInput = {
   notifications?: Prisma.NotificationListRelationFilter
   forms?: Prisma.FormListRelationFilter
   sectionTemplates?: Prisma.SectionTemplateListRelationFilter
+  createdThemes?: Prisma.FormThemeListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -230,6 +231,7 @@ export type UserOrderByWithRelationInput = {
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   forms?: Prisma.FormOrderByRelationAggregateInput
   sectionTemplates?: Prisma.SectionTemplateOrderByRelationAggregateInput
+  createdThemes?: Prisma.FormThemeOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -254,6 +256,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   notifications?: Prisma.NotificationListRelationFilter
   forms?: Prisma.FormListRelationFilter
   sectionTemplates?: Prisma.SectionTemplateListRelationFilter
+  createdThemes?: Prisma.FormThemeListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -301,6 +304,7 @@ export type UserCreateInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -322,6 +326,7 @@ export type UserUncheckedCreateInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUpdateInput = {
@@ -343,6 +348,7 @@ export type UserUpdateInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -364,6 +370,7 @@ export type UserUncheckedUpdateInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -510,6 +517,22 @@ export type UserUpdateOneRequiredWithoutFormsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFormsInput, Prisma.UserUpdateWithoutFormsInput>, Prisma.UserUncheckedUpdateWithoutFormsInput>
 }
 
+export type UserCreateNestedOneWithoutCreatedThemesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedThemesInput, Prisma.UserUncheckedCreateWithoutCreatedThemesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedThemesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedThemesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedThemesInput, Prisma.UserUncheckedCreateWithoutCreatedThemesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedThemesInput
+  upsert?: Prisma.UserUpsertWithoutCreatedThemesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedThemesInput, Prisma.UserUpdateWithoutCreatedThemesInput>, Prisma.UserUncheckedUpdateWithoutCreatedThemesInput>
+}
+
 export type UserCreateNestedOneWithoutResponsesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutResponsesInput, Prisma.UserUncheckedCreateWithoutResponsesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutResponsesInput
@@ -630,6 +653,7 @@ export type UserCreateWithoutMembershipsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -650,6 +674,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -686,6 +711,7 @@ export type UserUpdateWithoutMembershipsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -706,6 +732,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutSentInvitationsInput = {
@@ -726,6 +753,7 @@ export type UserCreateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -746,6 +774,7 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -771,6 +800,7 @@ export type UserCreateWithoutAcceptedInvitationsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutAcceptedInvitationsInput = {
@@ -791,6 +821,7 @@ export type UserUncheckedCreateWithoutAcceptedInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutAcceptedInvitationsInput = {
@@ -827,6 +858,7 @@ export type UserUpdateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -847,6 +879,7 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUpsertWithoutAcceptedInvitationsInput = {
@@ -878,6 +911,7 @@ export type UserUpdateWithoutAcceptedInvitationsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAcceptedInvitationsInput = {
@@ -898,6 +932,7 @@ export type UserUncheckedUpdateWithoutAcceptedInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutFormsInput = {
@@ -918,6 +953,7 @@ export type UserCreateWithoutFormsInput = {
   agentCredit?: Prisma.AgentCreditCreateNestedOneWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutFormsInput = {
@@ -938,6 +974,7 @@ export type UserUncheckedCreateWithoutFormsInput = {
   agentCredit?: Prisma.AgentCreditUncheckedCreateNestedOneWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutFormsInput = {
@@ -974,6 +1011,7 @@ export type UserUpdateWithoutFormsInput = {
   agentCredit?: Prisma.AgentCreditUpdateOneWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFormsInput = {
@@ -993,6 +1031,107 @@ export type UserUncheckedUpdateWithoutFormsInput = {
   acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   agentCredit?: Prisma.AgentCreditUncheckedUpdateOneWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutCreatedThemesInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.WorkspaceMemberCreateNestedManyWithoutUserInput
+  chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutUserInput
+  responses?: Prisma.ResponseCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutInvitedByInput
+  acceptedInvitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutAcceptedByInput
+  agentCredit?: Prisma.AgentCreditCreateNestedOneWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
+  sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutCreatedThemesInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+  chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutUserInput
+  responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  agentCredit?: Prisma.AgentCreditUncheckedCreateNestedOneWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
+  sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutCreatedThemesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedThemesInput, Prisma.UserUncheckedCreateWithoutCreatedThemesInput>
+}
+
+export type UserUpsertWithoutCreatedThemesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedThemesInput, Prisma.UserUncheckedUpdateWithoutCreatedThemesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedThemesInput, Prisma.UserUncheckedCreateWithoutCreatedThemesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedThemesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedThemesInput, Prisma.UserUncheckedUpdateWithoutCreatedThemesInput>
+}
+
+export type UserUpdateWithoutCreatedThemesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.WorkspaceMemberUpdateManyWithoutUserNestedInput
+  chatHistories?: Prisma.ChatHistoryUpdateManyWithoutUserNestedInput
+  responses?: Prisma.ResponseUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutInvitedByNestedInput
+  acceptedInvitations?: Prisma.WorkspaceInvitationUpdateManyWithoutAcceptedByNestedInput
+  agentCredit?: Prisma.AgentCreditUpdateOneWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
+  sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedThemesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  chatHistories?: Prisma.ChatHistoryUncheckedUpdateManyWithoutUserNestedInput
+  responses?: Prisma.ResponseUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  acceptedInvitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  agentCredit?: Prisma.AgentCreditUncheckedUpdateOneWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -1014,6 +1153,7 @@ export type UserCreateWithoutResponsesInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutResponsesInput = {
@@ -1034,6 +1174,7 @@ export type UserUncheckedCreateWithoutResponsesInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutResponsesInput = {
@@ -1070,6 +1211,7 @@ export type UserUpdateWithoutResponsesInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResponsesInput = {
@@ -1090,6 +1232,7 @@ export type UserUncheckedUpdateWithoutResponsesInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutChatHistoriesInput = {
@@ -1110,6 +1253,7 @@ export type UserCreateWithoutChatHistoriesInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutChatHistoriesInput = {
@@ -1130,6 +1274,7 @@ export type UserUncheckedCreateWithoutChatHistoriesInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutChatHistoriesInput = {
@@ -1166,6 +1311,7 @@ export type UserUpdateWithoutChatHistoriesInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatHistoriesInput = {
@@ -1186,6 +1332,7 @@ export type UserUncheckedUpdateWithoutChatHistoriesInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutAgentCreditInput = {
@@ -1206,6 +1353,7 @@ export type UserCreateWithoutAgentCreditInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutAgentCreditInput = {
@@ -1226,6 +1374,7 @@ export type UserUncheckedCreateWithoutAgentCreditInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutAgentCreditInput = {
@@ -1262,6 +1411,7 @@ export type UserUpdateWithoutAgentCreditInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAgentCreditInput = {
@@ -1282,6 +1432,7 @@ export type UserUncheckedUpdateWithoutAgentCreditInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1302,6 +1453,7 @@ export type UserCreateWithoutNotificationsInput = {
   agentCredit?: Prisma.AgentCreditCreateNestedOneWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1322,6 +1474,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   agentCredit?: Prisma.AgentCreditUncheckedCreateNestedOneWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1358,6 +1511,7 @@ export type UserUpdateWithoutNotificationsInput = {
   agentCredit?: Prisma.AgentCreditUpdateOneWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1378,6 +1532,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   agentCredit?: Prisma.AgentCreditUncheckedUpdateOneWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1398,6 +1553,7 @@ export type UserCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1418,6 +1574,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1454,6 +1611,7 @@ export type UserUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1474,6 +1632,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -1494,6 +1653,7 @@ export type UserCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -1514,6 +1674,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -1550,6 +1711,7 @@ export type UserUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -1570,6 +1732,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
   sectionTemplates?: Prisma.SectionTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutSectionTemplatesInput = {
@@ -1590,6 +1753,7 @@ export type UserCreateWithoutSectionTemplatesInput = {
   agentCredit?: Prisma.AgentCreditCreateNestedOneWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   forms?: Prisma.FormCreateNestedManyWithoutOwnerInput
+  createdThemes?: Prisma.FormThemeCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutSectionTemplatesInput = {
@@ -1610,6 +1774,7 @@ export type UserUncheckedCreateWithoutSectionTemplatesInput = {
   agentCredit?: Prisma.AgentCreditUncheckedCreateNestedOneWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutOwnerInput
+  createdThemes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutSectionTemplatesInput = {
@@ -1646,6 +1811,7 @@ export type UserUpdateWithoutSectionTemplatesInput = {
   agentCredit?: Prisma.AgentCreditUpdateOneWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUpdateManyWithoutOwnerNestedInput
+  createdThemes?: Prisma.FormThemeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSectionTemplatesInput = {
@@ -1666,6 +1832,7 @@ export type UserUncheckedUpdateWithoutSectionTemplatesInput = {
   agentCredit?: Prisma.AgentCreditUncheckedUpdateOneWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   forms?: Prisma.FormUncheckedUpdateManyWithoutOwnerNestedInput
+  createdThemes?: Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 
@@ -1684,6 +1851,7 @@ export type UserCountOutputType = {
   notifications: number
   forms: number
   sectionTemplates: number
+  createdThemes: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1697,6 +1865,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   forms?: boolean | UserCountOutputTypeCountFormsArgs
   sectionTemplates?: boolean | UserCountOutputTypeCountSectionTemplatesArgs
+  createdThemes?: boolean | UserCountOutputTypeCountCreatedThemesArgs
 }
 
 /**
@@ -1779,6 +1948,13 @@ export type UserCountOutputTypeCountSectionTemplatesArgs<ExtArgs extends runtime
   where?: Prisma.SectionTemplateWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedThemesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FormThemeWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1799,6 +1975,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   forms?: boolean | Prisma.User$formsArgs<ExtArgs>
   sectionTemplates?: boolean | Prisma.User$sectionTemplatesArgs<ExtArgs>
+  createdThemes?: boolean | Prisma.User$createdThemesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1845,6 +2022,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   forms?: boolean | Prisma.User$formsArgs<ExtArgs>
   sectionTemplates?: boolean | Prisma.User$sectionTemplatesArgs<ExtArgs>
+  createdThemes?: boolean | Prisma.User$createdThemesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1864,6 +2042,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     forms: Prisma.$FormPayload<ExtArgs>[]
     sectionTemplates: Prisma.$SectionTemplatePayload<ExtArgs>[]
+    createdThemes: Prisma.$FormThemePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2278,6 +2457,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   forms<T extends Prisma.User$formsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$formsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sectionTemplates<T extends Prisma.User$sectionTemplatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sectionTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SectionTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdThemes<T extends Prisma.User$createdThemesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdThemesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormThemePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2958,6 +3138,30 @@ export type User$sectionTemplatesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.SectionTemplateScalarFieldEnum | Prisma.SectionTemplateScalarFieldEnum[]
+}
+
+/**
+ * User.createdThemes
+ */
+export type User$createdThemesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FormTheme
+   */
+  select?: Prisma.FormThemeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FormTheme
+   */
+  omit?: Prisma.FormThemeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FormThemeInclude<ExtArgs> | null
+  where?: Prisma.FormThemeWhereInput
+  orderBy?: Prisma.FormThemeOrderByWithRelationInput | Prisma.FormThemeOrderByWithRelationInput[]
+  cursor?: Prisma.FormThemeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FormThemeScalarFieldEnum | Prisma.FormThemeScalarFieldEnum[]
 }
 
 /**

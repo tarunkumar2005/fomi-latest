@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import {
   X,
   ListOrdered,
@@ -44,7 +44,7 @@ interface MultipleChoiceFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function MultipleChoiceField({
+function MultipleChoiceField({
   field,
   index,
   onUpdate,
@@ -422,3 +422,22 @@ export default function MultipleChoiceField({
     </>
   );
 }
+
+// Memoize component to prevent re-renders when sibling fields change
+export default memo(MultipleChoiceField, (prev, next) => {
+  // Re-render only if field data or state changes
+  const optionsEqual =
+    JSON.stringify(prev.field.options) === JSON.stringify(next.field.options);
+
+  return (
+    prev.field.id === next.field.id &&
+    prev.field.question === next.field.question &&
+    prev.field.description === next.field.description &&
+    prev.field.required === next.field.required &&
+    prev.field.randomizeOptions === next.field.randomizeOptions &&
+    prev.field.allowOther === next.field.allowOther &&
+    prev.index === next.index &&
+    prev.isAdvancedOpen === next.isAdvancedOpen &&
+    optionsEqual
+  );
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Ruler } from "lucide-react";
@@ -28,7 +28,7 @@ interface LinearScaleFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function LinearScaleField({
+const LinearScaleField = memo(function LinearScaleField({
   field,
   index,
   onUpdate,
@@ -311,4 +311,19 @@ export default function LinearScaleField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.min === nextProps.field.min &&
+    prevProps.field.max === nextProps.field.max &&
+    prevProps.field.minLabel === nextProps.field.minLabel &&
+    prevProps.field.maxLabel === nextProps.field.maxLabel &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default LinearScaleField;

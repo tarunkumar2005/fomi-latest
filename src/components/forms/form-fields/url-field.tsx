@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { Link } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,7 @@ interface UrlFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function UrlField({
+const UrlField = memo(function UrlField({
   field,
   index,
   onUpdate,
@@ -194,4 +194,18 @@ export default function UrlField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.placeholder === nextProps.field.placeholder &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.requireHttps === nextProps.field.requireHttps &&
+    prevProps.field.allowedDomains === nextProps.field.allowedDomains &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default UrlField;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import {
   X,
   CheckSquare,
@@ -46,7 +46,7 @@ interface CheckboxesFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function CheckboxesField({
+const CheckboxesField = memo(function CheckboxesField({
   field,
   index,
   onUpdate,
@@ -488,4 +488,21 @@ export default function CheckboxesField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.placeholder === nextProps.field.placeholder &&
+    prevProps.field.required === nextProps.field.required &&
+    JSON.stringify(prevProps.field.options) === JSON.stringify(nextProps.field.options) &&
+    prevProps.field.minSelections === nextProps.field.minSelections &&
+    prevProps.field.maxSelections === nextProps.field.maxSelections &&
+    prevProps.field.randomizeOptions === nextProps.field.randomizeOptions &&
+    prevProps.field.allowOther === nextProps.field.allowOther &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default CheckboxesField;

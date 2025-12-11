@@ -7,6 +7,7 @@ import FormEditHeader from "@/components/forms/edit/header"
 import FormCanvas from "@/components/forms/edit/form-canvas"
 import ShareFormDialog from "@/components/forms/share-form-dialog"
 import { useSession } from "@/hooks/useSession"
+import ErrorBoundary from "@/components/shared/ErrorBoundary"
 
 export default function FormEditClient() {
   const params = useParams()
@@ -47,6 +48,10 @@ export default function FormEditClient() {
     duplicateFieldById,
     updateFieldsOrder,
     moveField,
+    flushAllPendingUpdates,
+    // AI Enhance operations
+    enhanceFieldWithAI,
+    regenerateEnhancement,
     // Conditional logic operations
     updateSectionNavigationLogic,
     getSectionDetails,
@@ -71,6 +76,22 @@ export default function FormEditClient() {
 
     loadSections(formHeaderData.id)
   }, [formHeaderData?.id])
+
+  // Flush pending updates on unmount or before navigation
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Flush synchronously is not possible, but we can warn the user
+      flushAllPendingUpdates()
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+      // Flush pending updates when component unmounts
+      flushAllPendingUpdates()
+    }
+  }, [flushAllPendingUpdates])
 
   const handleSave = async (data: any) => {
     await saveFormHeaderData(slug, data)
@@ -248,38 +269,47 @@ export default function FormEditClient() {
       />
       {/* Main Layout - Below Header */}
       <div className="flex-1 overflow-hidden pt-16">
-        <FormCanvas
-          formSlug={slug}
-          formHeaderData={formHeaderData}
-          onHeaderSave={handleHeaderSave}
-          // Section props
-          sections={sections}
-          isLoadingSections={isLoadingSections}
-          activeSectionId={activeSectionId}
-          onActiveSectionChange={setActiveSectionId}
-          onAddSection={addSection}
-          onAddSectionFromTemplate={addSectionFromTemplate}
-          onUpdateSection={updateSectionData}
-          onDeleteSection={removeSectionById}
-          onDuplicateSection={duplicateSectionById}
-          onReorderSections={updateSectionsOrder}
-          // Field props
-          onAddField={addField}
-          onUpdateField={updateFieldData}
-          onDeleteField={removeFieldById}
-          onDuplicateField={duplicateFieldById}
-          onReorderFields={updateFieldsOrder}
-          onMoveField={moveField}
-          // Conditional logic props
-          onUpdateSectionLogic={updateSectionNavigationLogic}
-          onGetSectionDetails={getSectionDetails}
-          onGetConditionalFields={getConditionalFieldsForSection}
-          onGetSectionsForNavigation={getSectionsForNavigation}
-          onValidateLogic={validateLogic}
-          onCheckCircularReferences={checkCircularReferences}
-          // Repeatability props
-          onUpdateRepeatability={updateRepeatability}
-        />
+        <ErrorBoundary
+          onError={(error, errorInfo) => {
+            console.error("Form canvas error:", error, errorInfo)
+          }}
+        >
+          <FormCanvas
+            formSlug={slug}
+            formHeaderData={formHeaderData}
+            onHeaderSave={handleHeaderSave}
+            // Section props
+            sections={sections}
+            isLoadingSections={isLoadingSections}
+            activeSectionId={activeSectionId}
+            onActiveSectionChange={setActiveSectionId}
+            onAddSection={addSection}
+            onAddSectionFromTemplate={addSectionFromTemplate}
+            onUpdateSection={updateSectionData}
+            onDeleteSection={removeSectionById}
+            onDuplicateSection={duplicateSectionById}
+            onReorderSections={updateSectionsOrder}
+            // Field props
+            onAddField={addField}
+            onUpdateField={updateFieldData}
+            onDeleteField={removeFieldById}
+            onDuplicateField={duplicateFieldById}
+            onReorderFields={updateFieldsOrder}
+            onMoveField={moveField}
+            // AI Enhance props
+            onEnhanceField={enhanceFieldWithAI}
+            onRegenerateEnhancement={regenerateEnhancement}
+            // Conditional logic props
+            onUpdateSectionLogic={updateSectionNavigationLogic}
+            onGetSectionDetails={getSectionDetails}
+            onGetConditionalFields={getConditionalFieldsForSection}
+            onGetSectionsForNavigation={getSectionsForNavigation}
+            onValidateLogic={validateLogic}
+            onCheckCircularReferences={checkCircularReferences}
+            // Repeatability props
+            onUpdateRepeatability={updateRepeatability}
+          />
+        </ErrorBoundary>
       </div>
       {/* Share Form Dialog */}
       <ShareFormDialog

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { Hash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,7 @@ interface NumberFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function NumberField({
+const NumberField = memo(function NumberField({
   field,
   index,
   onUpdate,
@@ -253,4 +253,19 @@ export default function NumberField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.placeholder === nextProps.field.placeholder &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.min === nextProps.field.min &&
+    prevProps.field.max === nextProps.field.max &&
+    prevProps.field.step === nextProps.field.step &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default NumberField;

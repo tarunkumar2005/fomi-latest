@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   saveForm,
   getFormHeaderByFormSlug,
@@ -31,6 +31,9 @@ import {
 } from "@/lib/prisma";
 import type { NextSectionLogic } from "@/types/conditional-logic";
 import { useRouter } from "next/navigation";
+
+// Debounce delay in milliseconds
+const DEBOUNCE_DELAY = 800;
 
 interface Section {
   id: string;
@@ -63,6 +66,37 @@ export const useEditForm = () => {
   const [sections, setSections] = useState<Section[]>([]);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [isLoadingSections, setIsLoadingSections] = useState(false);
+
+  // Debounce refs for field and section updates
+  const fieldDebounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const sectionDebounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const pendingFieldUpdates = useRef<Map<string, Partial<Field>>>(new Map());
+  const pendingSectionUpdates = useRef<Map<string, any>>(new Map());
+  
+  // Version tracking for optimistic locking
+  const fieldUpdateVersions = useRef<Map<string, number>>(new Map());
+  const sectionUpdateVersions = useRef<Map<string, number>>(new Map());
+
+  // Cleanup all debounce timers on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Clear all field debounce timers
+      fieldDebounceTimers.current.forEach((timer) => clearTimeout(timer));
+      fieldDebounceTimers.current.clear();
+
+      // Clear all section debounce timers
+      sectionDebounceTimers.current.forEach((timer) => clearTimeout(timer));
+      sectionDebounceTimers.current.clear();
+
+      // Clear pending updates maps
+      pendingFieldUpdates.current.clear();
+      pendingSectionUpdates.current.clear();
+      
+      // Clear version tracking
+      fieldUpdateVersions.current.clear();
+      sectionUpdateVersions.current.clear();
+    };
+  }, []);
 
   /**
    * Fetch form header data
@@ -246,40 +280,132 @@ export const useEditForm = () => {
   }
 
   /**
-   * Update section details
+   * Update section details (with debouncing for title/description)
+   * Uses optimistic locking to prevent race conditions
    */
-  async function updateSectionData(
-    sectionId: string,
-    data: {
-      title?: string;
-      description?: string;
-      nextSectionLogic?: any;
-    }
-  ): Promise<any> {
-    setIsSaving(true);
-    setIsSaved(false);
-    try {
-      const updatedSection = await updateSection(sectionId, data);
+  const updateSectionData = useCallback(
+    (
+      sectionId: string,
+      data: {
+        title?: string;
+        description?: string;
+        nextSectionLogic?: any;
+      }
+    ): Promise<any> => {
+      // If updating logic, do it immediately (not debounced)
+      if (data.nextSectionLogic !== undefined) {
+        return (async () => {
+          setIsSaving(true);
+          setIsSaved(false);
+          try {
+            const updatedSection = await updateSection(sectionId, data);
+            setSections((prev) =>
+              prev.map((section) =>
+                section.id === sectionId
+                  ? { ...section, ...updatedSection }
+                  : section
+              )
+            );
+            setIsSaved(true);
+            return updatedSection;
+          } catch (error) {
+            console.error("Failed to update section:", error);
+            throw error;
+          } finally {
+            setIsSaving(false);
+          }
+        })();
+      }
 
+      // Increment version for this section update
+      const currentVersion = (sectionUpdateVersions.current.get(sectionId) || 0) + 1;
+      sectionUpdateVersions.current.set(sectionId, currentVersion);
+
+      // Update local state immediately (optimistic update)
       setSections((prev) =>
         prev.map((section) =>
-          section.id === sectionId ? { ...section, ...updatedSection } : section
+          section.id === sectionId ? { ...section, ...data } : section
         )
       );
-      setIsSaved(true);
-      return updatedSection;
-    } catch (error) {
-      console.error("Failed to update section:", error);
-      throw error;
-    } finally {
-      setIsSaving(false);
-    }
-  }
+
+      // Mark as unsaved
+      setIsSaved(false);
+
+      // Merge with any pending updates for this section
+      const existingPending =
+        pendingSectionUpdates.current.get(sectionId) || {};
+      const mergedData = { ...existingPending, ...data };
+      pendingSectionUpdates.current.set(sectionId, mergedData);
+
+      // Clear existing timer for this section
+      const existingTimer = sectionDebounceTimers.current.get(sectionId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+
+      // Return a promise that resolves when the debounced save completes
+      return new Promise((resolve, reject) => {
+        // Capture the data snapshot at this moment (closure)
+        const dataSnapshot = { ...mergedData };
+        const versionSnapshot = currentVersion;
+
+        const timer = setTimeout(async () => {
+          // Check if this is still the latest version
+          const latestVersion = sectionUpdateVersions.current.get(sectionId);
+          if (latestVersion !== versionSnapshot) {
+            // A newer update has been scheduled, skip this one
+            resolve(null);
+            return;
+          }
+
+          // Double-check that we still have pending data
+          const dataToSave = pendingSectionUpdates.current.get(sectionId);
+          if (!dataToSave) {
+            resolve(null);
+            return;
+          }
+
+          // Clear pending updates for this section
+          pendingSectionUpdates.current.delete(sectionId);
+          sectionDebounceTimers.current.delete(sectionId);
+
+          setIsSaving(true);
+          try {
+            // Use the snapshot data, not the current ref value
+            const updatedSection = await updateSection(sectionId, dataSnapshot);
+            setIsSaved(true);
+            resolve(updatedSection);
+          } catch (error) {
+            console.error("Failed to update section:", error);
+            
+            // On error, restore the pending update so it can be retried
+            pendingSectionUpdates.current.set(sectionId, dataSnapshot);
+            
+            reject(error);
+          } finally {
+            setIsSaving(false);
+          }
+        }, DEBOUNCE_DELAY);
+
+        sectionDebounceTimers.current.set(sectionId, timer);
+      });
+    },
+    []
+  );
 
   /**
    * Delete a section
    */
   async function removeSectionById(sectionId: string): Promise<void> {
+    // Cancel any pending updates for this section
+    const timer = sectionDebounceTimers.current.get(sectionId);
+    if (timer) {
+      clearTimeout(timer);
+      sectionDebounceTimers.current.delete(sectionId);
+    }
+    pendingSectionUpdates.current.delete(sectionId);
+    sectionUpdateVersions.current.delete(sectionId);
+
     setIsSaving(true);
     setIsSaved(false);
     try {
@@ -301,6 +427,16 @@ export const useEditForm = () => {
    * Duplicate a section with all its fields
    */
   async function duplicateSectionById(sectionId: string): Promise<void> {
+    // Flush any pending updates for this section before duplicating
+    const pendingData = pendingSectionUpdates.current.get(sectionId);
+    if (pendingData) {
+      const timer = sectionDebounceTimers.current.get(sectionId);
+      if (timer) clearTimeout(timer);
+      sectionDebounceTimers.current.delete(sectionId);
+      pendingSectionUpdates.current.delete(sectionId);
+      await updateSection(sectionId, pendingData);
+    }
+
     setIsSaving(true);
     setIsSaved(false);
     try {
@@ -474,41 +610,130 @@ export const useEditForm = () => {
   }
 
   /**
-   * Update field details
+   * Update field details (with debouncing for text fields)
+   * Updates local state immediately, but debounces the API call
+   * Uses optimistic locking to prevent race conditions
    */
-  async function updateFieldData(
-    fieldId: string,
-    data: Partial<Field>
-  ): Promise<any> {
-    setIsSaving(true);
-    setIsSaved(false);
-    try {
-      const updatedField = await updateField(fieldId, data);
+  const updateFieldData = useCallback(
+    (fieldId: string, data: Partial<Field>): Promise<any> => {
+      // Increment version for this field update
+      const currentVersion = (fieldUpdateVersions.current.get(fieldId) || 0) + 1;
+      fieldUpdateVersions.current.set(fieldId, currentVersion);
 
-      // Update the field in the appropriate section
+      // Update local state immediately (optimistic update)
       setSections((prev) =>
         prev.map((section) => ({
           ...section,
           fields: section.fields.map((field) =>
-            field.id === fieldId ? { ...field, ...updatedField } : field
+            field.id === fieldId ? { ...field, ...data } : field
           ),
         }))
       );
 
+      // Mark as unsaved
+      setIsSaved(false);
+
+      // Merge with any pending updates for this field
+      const existingPending = pendingFieldUpdates.current.get(fieldId) || {};
+      const mergedData = { ...existingPending, ...data };
+      pendingFieldUpdates.current.set(fieldId, mergedData);
+
+      // Clear existing timer for this field
+      const existingTimer = fieldDebounceTimers.current.get(fieldId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+
+      // Return a promise that resolves when the debounced save completes
+      return new Promise((resolve, reject) => {
+        // Capture the data snapshot at this moment (closure)
+        const dataSnapshot = { ...mergedData };
+        const versionSnapshot = currentVersion;
+
+        const timer = setTimeout(async () => {
+          // Check if this is still the latest version
+          const latestVersion = fieldUpdateVersions.current.get(fieldId);
+          if (latestVersion !== versionSnapshot) {
+            // A newer update has been scheduled, skip this one
+            resolve(null);
+            return;
+          }
+
+          // Double-check that we still have pending data
+          const dataToSave = pendingFieldUpdates.current.get(fieldId);
+          if (!dataToSave) {
+            resolve(null);
+            return;
+          }
+
+          // Clear pending updates for this field
+          pendingFieldUpdates.current.delete(fieldId);
+          fieldDebounceTimers.current.delete(fieldId);
+
+          setIsSaving(true);
+          try {
+            // Use the snapshot data, not the current ref value
+            const updatedField = await updateField(fieldId, dataSnapshot);
+            setIsSaved(true);
+            resolve(updatedField);
+          } catch (error) {
+            console.error("Failed to update field:", error);
+            
+            // On error, restore the pending update so it can be retried
+            pendingFieldUpdates.current.set(fieldId, dataSnapshot);
+            
+            reject(error);
+          } finally {
+            setIsSaving(false);
+          }
+        }, DEBOUNCE_DELAY);
+
+        fieldDebounceTimers.current.set(fieldId, timer);
+      });
+    },
+    []
+  );
+
+  /**
+   * Force save all pending field updates immediately
+   * Call this before operations that need up-to-date data (like duplicate, delete, etc.)
+   */
+  const flushPendingFieldUpdates = useCallback(async () => {
+    const pendingUpdates = Array.from(pendingFieldUpdates.current.entries());
+
+    if (pendingUpdates.length === 0) return;
+
+    // Clear all timers
+    fieldDebounceTimers.current.forEach((timer) => clearTimeout(timer));
+    fieldDebounceTimers.current.clear();
+
+    setIsSaving(true);
+    try {
+      await Promise.all(
+        pendingUpdates.map(([fieldId, data]) => updateField(fieldId, data))
+      );
+      pendingFieldUpdates.current.clear();
       setIsSaved(true);
-      return updatedField;
     } catch (error) {
-      console.error("Failed to update field:", error);
-      throw error;
+      console.error("Failed to flush pending updates:", error);
     } finally {
       setIsSaving(false);
     }
-  }
+  }, []);
 
   /**
    * Delete a field
    */
   async function removeFieldById(fieldId: string): Promise<void> {
+    // Cancel any pending updates for this field
+    const timer = fieldDebounceTimers.current.get(fieldId);
+    if (timer) {
+      clearTimeout(timer);
+      fieldDebounceTimers.current.delete(fieldId);
+    }
+    pendingFieldUpdates.current.delete(fieldId);
+    fieldUpdateVersions.current.delete(fieldId);
+
     setIsSaving(true);
     setIsSaved(false);
     try {
@@ -535,6 +760,16 @@ export const useEditForm = () => {
    * Duplicate a field
    */
   async function duplicateFieldById(fieldId: string): Promise<void> {
+    // Flush any pending updates for this field before duplicating
+    const pendingData = pendingFieldUpdates.current.get(fieldId);
+    if (pendingData) {
+      const timer = fieldDebounceTimers.current.get(fieldId);
+      if (timer) clearTimeout(timer);
+      fieldDebounceTimers.current.delete(fieldId);
+      pendingFieldUpdates.current.delete(fieldId);
+      await updateField(fieldId, pendingData);
+    }
+
     setIsSaving(true);
     setIsSaved(false);
     try {
@@ -655,6 +890,150 @@ export const useEditForm = () => {
     }
   }
 
+  // ==================== AI ENHANCE OPERATIONS ====================
+
+  /**
+   * Enhance a field using AI
+   */
+  async function enhanceFieldWithAI(
+    field: any,
+    sectionTitle?: string
+  ): Promise<{
+    success: boolean;
+    data?: import("@/lib/agent").FieldEnhanceResponse;
+    error?: string;
+  }> {
+    try {
+      const { enhanceField } = await import("@/lib/agent");
+
+      // Valid field types in UPPERCASE format (from Prisma)
+      const validFieldTypes = [
+        "SHORT_ANSWER",
+        "PARAGRAPH",
+        "EMAIL",
+        "PHONE",
+        "URL",
+        "NUMBER",
+        "MULTIPLE_CHOICE",
+        "CHECKBOXES",
+        "DROPDOWN",
+        "RATING",
+        "LINEAR_SCALE",
+        "DATE",
+        "DATE_RANGE",
+        "TIME",
+        "FILE_UPLOAD",
+      ];
+
+      // Field type should already be UPPERCASE from Prisma, but normalize just in case
+      const normalizedType = field.type?.toUpperCase().replace(/-/g, "_");
+      const fieldType = validFieldTypes.includes(normalizedType)
+        ? normalizedType
+        : "SHORT_ANSWER";
+
+      const result = await enhanceField({
+        fieldType,
+        currentField: {
+          question: field.question,
+          description: field.description,
+          placeholder: field.placeholder,
+          options: field.options,
+          minLabel: field.minLabel,
+          maxLabel: field.maxLabel,
+        },
+        formContext: formHeaderData
+          ? {
+              title: formHeaderData.title,
+              description: formHeaderData.description,
+            }
+          : undefined,
+        sectionTitle,
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Failed to enhance field:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Enhancement failed",
+      };
+    }
+  }
+
+  /**
+   * Regenerate enhancement with feedback
+   */
+  async function regenerateEnhancement(
+    field: any,
+    previousSuggestion: import("@/lib/agent").FieldEnhanceResponse,
+    feedback?: string,
+    sectionTitle?: string
+  ): Promise<{
+    success: boolean;
+    data?: import("@/lib/agent").FieldEnhanceResponse;
+    error?: string;
+  }> {
+    try {
+      const { regenerateEnhancement: regenerate } = await import("@/lib/agent");
+
+      // Valid field types in UPPERCASE format (from Prisma)
+      const validFieldTypes = [
+        "SHORT_ANSWER",
+        "PARAGRAPH",
+        "EMAIL",
+        "PHONE",
+        "URL",
+        "NUMBER",
+        "MULTIPLE_CHOICE",
+        "CHECKBOXES",
+        "DROPDOWN",
+        "RATING",
+        "LINEAR_SCALE",
+        "DATE",
+        "DATE_RANGE",
+        "TIME",
+        "FILE_UPLOAD",
+      ];
+
+      // Field type should already be UPPERCASE from Prisma, but normalize just in case
+      const normalizedType = field.type?.toUpperCase().replace(/-/g, "_");
+      const fieldType = validFieldTypes.includes(normalizedType)
+        ? normalizedType
+        : "SHORT_ANSWER";
+
+      const result = await regenerate(
+        {
+          fieldType,
+          currentField: {
+            question: field.question,
+            description: field.description,
+            placeholder: field.placeholder,
+            options: field.options,
+            minLabel: field.minLabel,
+            maxLabel: field.maxLabel,
+          },
+          formContext: formHeaderData
+            ? {
+                title: formHeaderData.title,
+                description: formHeaderData.description,
+              }
+            : undefined,
+          sectionTitle,
+        },
+        previousSuggestion,
+        feedback
+      );
+
+      return result;
+    } catch (error) {
+      console.error("Failed to regenerate enhancement:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Regeneration failed",
+      };
+    }
+  }
+
   // ==================== CONDITIONAL LOGIC OPERATIONS ====================
 
   /**
@@ -757,6 +1136,51 @@ export const useEditForm = () => {
     }
   }
 
+  /**
+   * Flush all pending updates (fields and sections)
+   * Call this before navigation or when you need to ensure all data is saved
+   */
+  const flushAllPendingUpdates = useCallback(async () => {
+    const pendingFieldEntries = Array.from(
+      pendingFieldUpdates.current.entries()
+    );
+    const pendingSectionEntries = Array.from(
+      pendingSectionUpdates.current.entries()
+    );
+
+    if (
+      pendingFieldEntries.length === 0 &&
+      pendingSectionEntries.length === 0
+    ) {
+      return;
+    }
+
+    // Clear all timers
+    fieldDebounceTimers.current.forEach((timer) => clearTimeout(timer));
+    fieldDebounceTimers.current.clear();
+    sectionDebounceTimers.current.forEach((timer) => clearTimeout(timer));
+    sectionDebounceTimers.current.clear();
+
+    setIsSaving(true);
+    try {
+      await Promise.all([
+        ...pendingFieldEntries.map(([fieldId, data]) =>
+          updateField(fieldId, data)
+        ),
+        ...pendingSectionEntries.map(([sectionId, data]) =>
+          updateSection(sectionId, data)
+        ),
+      ]);
+      pendingFieldUpdates.current.clear();
+      pendingSectionUpdates.current.clear();
+      setIsSaved(true);
+    } catch (error) {
+      console.error("Failed to flush pending updates:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, []);
+
   return {
     // Form header operations
     getFormHeaderData,
@@ -796,6 +1220,11 @@ export const useEditForm = () => {
     duplicateFieldById,
     updateFieldsOrder,
     moveField,
+    flushAllPendingUpdates,
+
+    // AI Enhance operations
+    enhanceFieldWithAI,
+    regenerateEnhancement,
 
     // Conditional logic operations
     updateSectionNavigationLogic,

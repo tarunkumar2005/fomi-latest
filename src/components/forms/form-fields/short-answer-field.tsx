@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { Type } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,7 @@ interface ShortAnswerFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function ShortAnswerField({
+function ShortAnswerField({
   field,
   index,
   onUpdate,
@@ -208,3 +208,19 @@ export default function ShortAnswerField({
     </>
   );
 }
+
+// Memoize component to prevent re-renders when sibling fields change
+export default memo(ShortAnswerField, (prev, next) => {
+  // Re-render only if field data or state changes
+  return (
+    prev.field.id === next.field.id &&
+    prev.field.question === next.field.question &&
+    prev.field.description === next.field.description &&
+    prev.field.placeholder === next.field.placeholder &&
+    prev.field.required === next.field.required &&
+    prev.field.minLength === next.field.minLength &&
+    prev.field.maxLength === next.field.maxLength &&
+    prev.index === next.index &&
+    prev.isAdvancedOpen === next.isAdvancedOpen
+  );
+});

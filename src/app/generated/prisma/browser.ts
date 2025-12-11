@@ -43,6 +43,11 @@ export type WorkspaceInvitation = Prisma.WorkspaceInvitationModel
  */
 export type Form = Prisma.FormModel
 /**
+ * Model FormTheme
+ * 
+ */
+export type FormTheme = Prisma.FormThemeModel
+/**
  * Model Section
  * 
  */

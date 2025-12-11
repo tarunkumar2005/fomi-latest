@@ -56,6 +56,7 @@ export const ModelName = {
   WorkspaceMember: 'WorkspaceMember',
   WorkspaceInvitation: 'WorkspaceInvitation',
   Form: 'Form',
+  FormTheme: 'FormTheme',
   Section: 'Section',
   Field: 'Field',
   Response: 'Response',
@@ -155,10 +156,31 @@ export const FormScalarFieldEnum = {
   closeDate: 'closeDate',
   responseLimit: 'responseLimit',
   oneResponsePerUser: 'oneResponsePerUser',
-  thankYouMessage: 'thankYouMessage'
+  thankYouMessage: 'thankYouMessage',
+  themeId: 'themeId',
+  customTheme: 'customTheme'
 } as const
 
 export type FormScalarFieldEnum = (typeof FormScalarFieldEnum)[keyof typeof FormScalarFieldEnum]
+
+
+export const FormThemeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  category: 'category',
+  thumbnail: 'thumbnail',
+  isBuiltIn: 'isBuiltIn',
+  isPublic: 'isPublic',
+  createdById: 'createdById',
+  colors: 'colors',
+  typography: 'typography',
+  layout: 'layout',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FormThemeScalarFieldEnum = (typeof FormThemeScalarFieldEnum)[keyof typeof FormThemeScalarFieldEnum]
 
 
 export const SectionScalarFieldEnum = {

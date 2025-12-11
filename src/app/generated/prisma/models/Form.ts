@@ -54,6 +54,7 @@ export type FormMinAggregateOutputType = {
   responseLimit: number | null
   oneResponsePerUser: boolean | null
   thankYouMessage: string | null
+  themeId: string | null
 }
 
 export type FormMaxAggregateOutputType = {
@@ -74,6 +75,7 @@ export type FormMaxAggregateOutputType = {
   responseLimit: number | null
   oneResponsePerUser: boolean | null
   thankYouMessage: string | null
+  themeId: string | null
 }
 
 export type FormCountAggregateOutputType = {
@@ -94,6 +96,8 @@ export type FormCountAggregateOutputType = {
   responseLimit: number
   oneResponsePerUser: number
   thankYouMessage: number
+  themeId: number
+  customTheme: number
   _all: number
 }
 
@@ -126,6 +130,7 @@ export type FormMinAggregateInputType = {
   responseLimit?: true
   oneResponsePerUser?: true
   thankYouMessage?: true
+  themeId?: true
 }
 
 export type FormMaxAggregateInputType = {
@@ -146,6 +151,7 @@ export type FormMaxAggregateInputType = {
   responseLimit?: true
   oneResponsePerUser?: true
   thankYouMessage?: true
+  themeId?: true
 }
 
 export type FormCountAggregateInputType = {
@@ -166,6 +172,8 @@ export type FormCountAggregateInputType = {
   responseLimit?: true
   oneResponsePerUser?: true
   thankYouMessage?: true
+  themeId?: true
+  customTheme?: true
   _all?: true
 }
 
@@ -273,6 +281,8 @@ export type FormGroupByOutputType = {
   responseLimit: number | null
   oneResponsePerUser: boolean
   thankYouMessage: string | null
+  themeId: string | null
+  customTheme: runtime.JsonValue | null
   _count: FormCountAggregateOutputType | null
   _avg: FormAvgAggregateOutputType | null
   _sum: FormSumAggregateOutputType | null
@@ -316,8 +326,11 @@ export type FormWhereInput = {
   responseLimit?: Prisma.IntNullableFilter<"Form"> | number | null
   oneResponsePerUser?: Prisma.BoolFilter<"Form"> | boolean
   thankYouMessage?: Prisma.StringNullableFilter<"Form"> | string | null
+  themeId?: Prisma.StringNullableFilter<"Form"> | string | null
+  customTheme?: Prisma.JsonNullableFilter<"Form">
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  theme?: Prisma.XOR<Prisma.FormThemeNullableScalarRelationFilter, Prisma.FormThemeWhereInput> | null
   sections?: Prisma.SectionListRelationFilter
   responses?: Prisma.ResponseListRelationFilter
   chatHistories?: Prisma.ChatHistoryListRelationFilter
@@ -341,8 +354,11 @@ export type FormOrderByWithRelationInput = {
   responseLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   oneResponsePerUser?: Prisma.SortOrder
   thankYouMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  themeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customTheme?: Prisma.SortOrderInput | Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   owner?: Prisma.UserOrderByWithRelationInput
+  theme?: Prisma.FormThemeOrderByWithRelationInput
   sections?: Prisma.SectionOrderByRelationAggregateInput
   responses?: Prisma.ResponseOrderByRelationAggregateInput
   chatHistories?: Prisma.ChatHistoryOrderByRelationAggregateInput
@@ -369,8 +385,11 @@ export type FormWhereUniqueInput = Prisma.AtLeast<{
   responseLimit?: Prisma.IntNullableFilter<"Form"> | number | null
   oneResponsePerUser?: Prisma.BoolFilter<"Form"> | boolean
   thankYouMessage?: Prisma.StringNullableFilter<"Form"> | string | null
+  themeId?: Prisma.StringNullableFilter<"Form"> | string | null
+  customTheme?: Prisma.JsonNullableFilter<"Form">
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  theme?: Prisma.XOR<Prisma.FormThemeNullableScalarRelationFilter, Prisma.FormThemeWhereInput> | null
   sections?: Prisma.SectionListRelationFilter
   responses?: Prisma.ResponseListRelationFilter
   chatHistories?: Prisma.ChatHistoryListRelationFilter
@@ -394,6 +413,8 @@ export type FormOrderByWithAggregationInput = {
   responseLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   oneResponsePerUser?: Prisma.SortOrder
   thankYouMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  themeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customTheme?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.FormCountOrderByAggregateInput
   _avg?: Prisma.FormAvgOrderByAggregateInput
   _max?: Prisma.FormMaxOrderByAggregateInput
@@ -422,6 +443,8 @@ export type FormScalarWhereWithAggregatesInput = {
   responseLimit?: Prisma.IntNullableWithAggregatesFilter<"Form"> | number | null
   oneResponsePerUser?: Prisma.BoolWithAggregatesFilter<"Form"> | boolean
   thankYouMessage?: Prisma.StringNullableWithAggregatesFilter<"Form"> | string | null
+  themeId?: Prisma.StringNullableWithAggregatesFilter<"Form"> | string | null
+  customTheme?: Prisma.JsonNullableWithAggregatesFilter<"Form">
 }
 
 export type FormCreateInput = {
@@ -440,8 +463,10 @@ export type FormCreateInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
   owner: Prisma.UserCreateNestedOneWithoutFormsInput
+  theme?: Prisma.FormThemeCreateNestedOneWithoutFormsInput
   sections?: Prisma.SectionCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
@@ -465,6 +490,8 @@ export type FormUncheckedCreateInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
@@ -486,8 +513,10 @@ export type FormUpdateInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFormsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutFormsNestedInput
+  theme?: Prisma.FormThemeUpdateOneWithoutFormsNestedInput
   sections?: Prisma.SectionUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUpdateManyWithoutFormNestedInput
@@ -511,6 +540,8 @@ export type FormUncheckedUpdateInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUncheckedUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUncheckedUpdateManyWithoutFormNestedInput
@@ -534,6 +565,8 @@ export type FormCreateManyInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FormUpdateManyMutationInput = {
@@ -552,6 +585,7 @@ export type FormUpdateManyMutationInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FormUncheckedUpdateManyInput = {
@@ -572,6 +606,8 @@ export type FormUncheckedUpdateManyInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FormListRelationFilter = {
@@ -602,6 +638,8 @@ export type FormCountOrderByAggregateInput = {
   responseLimit?: Prisma.SortOrder
   oneResponsePerUser?: Prisma.SortOrder
   thankYouMessage?: Prisma.SortOrder
+  themeId?: Prisma.SortOrder
+  customTheme?: Prisma.SortOrder
 }
 
 export type FormAvgOrderByAggregateInput = {
@@ -627,6 +665,7 @@ export type FormMaxOrderByAggregateInput = {
   responseLimit?: Prisma.SortOrder
   oneResponsePerUser?: Prisma.SortOrder
   thankYouMessage?: Prisma.SortOrder
+  themeId?: Prisma.SortOrder
 }
 
 export type FormMinOrderByAggregateInput = {
@@ -647,6 +686,7 @@ export type FormMinOrderByAggregateInput = {
   responseLimit?: Prisma.SortOrder
   oneResponsePerUser?: Prisma.SortOrder
   thankYouMessage?: Prisma.SortOrder
+  themeId?: Prisma.SortOrder
 }
 
 export type FormSumOrderByAggregateInput = {
@@ -763,6 +803,48 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type FormCreateNestedManyWithoutThemeInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+}
+
+export type FormUncheckedCreateNestedManyWithoutThemeInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+}
+
+export type FormUpdateManyWithoutThemeNestedInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  upsert?: Prisma.FormUpsertWithWhereUniqueWithoutThemeInput | Prisma.FormUpsertWithWhereUniqueWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  set?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  disconnect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  delete?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  update?: Prisma.FormUpdateWithWhereUniqueWithoutThemeInput | Prisma.FormUpdateWithWhereUniqueWithoutThemeInput[]
+  updateMany?: Prisma.FormUpdateManyWithWhereWithoutThemeInput | Prisma.FormUpdateManyWithWhereWithoutThemeInput[]
+  deleteMany?: Prisma.FormScalarWhereInput | Prisma.FormScalarWhereInput[]
+}
+
+export type FormUncheckedUpdateManyWithoutThemeNestedInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  upsert?: Prisma.FormUpsertWithWhereUniqueWithoutThemeInput | Prisma.FormUpsertWithWhereUniqueWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  set?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  disconnect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  delete?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  update?: Prisma.FormUpdateWithWhereUniqueWithoutThemeInput | Prisma.FormUpdateWithWhereUniqueWithoutThemeInput[]
+  updateMany?: Prisma.FormUpdateManyWithWhereWithoutThemeInput | Prisma.FormUpdateManyWithWhereWithoutThemeInput[]
+  deleteMany?: Prisma.FormScalarWhereInput | Prisma.FormScalarWhereInput[]
+}
+
 export type FormCreateNestedOneWithoutSectionsInput = {
   create?: Prisma.XOR<Prisma.FormCreateWithoutSectionsInput, Prisma.FormUncheckedCreateWithoutSectionsInput>
   connectOrCreate?: Prisma.FormCreateOrConnectWithoutSectionsInput
@@ -821,7 +903,9 @@ export type FormCreateWithoutOwnerInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
+  theme?: Prisma.FormThemeCreateNestedOneWithoutFormsInput
   sections?: Prisma.SectionCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
@@ -844,6 +928,8 @@ export type FormUncheckedCreateWithoutOwnerInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
@@ -896,6 +982,8 @@ export type FormScalarWhereInput = {
   responseLimit?: Prisma.IntNullableFilter<"Form"> | number | null
   oneResponsePerUser?: Prisma.BoolFilter<"Form"> | boolean
   thankYouMessage?: Prisma.StringNullableFilter<"Form"> | string | null
+  themeId?: Prisma.StringNullableFilter<"Form"> | string | null
+  customTheme?: Prisma.JsonNullableFilter<"Form">
 }
 
 export type FormCreateWithoutWorkspaceInput = {
@@ -914,7 +1002,9 @@ export type FormCreateWithoutWorkspaceInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   owner: Prisma.UserCreateNestedOneWithoutFormsInput
+  theme?: Prisma.FormThemeCreateNestedOneWithoutFormsInput
   sections?: Prisma.SectionCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
@@ -937,6 +1027,8 @@ export type FormUncheckedCreateWithoutWorkspaceInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
@@ -968,6 +1060,80 @@ export type FormUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.FormUpdateManyMutationInput, Prisma.FormUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
+export type FormCreateWithoutThemeInput = {
+  id?: string
+  title: string
+  description?: string | null
+  slug: string
+  headerImageUrl?: string | null
+  status?: $Enums.FormStatus
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  closeDate?: Date | string | null
+  responseLimit?: number | null
+  oneResponsePerUser?: boolean
+  thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
+  owner: Prisma.UserCreateNestedOneWithoutFormsInput
+  sections?: Prisma.SectionCreateNestedManyWithoutFormInput
+  responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
+  chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
+}
+
+export type FormUncheckedCreateWithoutThemeInput = {
+  id?: string
+  userId: string
+  workspaceId: string
+  title: string
+  description?: string | null
+  slug: string
+  headerImageUrl?: string | null
+  status?: $Enums.FormStatus
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  closeDate?: Date | string | null
+  responseLimit?: number | null
+  oneResponsePerUser?: boolean
+  thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
+  responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
+  chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
+}
+
+export type FormCreateOrConnectWithoutThemeInput = {
+  where: Prisma.FormWhereUniqueInput
+  create: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput>
+}
+
+export type FormCreateManyThemeInputEnvelope = {
+  data: Prisma.FormCreateManyThemeInput | Prisma.FormCreateManyThemeInput[]
+  skipDuplicates?: boolean
+}
+
+export type FormUpsertWithWhereUniqueWithoutThemeInput = {
+  where: Prisma.FormWhereUniqueInput
+  update: Prisma.XOR<Prisma.FormUpdateWithoutThemeInput, Prisma.FormUncheckedUpdateWithoutThemeInput>
+  create: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput>
+}
+
+export type FormUpdateWithWhereUniqueWithoutThemeInput = {
+  where: Prisma.FormWhereUniqueInput
+  data: Prisma.XOR<Prisma.FormUpdateWithoutThemeInput, Prisma.FormUncheckedUpdateWithoutThemeInput>
+}
+
+export type FormUpdateManyWithWhereWithoutThemeInput = {
+  where: Prisma.FormScalarWhereInput
+  data: Prisma.XOR<Prisma.FormUpdateManyMutationInput, Prisma.FormUncheckedUpdateManyWithoutThemeInput>
+}
+
 export type FormCreateWithoutSectionsInput = {
   id?: string
   title: string
@@ -984,8 +1150,10 @@ export type FormCreateWithoutSectionsInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
   owner: Prisma.UserCreateNestedOneWithoutFormsInput
+  theme?: Prisma.FormThemeCreateNestedOneWithoutFormsInput
   responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
 }
@@ -1008,6 +1176,8 @@ export type FormUncheckedCreateWithoutSectionsInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
 }
@@ -1044,8 +1214,10 @@ export type FormUpdateWithoutSectionsInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFormsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutFormsNestedInput
+  theme?: Prisma.FormThemeUpdateOneWithoutFormsNestedInput
   responses?: Prisma.ResponseUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUpdateManyWithoutFormNestedInput
 }
@@ -1068,6 +1240,8 @@ export type FormUncheckedUpdateWithoutSectionsInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   responses?: Prisma.ResponseUncheckedUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUncheckedUpdateManyWithoutFormNestedInput
 }
@@ -1088,8 +1262,10 @@ export type FormCreateWithoutResponsesInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
   owner: Prisma.UserCreateNestedOneWithoutFormsInput
+  theme?: Prisma.FormThemeCreateNestedOneWithoutFormsInput
   sections?: Prisma.SectionCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
 }
@@ -1112,6 +1288,8 @@ export type FormUncheckedCreateWithoutResponsesInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
   chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
 }
@@ -1148,8 +1326,10 @@ export type FormUpdateWithoutResponsesInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFormsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutFormsNestedInput
+  theme?: Prisma.FormThemeUpdateOneWithoutFormsNestedInput
   sections?: Prisma.SectionUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUpdateManyWithoutFormNestedInput
 }
@@ -1172,6 +1352,8 @@ export type FormUncheckedUpdateWithoutResponsesInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUncheckedUpdateManyWithoutFormNestedInput
 }
@@ -1192,8 +1374,10 @@ export type FormCreateWithoutChatHistoriesInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
   owner: Prisma.UserCreateNestedOneWithoutFormsInput
+  theme?: Prisma.FormThemeCreateNestedOneWithoutFormsInput
   sections?: Prisma.SectionCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
 }
@@ -1216,6 +1400,8 @@ export type FormUncheckedCreateWithoutChatHistoriesInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
   responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
 }
@@ -1252,8 +1438,10 @@ export type FormUpdateWithoutChatHistoriesInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFormsNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutFormsNestedInput
+  theme?: Prisma.FormThemeUpdateOneWithoutFormsNestedInput
   sections?: Prisma.SectionUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUpdateManyWithoutFormNestedInput
 }
@@ -1276,6 +1464,8 @@ export type FormUncheckedUpdateWithoutChatHistoriesInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUncheckedUpdateManyWithoutFormNestedInput
 }
@@ -1297,6 +1487,8 @@ export type FormCreateManyOwnerInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FormUpdateWithoutOwnerInput = {
@@ -1315,7 +1507,9 @@ export type FormUpdateWithoutOwnerInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFormsNestedInput
+  theme?: Prisma.FormThemeUpdateOneWithoutFormsNestedInput
   sections?: Prisma.SectionUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUpdateManyWithoutFormNestedInput
@@ -1338,6 +1532,8 @@ export type FormUncheckedUpdateWithoutOwnerInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUncheckedUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUncheckedUpdateManyWithoutFormNestedInput
@@ -1360,6 +1556,8 @@ export type FormUncheckedUpdateManyWithoutOwnerInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FormCreateManyWorkspaceInput = {
@@ -1379,6 +1577,8 @@ export type FormCreateManyWorkspaceInput = {
   responseLimit?: number | null
   oneResponsePerUser?: boolean
   thankYouMessage?: string | null
+  themeId?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FormUpdateWithoutWorkspaceInput = {
@@ -1397,7 +1597,9 @@ export type FormUpdateWithoutWorkspaceInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   owner?: Prisma.UserUpdateOneRequiredWithoutFormsNestedInput
+  theme?: Prisma.FormThemeUpdateOneWithoutFormsNestedInput
   sections?: Prisma.SectionUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUpdateManyWithoutFormNestedInput
@@ -1420,6 +1622,8 @@ export type FormUncheckedUpdateWithoutWorkspaceInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUncheckedUpdateManyWithoutFormNestedInput
   chatHistories?: Prisma.ChatHistoryUncheckedUpdateManyWithoutFormNestedInput
@@ -1442,6 +1646,98 @@ export type FormUncheckedUpdateManyWithoutWorkspaceInput = {
   responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
   thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  themeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+}
+
+export type FormCreateManyThemeInput = {
+  id?: string
+  userId: string
+  workspaceId: string
+  title: string
+  description?: string | null
+  slug: string
+  headerImageUrl?: string | null
+  status?: $Enums.FormStatus
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  closeDate?: Date | string | null
+  responseLimit?: number | null
+  oneResponsePerUser?: boolean
+  thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+}
+
+export type FormUpdateWithoutThemeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  headerImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closeDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFormsNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutFormsNestedInput
+  sections?: Prisma.SectionUpdateManyWithoutFormNestedInput
+  responses?: Prisma.ResponseUpdateManyWithoutFormNestedInput
+  chatHistories?: Prisma.ChatHistoryUpdateManyWithoutFormNestedInput
+}
+
+export type FormUncheckedUpdateWithoutThemeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  headerImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closeDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sections?: Prisma.SectionUncheckedUpdateManyWithoutFormNestedInput
+  responses?: Prisma.ResponseUncheckedUpdateManyWithoutFormNestedInput
+  chatHistories?: Prisma.ChatHistoryUncheckedUpdateManyWithoutFormNestedInput
+}
+
+export type FormUncheckedUpdateManyWithoutThemeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  headerImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closeDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  responseLimit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  oneResponsePerUser?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  thankYouMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 
@@ -1511,8 +1807,11 @@ export type FormSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   responseLimit?: boolean
   oneResponsePerUser?: boolean
   thankYouMessage?: boolean
+  themeId?: boolean
+  customTheme?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  theme?: boolean | Prisma.Form$themeArgs<ExtArgs>
   sections?: boolean | Prisma.Form$sectionsArgs<ExtArgs>
   responses?: boolean | Prisma.Form$responsesArgs<ExtArgs>
   chatHistories?: boolean | Prisma.Form$chatHistoriesArgs<ExtArgs>
@@ -1537,8 +1836,11 @@ export type FormSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   responseLimit?: boolean
   oneResponsePerUser?: boolean
   thankYouMessage?: boolean
+  themeId?: boolean
+  customTheme?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  theme?: boolean | Prisma.Form$themeArgs<ExtArgs>
 }, ExtArgs["result"]["form"]>
 
 export type FormSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1559,8 +1861,11 @@ export type FormSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   responseLimit?: boolean
   oneResponsePerUser?: boolean
   thankYouMessage?: boolean
+  themeId?: boolean
+  customTheme?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  theme?: boolean | Prisma.Form$themeArgs<ExtArgs>
 }, ExtArgs["result"]["form"]>
 
 export type FormSelectScalar = {
@@ -1581,12 +1886,15 @@ export type FormSelectScalar = {
   responseLimit?: boolean
   oneResponsePerUser?: boolean
   thankYouMessage?: boolean
+  themeId?: boolean
+  customTheme?: boolean
 }
 
-export type FormOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "workspaceId" | "title" | "description" | "slug" | "headerImageUrl" | "status" | "version" | "createdAt" | "updatedAt" | "publishedAt" | "archivedAt" | "closeDate" | "responseLimit" | "oneResponsePerUser" | "thankYouMessage", ExtArgs["result"]["form"]>
+export type FormOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "workspaceId" | "title" | "description" | "slug" | "headerImageUrl" | "status" | "version" | "createdAt" | "updatedAt" | "publishedAt" | "archivedAt" | "closeDate" | "responseLimit" | "oneResponsePerUser" | "thankYouMessage" | "themeId" | "customTheme", ExtArgs["result"]["form"]>
 export type FormInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  theme?: boolean | Prisma.Form$themeArgs<ExtArgs>
   sections?: boolean | Prisma.Form$sectionsArgs<ExtArgs>
   responses?: boolean | Prisma.Form$responsesArgs<ExtArgs>
   chatHistories?: boolean | Prisma.Form$chatHistoriesArgs<ExtArgs>
@@ -1595,10 +1903,12 @@ export type FormInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type FormIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  theme?: boolean | Prisma.Form$themeArgs<ExtArgs>
 }
 export type FormIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  theme?: boolean | Prisma.Form$themeArgs<ExtArgs>
 }
 
 export type $FormPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1606,6 +1916,7 @@ export type $FormPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
     owner: Prisma.$UserPayload<ExtArgs>
+    theme: Prisma.$FormThemePayload<ExtArgs> | null
     sections: Prisma.$SectionPayload<ExtArgs>[]
     responses: Prisma.$ResponsePayload<ExtArgs>[]
     chatHistories: Prisma.$ChatHistoryPayload<ExtArgs>[]
@@ -1628,6 +1939,8 @@ export type $FormPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     responseLimit: number | null
     oneResponsePerUser: boolean
     thankYouMessage: string | null
+    themeId: string | null
+    customTheme: runtime.JsonValue | null
   }, ExtArgs["result"]["form"]>
   composites: {}
 }
@@ -2024,6 +2337,7 @@ export interface Prisma__FormClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  theme<T extends Prisma.Form$themeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Form$themeArgs<ExtArgs>>): Prisma.Prisma__FormThemeClient<runtime.Types.Result.GetResult<Prisma.$FormThemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sections<T extends Prisma.Form$sectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Form$sectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   responses<T extends Prisma.Form$responsesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Form$responsesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chatHistories<T extends Prisma.Form$chatHistoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Form$chatHistoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2073,6 +2387,8 @@ export interface FormFieldRefs {
   readonly responseLimit: Prisma.FieldRef<"Form", 'Int'>
   readonly oneResponsePerUser: Prisma.FieldRef<"Form", 'Boolean'>
   readonly thankYouMessage: Prisma.FieldRef<"Form", 'String'>
+  readonly themeId: Prisma.FieldRef<"Form", 'String'>
+  readonly customTheme: Prisma.FieldRef<"Form", 'Json'>
 }
     
 
@@ -2466,6 +2782,25 @@ export type FormDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Forms to delete.
    */
   limit?: number
+}
+
+/**
+ * Form.theme
+ */
+export type Form$themeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FormTheme
+   */
+  select?: Prisma.FormThemeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FormTheme
+   */
+  omit?: Prisma.FormThemeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FormThemeInclude<ExtArgs> | null
+  where?: Prisma.FormThemeWhereInput
 }
 
 /**

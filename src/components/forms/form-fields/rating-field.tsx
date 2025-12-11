@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 import { Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +33,7 @@ interface RatingFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-export default function RatingField({
+const RatingField = memo(function RatingField({
   field,
   index,
   onUpdate,
@@ -267,4 +267,17 @@ export default function RatingField({
       </AdvancedPanel>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.field.id === nextProps.field.id &&
+    prevProps.field.question === nextProps.field.question &&
+    prevProps.field.description === nextProps.field.description &&
+    prevProps.field.required === nextProps.field.required &&
+    prevProps.field.maxRating === nextProps.field.maxRating &&
+    prevProps.field.ratingStyle === nextProps.field.ratingStyle &&
+    prevProps.index === nextProps.index &&
+    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+  );
+});
+
+export default RatingField;
