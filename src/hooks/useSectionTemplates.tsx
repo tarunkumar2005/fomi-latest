@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   getAllSectionTemplates,
   searchSectionTemplates,
@@ -40,87 +41,104 @@ interface TemplateCategory {
   count: number;
 }
 
-export const useSectionTemplates = () => {
-  const [templates, setTemplates] = useState<SectionTemplate[]>([]);
-  const [categories, setCategories] = useState<TemplateCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+// Query keys for cache management
+export const sectionTemplateKeys = {
+  all: ["sectionTemplates"] as const,
+  templates: (category?: string, searchQuery?: string) =>
+    [...sectionTemplateKeys.all, "list", { category, searchQuery }] as const,
+  categories: () => [...sectionTemplateKeys.all, "categories"] as const,
+};
+
+export const useSectionTemplates = (initialCategory?: string) => {
+  // Local state for filters - these trigger query refetch via queryKey
+  const [category, setCategory] = useState<string | undefined>(initialCategory);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // Fetch templates with category/search filters
+  const templatesQuery = useQuery<SectionTemplate[]>({
+    queryKey: sectionTemplateKeys.templates(category, searchQuery),
+    queryFn: async () => {
+      if (searchQuery.trim()) {
+        return (await searchSectionTemplates(searchQuery)) as SectionTemplate[];
+      }
+      return (await getAllSectionTemplates(category)) as SectionTemplate[];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes - templates rarely change
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch categories
+  const categoriesQuery = useQuery<TemplateCategory[]>({
+    queryKey: sectionTemplateKeys.categories(),
+    queryFn: async () => {
+      return await getTemplateCategories();
+    },
+    staleTime: 1000 * 60 * 10, // 10 minutes - categories change even less frequently
+    refetchOnWindowFocus: false,
+  });
 
   /**
-   * Load all templates, optionally filtered by category
+   * Load templates by category (updates filter state)
    */
-  const loadTemplates = async (category?: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getAllSectionTemplates(category);
-      setTemplates(data as SectionTemplate[]);
-    } catch (err) {
-      console.error("Failed to load templates:", err);
-      setError("Failed to load templates");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Search templates by query
-   */
-  const searchTemplates = async (query: string) => {
-    if (!query.trim()) {
-      return loadTemplates();
-    }
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await searchSectionTemplates(query);
-      setTemplates(data as SectionTemplate[]);
-    } catch (err) {
-      console.error("Failed to search templates:", err);
-      setError("Failed to search templates");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Load template categories with counts
-   */
-  const loadCategories = async () => {
-    try {
-      const data = await getTemplateCategories();
-      setCategories(data);
-    } catch (err) {
-      console.error("Failed to load categories:", err);
-    }
-  };
-
-  /**
-   * Filter templates by category (client-side)
-   */
-  const filterByCategory = (category: string | null) => {
-    if (!category) {
-      loadTemplates();
-    } else {
-      loadTemplates(category);
-    }
-  };
-
-  // Load templates and categories on mount
-  useEffect(() => {
-    loadTemplates();
-    loadCategories();
+  const loadTemplates = useCallback((newCategory?: string) => {
+    setCategory(newCategory);
+    setSearchQuery("");
   }, []);
 
+  /**
+   * Search templates by query (updates filter state)
+   */
+  const searchTemplates = useCallback((query: string) => {
+    if (!query.trim()) {
+      setSearchQuery("");
+      return;
+    }
+    setSearchQuery(query);
+  }, []);
+
+  /**
+   * Filter templates by category (client-side convenience)
+   */
+  const filterByCategory = useCallback(
+    (newCategory: string | null) => {
+      loadTemplates(newCategory || undefined);
+    },
+    [loadTemplates]
+  );
+
+  /**
+   * Reload categories
+   */
+  const loadCategories = useCallback(() => {
+    categoriesQuery.refetch();
+  }, [categoriesQuery]);
+
   return {
-    templates,
-    categories,
-    isLoading,
-    error,
+    // Data
+    templates: templatesQuery.data ?? [],
+    categories: categoriesQuery.data ?? [],
+
+    // Loading states
+    isLoading: templatesQuery.isLoading,
+    isFetching: templatesQuery.isFetching,
+    isLoadingCategories: categoriesQuery.isLoading,
+
+    // Error states
+    error: templatesQuery.error?.message ?? null,
+    categoriesError: categoriesQuery.error?.message ?? null,
+
+    // Current filters
+    currentCategory: category,
+    currentSearchQuery: searchQuery,
+
+    // Actions
     loadTemplates,
     searchTemplates,
     filterByCategory,
     loadCategories,
+
+    // Refetch functions
+    refetchTemplates: templatesQuery.refetch,
+    refetchCategories: categoriesQuery.refetch,
   };
 };

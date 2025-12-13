@@ -208,6 +208,7 @@ export interface UseEditFormReturn {
   isLoadingHeader: boolean;
   headerError: string | null;
   hasUnsavedChanges: boolean;
+  getHasUnsavedChanges: () => boolean;
 
   // Action loading states
   isPublishing: boolean;

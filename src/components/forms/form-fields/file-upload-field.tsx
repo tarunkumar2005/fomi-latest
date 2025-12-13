@@ -1,36 +1,36 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Upload, File, CloudUpload } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { Upload, File, CloudUpload } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelInfoBox,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
 
 interface FileUploadFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    required: boolean
-    acceptedTypes?: string
-    maxFileSize?: number
-    maxFiles?: number
-    requiredFiles?: number
-  }
-  index: number
-  onUpdate: (updates: Partial<FileUploadFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    required: boolean;
+    acceptedTypes?: string;
+    maxFileSize?: number;
+    maxFiles?: number;
+    requiredFiles?: number;
+  };
+  index: number;
+  onUpdate: (updates: Partial<FileUploadFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const FileUploadField = memo(
@@ -48,6 +48,8 @@ const FileUploadField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -62,50 +64,50 @@ const FileUploadField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handleAcceptedTypesChange = useCallback(
       (value: string) => {
-        onUpdate({ acceptedTypes: value || undefined })
+        onUpdate({ acceptedTypes: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxFileSizeChange = useCallback(
       (value: string) => {
-        const numValue = Number.parseInt(value)
-        onUpdate({ maxFileSize: isNaN(numValue) ? undefined : numValue })
+        const numValue = Number.parseInt(value);
+        onUpdate({ maxFileSize: isNaN(numValue) ? undefined : numValue });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxFilesChange = useCallback(
       (value: string) => {
-        const numValue = Number.parseInt(value)
-        onUpdate({ maxFiles: isNaN(numValue) ? undefined : numValue })
+        const numValue = Number.parseInt(value);
+        onUpdate({ maxFiles: isNaN(numValue) ? undefined : numValue });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleRequiredFilesChange = useCallback(
       (value: string) => {
-        const numValue = Number.parseInt(value)
-        onUpdate({ requiredFiles: isNaN(numValue) ? undefined : numValue })
+        const numValue = Number.parseInt(value);
+        onUpdate({ requiredFiles: isNaN(numValue) ? undefined : numValue });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     // Format file size for display
     const formatFileSize = (bytes?: number) => {
-      if (!bytes) return "No limit"
-      if (bytes < 1024) return `${bytes} B`
-      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-    }
+      if (!bytes) return "No limit";
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    };
 
     return (
       <>
@@ -114,8 +116,8 @@ const FileUploadField = memo(
           fieldType="File Upload"
           fieldIcon={Upload}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -140,15 +142,55 @@ const FileUploadField = memo(
           showAdvanced={true}
         >
           {/* Preview File Upload Area */}
-          <div className="border-2 border-dashed border-border/60 rounded-xl p-8 bg-muted/20 cursor-not-allowed hover:border-primary/30 hover:bg-muted/30 transition-all duration-200">
+          <div
+            className="border-2 border-dashed p-8 cursor-not-allowed transition-all duration-200"
+            style={{
+              borderColor:
+                "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 60%, transparent)",
+              backgroundColor:
+                "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 20%, transparent)",
+              borderRadius: "var(--preview-radius, 12px)",
+            }}
+          >
             <div className="flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <CloudUpload className="h-7 w-7 text-primary/60" />
+              <div
+                className="w-14 h-14 flex items-center justify-center mb-4"
+                style={{
+                  backgroundColor:
+                    "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
+                  borderRadius: "50%",
+                }}
+              >
+                <CloudUpload
+                  className="h-7 w-7"
+                  style={{
+                    color:
+                      "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 60%, transparent)",
+                  }}
+                />
               </div>
-              <p className="text-sm font-medium text-foreground/70 mb-1">Click to upload or drag and drop</p>
-              <p className="text-xs text-muted-foreground">
-                {field.acceptedTypes || "Any file type"} • {formatFileSize(field.maxFileSize)} •{" "}
-                {field.maxFiles ? `Max ${field.maxFiles} file${field.maxFiles > 1 ? "s" : ""}` : "Unlimited files"}
+              <p
+                className="text-sm font-medium mb-1"
+                style={{
+                  fontFamily: "var(--preview-font-body, inherit)",
+                  color:
+                    "color-mix(in srgb, var(--preview-text, hsl(var(--foreground))) 70%, transparent)",
+                }}
+              >
+                Click to upload or drag and drop
+              </p>
+              <p
+                className="text-xs"
+                style={{
+                  color:
+                    "var(--preview-text-muted, hsl(var(--muted-foreground)))",
+                }}
+              >
+                {field.acceptedTypes || "Any file type"} •{" "}
+                {formatFileSize(field.maxFileSize)} •{" "}
+                {field.maxFiles
+                  ? `Max ${field.maxFiles} file${field.maxFiles > 1 ? "s" : ""}`
+                  : "Unlimited files"}
               </p>
             </div>
           </div>
@@ -229,19 +271,21 @@ const FileUploadField = memo(
 
           <AdvancedPanelInfoBox icon={File}>
             <p>
-              <strong className="text-foreground">File Types:</strong> Use MIME types (image/*, application/pdf) or
-              extensions (.pdf, .doc)
+              <strong className="text-foreground">File Types:</strong> Use MIME
+              types (image/*, application/pdf) or extensions (.pdf, .doc)
             </p>
             <p>
-              <strong className="text-foreground">Size Limits:</strong> Prevents oversized uploads
+              <strong className="text-foreground">Size Limits:</strong> Prevents
+              oversized uploads
             </p>
             <p>
-              <strong className="text-foreground">Count Limits:</strong> Control how many files users can upload
+              <strong className="text-foreground">Count Limits:</strong> Control
+              how many files users can upload
             </p>
           </AdvancedPanelInfoBox>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -255,8 +299,8 @@ const FileUploadField = memo(
       prevProps.field.requiredFiles === nextProps.field.requiredFiles &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default FileUploadField
+export default FileUploadField;

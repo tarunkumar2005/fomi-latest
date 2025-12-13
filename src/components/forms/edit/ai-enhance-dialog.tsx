@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -8,24 +9,32 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { RefreshCw, Check, X, Lightbulb, ArrowRight, MessageSquarePlus, Sparkles } from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { AIEnhancementSuggestion } from "@/types/form-edit"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  RefreshCw,
+  Check,
+  X,
+  Lightbulb,
+  ArrowRight,
+  MessageSquarePlus,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { AIEnhancementSuggestion } from "@/types/form-edit";
+import AIEnhanceIcon from "@/assets/icon/ai-enhance.png";
 
 interface AIEnhanceDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  field: any
-  enhancement: AIEnhancementSuggestion | null
-  isLoading: boolean
-  error?: string | null
-  onApply: () => void
-  onRegenerate: (feedback?: string) => void
-  onRetry: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  field: any;
+  enhancement: AIEnhancementSuggestion | null;
+  isLoading: boolean;
+  error?: string | null;
+  onApply: () => void;
+  onRegenerate: (feedback?: string) => void;
+  onRetry: () => void;
 }
 
 export default function AIEnhanceDialog({
@@ -39,30 +48,44 @@ export default function AIEnhanceDialog({
   onRegenerate,
   onRetry,
 }: AIEnhanceDialogProps) {
-  const [feedback, setFeedback] = useState("")
-  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false)
+  const [feedback, setFeedback] = useState("");
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
   const handleRegenerate = () => {
-    onRegenerate(feedback || undefined)
-    setFeedback("")
-    setFeedbackModalOpen(false)
-  }
+    onRegenerate(feedback || undefined);
+    setFeedback("");
+    setFeedbackModalOpen(false);
+  };
 
   const handleClose = () => {
-    setFeedback("")
-    setFeedbackModalOpen(false)
-    onOpenChange(false)
-  }
+    setFeedback("");
+    setFeedbackModalOpen(false);
+    onOpenChange(false);
+  };
 
-  const hasOptions = field?.type === "MULTIPLE_CHOICE" || field?.type === "CHECKBOXES" || field?.type === "DROPDOWN"
-  const hasScaleLabels = field?.type === "RATING" || field?.type === "LINEAR_SCALE"
-  const hasPlaceholder = ["SHORT_ANSWER", "PARAGRAPH", "EMAIL", "PHONE", "URL", "NUMBER"].includes(field?.type)
+  const hasOptions =
+    field?.type === "MULTIPLE_CHOICE" ||
+    field?.type === "CHECKBOXES" ||
+    field?.type === "DROPDOWN";
+  const hasScaleLabels =
+    field?.type === "RATING" || field?.type === "LINEAR_SCALE";
+  const hasPlaceholder = [
+    "SHORT_ANSWER",
+    "PARAGRAPH",
+    "EMAIL",
+    "PHONE",
+    "URL",
+    "NUMBER",
+  ].includes(field?.type);
 
-  const questionChanged = field?.question !== enhancement?.question
-  const descriptionChanged = field?.description !== enhancement?.description
-  const placeholderChanged = field?.placeholder !== enhancement?.placeholder
-  const optionsChanged = JSON.stringify(field?.options) !== JSON.stringify(enhancement?.options)
-  const scaleChanged = field?.minLabel !== enhancement?.minLabel || field?.maxLabel !== enhancement?.maxLabel
+  const questionChanged = field?.question !== enhancement?.question;
+  const descriptionChanged = field?.description !== enhancement?.description;
+  const placeholderChanged = field?.placeholder !== enhancement?.placeholder;
+  const optionsChanged =
+    JSON.stringify(field?.options) !== JSON.stringify(enhancement?.options);
+  const scaleChanged =
+    field?.minLabel !== enhancement?.minLabel ||
+    field?.maxLabel !== enhancement?.maxLabel;
 
   return (
     <>
@@ -71,10 +94,18 @@ export default function AIEnhanceDialog({
           <DialogHeader className="px-6 py-5 border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-primary/10 ring-4 ring-primary/5">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Image
+                  src={AIEnhanceIcon}
+                  alt="AI"
+                  className="h-5 w-5"
+                  width={20}
+                  height={20}
+                />
               </div>
               <div>
-                <DialogTitle className="text-lg font-semibold">AI Enhancement Preview</DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
+                  AI Enhancement Preview
+                </DialogTitle>
                 <DialogDescription className="text-sm mt-0.5">
                   Review suggested improvements before applying
                 </DialogDescription>
@@ -132,9 +163,10 @@ export default function AIEnhanceDialog({
                   />
                 )}
 
-                {enhancement.suggestions && enhancement.suggestions.length > 0 && (
-                  <SuggestionsCard suggestions={enhancement.suggestions} />
-                )}
+                {enhancement.suggestions &&
+                  enhancement.suggestions.length > 0 && (
+                    <SuggestionsCard suggestions={enhancement.suggestions} />
+                  )}
               </div>
             ) : (
               <ErrorState onRetry={onRetry} errorMessage={error} />
@@ -157,7 +189,11 @@ export default function AIEnhanceDialog({
               )}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleClose} className="rounded-lg bg-transparent">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                className="rounded-lg bg-transparent"
+              >
                 <X className="h-4 w-4 mr-1.5" />
                 Cancel
               </Button>
@@ -184,7 +220,9 @@ export default function AIEnhanceDialog({
               </div>
               <div>
                 <DialogTitle>Regenerate Enhancement</DialogTitle>
-                <DialogDescription>Tell us what you'd like changed</DialogDescription>
+                <DialogDescription>
+                  Tell us what you'd like changed
+                </DialogDescription>
               </div>
             </div>
           </DialogHeader>
@@ -198,11 +236,17 @@ export default function AIEnhanceDialog({
               maxLength={200}
               className="resize-none rounded-lg"
             />
-            <p className="text-xs text-muted-foreground mt-2 text-right">{feedback.length}/200 characters</p>
+            <p className="text-xs text-muted-foreground mt-2 text-right">
+              {feedback.length}/200 characters
+            </p>
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setFeedbackModalOpen(false)} className="rounded-lg">
+            <Button
+              variant="outline"
+              onClick={() => setFeedbackModalOpen(false)}
+              className="rounded-lg"
+            >
               Cancel
             </Button>
             <Button
@@ -216,7 +260,7 @@ export default function AIEnhanceDialog({
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
 
 function LoadingState() {
@@ -224,12 +268,20 @@ function LoadingState() {
     <div className="flex flex-col items-center justify-center py-16 px-8">
       <div className="relative mb-6">
         <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 ring-4 ring-primary/5">
-          <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+          <Image
+            src={AIEnhanceIcon}
+            alt="AI"
+            className="h-8 w-8 animate-pulse"
+            width={32}
+            height={32}
+          />
         </div>
         {/* Animated rings */}
         <div className="absolute inset-0 rounded-2xl border-2 border-primary/20 animate-ping" />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">Enhancing your field...</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-2">
+        Enhancing your field...
+      </h3>
       <p className="text-sm text-muted-foreground text-center max-w-xs">
         AI is analyzing your content and crafting improvements
       </p>
@@ -243,25 +295,37 @@ function LoadingState() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-function ErrorState({ onRetry, errorMessage }: { onRetry: () => void; errorMessage?: string | null }) {
+function ErrorState({
+  onRetry,
+  errorMessage,
+}: {
+  onRetry: () => void;
+  errorMessage?: string | null;
+}) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
       <div className="flex items-center justify-center w-14 h-14 rounded-full bg-destructive/10 mb-4">
         <X className="h-7 w-7 text-destructive" />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-1">Enhancement Failed</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-1">
+        Enhancement Failed
+      </h3>
       <p className="text-sm text-muted-foreground mb-4 max-w-md">
         {errorMessage || "Something went wrong. Please try again."}
       </p>
-      <Button variant="outline" onClick={onRetry} className="rounded-lg bg-transparent">
+      <Button
+        variant="outline"
+        onClick={onRetry}
+        className="rounded-lg bg-transparent"
+      >
         <RefreshCw className="h-4 w-4 mr-2" />
         Try Again
       </Button>
     </div>
-  )
+  );
 }
 
 function EnhancementCard({
@@ -272,26 +336,34 @@ function EnhancementCard({
   emptyText = "Empty",
   isCode = false,
 }: {
-  label: string
-  original: string | null | undefined
-  enhanced: string | null | undefined
-  hasChange: boolean
-  emptyText?: string
-  isCode?: boolean
+  label: string;
+  original: string | null | undefined;
+  enhanced: string | null | undefined;
+  hasChange: boolean;
+  emptyText?: string;
+  isCode?: boolean;
 }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <h4 className="text-sm font-medium text-foreground">{label}</h4>
         {hasChange && (
-          <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 font-medium border-0">Updated</Badge>
+          <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 font-medium border-0">
+            Updated
+          </Badge>
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border bg-muted/40 p-3">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Original</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Original
+          </span>
           <p
-            className={cn("mt-1.5 text-sm", isCode && "font-mono text-xs", !original && "text-muted-foreground italic")}
+            className={cn(
+              "mt-1.5 text-sm",
+              isCode && "font-mono text-xs",
+              !original && "text-muted-foreground italic"
+            )}
           >
             {original || emptyText}
           </p>
@@ -299,13 +371,13 @@ function EnhancementCard({
         <div
           className={cn(
             "rounded-xl border p-3 transition-colors",
-            hasChange ? "bg-primary/5 border-primary/20" : "bg-muted/40",
+            hasChange ? "bg-primary/5 border-primary/20" : "bg-muted/40"
           )}
         >
           <span
             className={cn(
               "text-[10px] font-semibold uppercase tracking-wider",
-              hasChange ? "text-primary" : "text-muted-foreground",
+              hasChange ? "text-primary" : "text-muted-foreground"
             )}
           >
             Enhanced
@@ -315,7 +387,7 @@ function EnhancementCard({
               "mt-1.5 text-sm",
               isCode && "font-mono text-xs",
               hasChange && "text-foreground font-medium",
-              !enhanced && "text-muted-foreground italic",
+              !enhanced && "text-muted-foreground italic"
             )}
           >
             {enhanced || emptyText}
@@ -323,7 +395,7 @@ function EnhancementCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function OptionsCard({
@@ -331,25 +403,32 @@ function OptionsCard({
   enhancedOptions,
   hasChange,
 }: {
-  originalOptions: Array<{ label: string; value: string }> | null | undefined
-  enhancedOptions: Array<{ label: string; value: string }> | null | undefined
-  hasChange: boolean
+  originalOptions: Array<{ label: string; value: string }> | null | undefined;
+  enhancedOptions: Array<{ label: string; value: string }> | null | undefined;
+  hasChange: boolean;
 }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <h4 className="text-sm font-medium text-foreground">Options</h4>
         {hasChange && (
-          <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 font-medium border-0">Updated</Badge>
+          <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 font-medium border-0">
+            Updated
+          </Badge>
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border bg-muted/40 p-3">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Original</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Original
+          </span>
           <div className="mt-2 space-y-1.5">
             {originalOptions && originalOptions.length > 0 ? (
               originalOptions.map((opt, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm text-foreground">
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 text-sm text-foreground"
+                >
                   <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
                   {opt.label}
                 </div>
@@ -359,11 +438,16 @@ function OptionsCard({
             )}
           </div>
         </div>
-        <div className={cn("rounded-xl border p-3", hasChange ? "bg-primary/5 border-primary/20" : "bg-muted/40")}>
+        <div
+          className={cn(
+            "rounded-xl border p-3",
+            hasChange ? "bg-primary/5 border-primary/20" : "bg-muted/40"
+          )}
+        >
           <span
             className={cn(
               "text-[10px] font-semibold uppercase tracking-wider",
-              hasChange ? "text-primary" : "text-muted-foreground",
+              hasChange ? "text-primary" : "text-muted-foreground"
             )}
           >
             Enhanced
@@ -375,11 +459,16 @@ function OptionsCard({
                   key={idx}
                   className={cn(
                     "flex items-center gap-2 text-sm",
-                    hasChange ? "text-foreground font-medium" : "text-foreground",
+                    hasChange
+                      ? "text-foreground font-medium"
+                      : "text-foreground"
                   )}
                 >
                   <div
-                    className={cn("h-1.5 w-1.5 rounded-full", hasChange ? "bg-primary" : "bg-muted-foreground/40")}
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      hasChange ? "bg-primary" : "bg-muted-foreground/40"
+                    )}
                   />
                   {opt.label}
                 </div>
@@ -391,7 +480,7 @@ function OptionsCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function ScaleLabelsCard({
@@ -401,47 +490,65 @@ function ScaleLabelsCard({
   enhancedMax,
   hasChange,
 }: {
-  originalMin: string | null | undefined
-  originalMax: string | null | undefined
-  enhancedMin: string | null | undefined
-  enhancedMax: string | null | undefined
-  hasChange: boolean
+  originalMin: string | null | undefined;
+  originalMax: string | null | undefined;
+  enhancedMin: string | null | undefined;
+  enhancedMax: string | null | undefined;
+  hasChange: boolean;
 }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <h4 className="text-sm font-medium text-foreground">Scale Labels</h4>
         {hasChange && (
-          <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 font-medium border-0">Updated</Badge>
+          <Badge className="bg-primary/10 text-primary text-[10px] px-1.5 py-0 font-medium border-0">
+            Updated
+          </Badge>
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border bg-muted/40 p-3">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Original</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Original
+          </span>
           <div className="mt-2 flex items-center gap-2 text-sm">
             <span className="text-foreground">{originalMin || "—"}</span>
             <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-foreground">{originalMax || "—"}</span>
           </div>
         </div>
-        <div className={cn("rounded-xl border p-3", hasChange ? "bg-primary/5 border-primary/20" : "bg-muted/40")}>
+        <div
+          className={cn(
+            "rounded-xl border p-3",
+            hasChange ? "bg-primary/5 border-primary/20" : "bg-muted/40"
+          )}
+        >
           <span
             className={cn(
               "text-[10px] font-semibold uppercase tracking-wider",
-              hasChange ? "text-primary" : "text-muted-foreground",
+              hasChange ? "text-primary" : "text-muted-foreground"
             )}
           >
             Enhanced
           </span>
           <div className="mt-2 flex items-center gap-2 text-sm">
-            <span className={cn(hasChange && "text-foreground font-medium")}>{enhancedMin || "—"}</span>
-            <ArrowRight className={cn("h-3.5 w-3.5", hasChange ? "text-primary" : "text-muted-foreground")} />
-            <span className={cn(hasChange && "text-foreground font-medium")}>{enhancedMax || "—"}</span>
+            <span className={cn(hasChange && "text-foreground font-medium")}>
+              {enhancedMin || "—"}
+            </span>
+            <ArrowRight
+              className={cn(
+                "h-3.5 w-3.5",
+                hasChange ? "text-primary" : "text-muted-foreground"
+              )}
+            />
+            <span className={cn(hasChange && "text-foreground font-medium")}>
+              {enhancedMax || "—"}
+            </span>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function SuggestionsCard({ suggestions }: { suggestions: string[] }) {
@@ -457,7 +564,10 @@ function SuggestionsCard({ suggestions }: { suggestions: string[] }) {
           <h4 className="text-sm font-medium text-foreground mb-1">Pro Tips</h4>
           <ul className="space-y-1">
             {suggestions.map((suggestion, idx) => (
-              <li key={idx} className="text-sm text-muted-foreground leading-relaxed">
+              <li
+                key={idx}
+                className="text-sm text-muted-foreground leading-relaxed"
+              >
                 • {suggestion}
               </li>
             ))}
@@ -465,5 +575,5 @@ function SuggestionsCard({ suggestions }: { suggestions: string[] }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

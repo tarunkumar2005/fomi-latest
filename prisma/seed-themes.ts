@@ -8,7 +8,7 @@ async function seedThemes() {
     // Seed all default themes
     for (const theme of DEFAULT_THEMES) {
       console.log(`  → Seeding theme: ${theme.name}`);
-      
+
       await prisma.formTheme.upsert({
         where: { id: theme.id },
         update: {
@@ -37,7 +37,7 @@ async function seedThemes() {
       });
     }
 
-    console.log("✅ Successfully seeded 8 built-in themes");
+    console.log("✅ Successfully seeded 7 built-in themes");
   } catch (error) {
     console.error("❌ Error seeding themes:", error);
     throw error;
@@ -46,8 +46,7 @@ async function seedThemes() {
   }
 }
 
-seedThemes()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+seedThemes().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

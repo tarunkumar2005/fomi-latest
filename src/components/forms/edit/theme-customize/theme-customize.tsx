@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useCallback, useRef, useEffect } from "react"
 import {
   Square,
   Circle,
@@ -106,8 +106,46 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
   const buttons = useMemo(() => parseJson(theme?.buttons, defaultButtons), [theme?.buttons])
   const inputFields = useMemo(() => parseJson(theme?.inputFields, defaultInputFields), [theme?.inputFields])
 
+  // Local state for color inputs to prevent lag during dragging
+  const [localColors, setLocalColors] = useState<ThemeColors>(colors)
+  const colorDebounceRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Sync local colors when theme colors change externally
+  useEffect(() => {
+    setLocalColors(colors)
+  }, [colors])
+
+  // Debounced color update - only updates parent after debounce
+  const updateColorsDebounced = useCallback((key: keyof ThemeColors, value: string) => {
+    // Update local state immediately for responsive UI
+    setLocalColors(prev => {
+      const newColors = { ...prev, [key]: value }
+      
+      // Clear any existing debounce timer
+      if (colorDebounceRef.current) {
+        clearTimeout(colorDebounceRef.current)
+      }
+      
+      // Schedule the parent update with the new colors
+      colorDebounceRef.current = setTimeout(() => {
+        onThemeChange({ colors: newColors })
+      }, 200) // 200ms debounce for smooth dragging
+      
+      return newColors
+    })
+  }, [onThemeChange])
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (colorDebounceRef.current) {
+        clearTimeout(colorDebounceRef.current)
+      }
+    }
+  }, [])
+
   const updateColors = (key: keyof ThemeColors, value: string) => {
-    onThemeChange({ colors: { ...colors, [key]: value } })
+    updateColorsDebounced(key, value)
   }
 
   const updateTypography = (key: keyof ThemeTypography, value: unknown) => {
@@ -151,20 +189,20 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
         <div
           className="p-5 rounded-xl border-2 overflow-hidden transition-all"
           style={{
-            backgroundColor: colors.card,
-            borderColor: colors.border,
+            backgroundColor: localColors.card,
+            borderColor: localColors.border,
             borderRadius: `${layout.borderRadius}px`,
           }}
         >
           <div className="space-y-2.5">
-            <div className="h-2.5 rounded-full" style={{ backgroundColor: colors.primary, width: "60%" }} />
+            <div className="h-2.5 rounded-full" style={{ backgroundColor: localColors.primary, width: "60%" }} />
             <div
               className="h-2 rounded-full"
-              style={{ backgroundColor: colors.textMuted, width: "80%", opacity: 0.4 }}
+              style={{ backgroundColor: localColors.textMuted, width: "80%", opacity: 0.4 }}
             />
             <div
               className="h-2 rounded-full"
-              style={{ backgroundColor: colors.textMuted, width: "45%", opacity: 0.4 }}
+              style={{ backgroundColor: localColors.textMuted, width: "45%", opacity: 0.4 }}
             />
           </div>
         </div>
@@ -182,12 +220,12 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
                   <button className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-muted/30 hover:border-primary/30 transition-all group">
                     <div
                       className="h-10 w-10 rounded-lg shadow-sm ring-1 ring-border group-hover:ring-primary/30 transition-all flex-shrink-0"
-                      style={{ backgroundColor: colors[swatch.key] }}
+                      style={{ backgroundColor: localColors[swatch.key] }}
                     />
                     <div className="text-left min-w-0">
                       <p className="text-xs font-medium text-foreground truncate">{swatch.label}</p>
                       <p className="text-[10px] text-muted-foreground font-mono truncate uppercase">
-                        {colors[swatch.key]}
+                        {localColors[swatch.key]}
                       </p>
                     </div>
                   </button>
@@ -201,13 +239,13 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
-                        value={colors[swatch.key]}
+                        value={localColors[swatch.key]}
                         onChange={(e) => updateColors(swatch.key, e.target.value)}
                         className="h-10 w-14 rounded-lg cursor-pointer border border-border"
                       />
                       <Input
                         type="text"
-                        value={colors[swatch.key]}
+                        value={localColors[swatch.key]}
                         onChange={(e) => updateColors(swatch.key, e.target.value)}
                         className="flex-1 h-10 font-mono text-xs uppercase"
                       />

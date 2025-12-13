@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Mail, AtSign } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { Mail, AtSign } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
 
 interface EmailFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    placeholder?: string
-    required: boolean
-    allowedDomains?: string
-    blockedDomains?: string
-  }
-  index: number
-  onUpdate: (updates: Partial<EmailFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    placeholder?: string;
+    required: boolean;
+    allowedDomains?: string;
+    blockedDomains?: string;
+  };
+  index: number;
+  onUpdate: (updates: Partial<EmailFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const EmailField = memo(
@@ -45,6 +45,8 @@ const EmailField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -59,32 +61,32 @@ const EmailField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value })
+        onUpdate({ placeholder: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handleAllowedDomainsChange = useCallback(
       (value: string) => {
-        onUpdate({ allowedDomains: value || undefined })
+        onUpdate({ allowedDomains: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleBlockedDomainsChange = useCallback(
       (value: string) => {
-        onUpdate({ blockedDomains: value || undefined })
+        onUpdate({ blockedDomains: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -93,8 +95,8 @@ const EmailField = memo(
           fieldType="Email"
           fieldIcon={Mail}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -128,7 +130,18 @@ const EmailField = memo(
               value=""
               placeholder={field.placeholder || "name@example.com"}
               disabled
-              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+              className="pl-10 cursor-not-allowed"
+              style={{
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                borderColor:
+                  "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                color:
+                  "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                height: "var(--preview-input-height, 40px)",
+                fontSize: "var(--preview-input-font-size, 14px)",
+                borderRadius: "var(--preview-radius, 8px)",
+              }}
             />
           </div>
         </FieldWrapper>
@@ -188,7 +201,7 @@ const EmailField = memo(
           </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -201,8 +214,8 @@ const EmailField = memo(
       prevProps.field.blockedDomains === nextProps.field.blockedDomains &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default EmailField
+export default EmailField;

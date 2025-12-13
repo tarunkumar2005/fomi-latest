@@ -1,3 +1,5 @@
+import { Role, Plan as PrismaPlan } from "@prisma/client";
+
 export enum RangeOption {
   "24h" = "24h",
   "7d" = "7d",
@@ -6,16 +8,24 @@ export enum RangeOption {
 }
 
 export enum Plan {
-  FREE,
-  PRO
+  FREE = "FREE",
+  PRO = "PRO",
 }
 
 export interface Workspace {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  plan?: Plan;
-  createdAt: string;
-  updatedAt: string;
+  description: string | null;
+  plan: PrismaPlan;
+  createdAt: Date;
+  updatedAt: Date;
+  role: Role;
+  joinedAt: Date;
+  formsCount: number;
+  membersCount: number;
+  _count: {
+    forms: number;
+    members: number;
+  };
 }

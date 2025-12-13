@@ -1,28 +1,31 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Calendar } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import FieldWrapper from "../edit/shared/FieldWrapper"
-import AdvancedPanel, { AdvancedPanelSection, AdvancedPanelFieldGroup } from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+import { useCallback, memo } from "react";
+import { Calendar } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import FieldWrapper from "../edit/shared/FieldWrapper";
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
 
 interface DateFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    required: boolean
-    minDate?: string
-    maxDate?: string
-  }
-  index: number
-  onUpdate: (updates: Partial<DateFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    required: boolean;
+    minDate?: string;
+    maxDate?: string;
+  };
+  index: number;
+  onUpdate: (updates: Partial<DateFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const DateField = memo(
@@ -40,6 +43,8 @@ const DateField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -54,25 +59,25 @@ const DateField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handleMinDateChange = useCallback(
       (value: string) => {
-        onUpdate({ minDate: value || undefined })
+        onUpdate({ minDate: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxDateChange = useCallback(
       (value: string) => {
-        onUpdate({ maxDate: value || undefined })
+        onUpdate({ maxDate: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -81,8 +86,8 @@ const DateField = memo(
           fieldType="Date"
           fieldIcon={Calendar}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -115,7 +120,18 @@ const DateField = memo(
               type="date"
               value=""
               disabled
-              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50 hover:border-border transition-colors"
+              className="pl-10 cursor-not-allowed transition-colors"
+              style={{
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                borderColor:
+                  "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                color:
+                  "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                height: "var(--preview-input-height, 40px)",
+                fontSize: "var(--preview-input-font-size, 14px)",
+                borderRadius: "var(--preview-radius, 8px)",
+              }}
             />
           </div>
         </FieldWrapper>
@@ -127,7 +143,11 @@ const DateField = memo(
           subtitle="Configure date constraints"
         >
           <AdvancedPanelSection title="Date Constraints">
-            <AdvancedPanelFieldGroup label="Minimum Date" htmlFor="minDate" description="Earliest selectable date">
+            <AdvancedPanelFieldGroup
+              label="Minimum Date"
+              htmlFor="minDate"
+              description="Earliest selectable date"
+            >
               <Input
                 id="minDate"
                 type="date"
@@ -137,7 +157,11 @@ const DateField = memo(
               />
             </AdvancedPanelFieldGroup>
 
-            <AdvancedPanelFieldGroup label="Maximum Date" htmlFor="maxDate" description="Latest selectable date">
+            <AdvancedPanelFieldGroup
+              label="Maximum Date"
+              htmlFor="maxDate"
+              description="Latest selectable date"
+            >
               <Input
                 id="maxDate"
                 type="date"
@@ -149,7 +173,7 @@ const DateField = memo(
           </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -161,8 +185,8 @@ const DateField = memo(
       prevProps.field.maxDate === nextProps.field.maxDate &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default DateField
+export default DateField;

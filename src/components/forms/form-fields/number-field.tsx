@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Hash } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { Hash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
 
 interface NumberFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    placeholder?: string
-    required: boolean
-    min?: number
-    max?: number
-    step?: number
-  }
-  index: number
-  onUpdate: (updates: Partial<NumberFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    placeholder?: string;
+    required: boolean;
+    min?: number;
+    max?: number;
+    step?: number;
+  };
+  index: number;
+  onUpdate: (updates: Partial<NumberFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const NumberField = memo(
@@ -46,6 +46,8 @@ const NumberField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -60,42 +62,42 @@ const NumberField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value })
+        onUpdate({ placeholder: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMinChange = useCallback(
       (value: string) => {
-        const num = Number.parseFloat(value)
-        onUpdate({ min: isNaN(num) ? undefined : num })
+        const num = Number.parseFloat(value);
+        onUpdate({ min: isNaN(num) ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxChange = useCallback(
       (value: string) => {
-        const num = Number.parseFloat(value)
-        onUpdate({ max: isNaN(num) ? undefined : num })
+        const num = Number.parseFloat(value);
+        onUpdate({ max: isNaN(num) ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleStepChange = useCallback(
       (value: string) => {
-        const num = Number.parseFloat(value)
-        onUpdate({ step: isNaN(num) || num <= 0 ? undefined : num })
+        const num = Number.parseFloat(value);
+        onUpdate({ step: isNaN(num) || num <= 0 ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -104,8 +106,8 @@ const NumberField = memo(
           fieldType="Number"
           fieldIcon={Hash}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -140,7 +142,18 @@ const NumberField = memo(
               max={field.max}
               step={field.step}
               disabled
-              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+              className="pl-10 cursor-not-allowed"
+              style={{
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                borderColor:
+                  "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                color:
+                  "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                height: "var(--preview-input-height, 40px)",
+                fontSize: "var(--preview-input-font-size, 14px)",
+                borderRadius: "var(--preview-radius, 8px)",
+              }}
             />
           </div>
         </FieldWrapper>
@@ -228,17 +241,21 @@ const NumberField = memo(
                     {field.min !== undefined && field.max !== undefined
                       ? `${field.min} to ${field.max}`
                       : field.min !== undefined
-                        ? `${field.min} or greater`
-                        : `${field.max} or less`}
+                      ? `${field.min} or greater`
+                      : `${field.max} or less`}
                   </p>
-                  {field.step && <p className="text-xs text-muted-foreground mt-1">In steps of {field.step}</p>}
+                  {field.step && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      In steps of {field.step}
+                    </p>
+                  )}
                 </div>
               </AdvancedPanelSection>
             </>
           )}
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -252,8 +269,8 @@ const NumberField = memo(
       prevProps.field.step === nextProps.field.step &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default NumberField
+export default NumberField;

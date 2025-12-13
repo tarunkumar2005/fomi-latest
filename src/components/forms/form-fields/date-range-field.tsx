@@ -1,36 +1,36 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { CalendarRange, ArrowRight } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { CalendarRange, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelInfoBox,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
-import { Info } from "lucide-react"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { Info } from "lucide-react";
 
 interface DateRangeFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    required: boolean
-    placeholder?: string
-    minDate?: string
-    maxDate?: string
-  }
-  index: number
-  onUpdate: (updates: Partial<DateRangeFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    required: boolean;
+    placeholder?: string;
+    minDate?: string;
+    maxDate?: string;
+  };
+  index: number;
+  onUpdate: (updates: Partial<DateRangeFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const DateRangeField = memo(
@@ -48,6 +48,8 @@ const DateRangeField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -62,32 +64,32 @@ const DateRangeField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value || undefined })
+        onUpdate({ placeholder: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMinDateChange = useCallback(
       (value: string) => {
-        onUpdate({ minDate: value || undefined })
+        onUpdate({ minDate: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxDateChange = useCallback(
       (value: string) => {
-        onUpdate({ maxDate: value || undefined })
+        onUpdate({ maxDate: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -96,8 +98,8 @@ const DateRangeField = memo(
           fieldType="Date Range"
           fieldIcon={CalendarRange}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -125,7 +127,9 @@ const DateRangeField = memo(
           <div className="flex items-center gap-3">
             {/* Start Date */}
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Start Date</Label>
+              <Label className="text-xs font-medium text-muted-foreground">
+                Start Date
+              </Label>
               <div className="relative group/input">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                   <CalendarRange className="h-4 w-4 text-muted-foreground/60 group-hover/input:text-primary/60 transition-colors" />
@@ -134,7 +138,18 @@ const DateRangeField = memo(
                   type="date"
                   value=""
                   disabled
-                  className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+                  className="pl-10 cursor-not-allowed"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                    borderColor:
+                      "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                    color:
+                      "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                    height: "var(--preview-input-height, 40px)",
+                    fontSize: "var(--preview-input-font-size, 14px)",
+                    borderRadius: "var(--preview-radius, 8px)",
+                  }}
                 />
               </div>
             </div>
@@ -146,7 +161,9 @@ const DateRangeField = memo(
 
             {/* End Date */}
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">End Date</Label>
+              <Label className="text-xs font-medium text-muted-foreground">
+                End Date
+              </Label>
               <div className="relative group/input">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
                   <CalendarRange className="h-4 w-4 text-muted-foreground/60 group-hover/input:text-primary/60 transition-colors" />
@@ -155,7 +172,18 @@ const DateRangeField = memo(
                   type="date"
                   value=""
                   disabled
-                  className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+                  className="pl-10 cursor-not-allowed"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                    borderColor:
+                      "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                    color:
+                      "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                    height: "var(--preview-input-height, 40px)",
+                    fontSize: "var(--preview-input-font-size, 14px)",
+                    borderRadius: "var(--preview-radius, 8px)",
+                  }}
                 />
               </div>
             </div>
@@ -217,13 +245,14 @@ const DateRangeField = memo(
 
           <AdvancedPanelInfoBox icon={Info}>
             <p>
-              <strong className="text-foreground">Note:</strong> The end date will automatically be validated to ensure
-              it comes after the start date.
+              <strong className="text-foreground">Note:</strong> The end date
+              will automatically be validated to ensure it comes after the start
+              date.
             </p>
           </AdvancedPanelInfoBox>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -236,8 +265,8 @@ const DateRangeField = memo(
       prevProps.field.maxDate === nextProps.field.maxDate &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default DateRangeField
+export default DateRangeField;

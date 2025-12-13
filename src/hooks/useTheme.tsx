@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { FormTheme } from "@/types/form-theme";
 import { DEFAULT_THEME } from "@/types/form-theme";
 import {
@@ -18,6 +19,16 @@ import {
   exportTheme,
   importTheme,
 } from "@/lib/prisma";
+
+// Query keys for cache management
+export const themeKeys = {
+  all: ["themes"] as const,
+  builtIn: () => [...themeKeys.all, "builtIn"] as const,
+  user: (userId: string) => [...themeKeys.all, "user", userId] as const,
+  workspace: (workspaceId: string) =>
+    [...themeKeys.all, "workspace", workspaceId] as const,
+  form: (formId: string) => [...themeKeys.all, "form", formId] as const,
+};
 
 interface UseThemeProps {
   formId: string;
@@ -63,101 +74,223 @@ export function useTheme({
   userId,
   workspaceId,
 }: UseThemeProps): UseThemeReturn {
+  const queryClient = useQueryClient();
+
+  // Local state for current theme modifications (optimistic updates)
   const [currentTheme, setCurrentTheme] = useState<FormTheme>(DEFAULT_THEME);
   const [originalTheme, setOriginalTheme] = useState<FormTheme>(DEFAULT_THEME);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const [builtInThemes, setBuiltInThemes] = useState<FormTheme[]>([]);
-  const [userThemes, setUserThemes] = useState<FormTheme[]>([]);
-  const [workspaceThemes, setWorkspaceThemes] = useState<FormTheme[]>([]);
+  // Use ref for unsaved changes to avoid re-renders on every change
+  const hasUnsavedChangesRef = useRef(false);
+  // Only use state for exposing to consumers when they need to react to it
+  const [hasUnsavedChangesState, setHasUnsavedChangesState] = useState(false);
 
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-save effect with debouncing (same as form auto-save: 800ms)
+  // ===================
+  // QUERIES
+  // ===================
+
+  // Fetch built-in themes
+  const builtInQuery = useQuery<FormTheme[]>({
+    queryKey: themeKeys.builtIn(),
+    queryFn: async () => {
+      return (await getBuiltInThemes()) as unknown as FormTheme[];
+    },
+    staleTime: 1000 * 60 * 30, // 30 minutes - built-in themes never change
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch user themes
+  const userQuery = useQuery<FormTheme[]>({
+    queryKey: themeKeys.user(userId || ""),
+    queryFn: async () => {
+      if (!userId) return [];
+      return (await getUserThemes(userId)) as unknown as FormTheme[];
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch workspace themes
+  const workspaceQuery = useQuery<FormTheme[]>({
+    queryKey: themeKeys.workspace(workspaceId || ""),
+    queryFn: async () => {
+      if (!workspaceId) return [];
+      return (await getWorkspaceThemes(workspaceId)) as unknown as FormTheme[];
+    },
+    enabled: !!workspaceId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
+  // Fetch form's current theme
+  const formThemeQuery = useQuery<FormTheme | null>({
+    queryKey: themeKeys.form(formId),
+    queryFn: async () => {
+      const theme = await getFormTheme(formId);
+      return theme as FormTheme | null;
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchOnWindowFocus: true,
+  });
+
+  // Sync form theme to local state when it changes
   useEffect(() => {
-    if (!hasUnsavedChanges) return;
-
-    // Clear existing timer
-    if (saveTimerRef.current) {
-      clearTimeout(saveTimerRef.current);
+    if (formThemeQuery.data) {
+      setCurrentTheme(formThemeQuery.data);
+      setOriginalTheme(formThemeQuery.data);
+      hasUnsavedChangesRef.current = false;
+      setHasUnsavedChangesState(false);
+    } else if (builtInQuery.data?.length) {
+      const defaultTheme =
+        builtInQuery.data.find((t) => t.id === "default") || DEFAULT_THEME;
+      setCurrentTheme(defaultTheme);
+      setOriginalTheme(defaultTheme);
+      hasUnsavedChangesRef.current = false;
+      setHasUnsavedChangesState(false);
     }
+  }, [formThemeQuery.data, builtInQuery.data]);
 
-    // Set new timer
-    saveTimerRef.current = setTimeout(async () => {
-      try {
-        setIsSaving(true);
-        await saveChanges();
-      } catch (err) {
-        console.error("Auto-save failed:", err);
-      } finally {
-        setIsSaving(false);
-      }
-    }, 800); // 800ms debounce (same as form)
+  // ===================
+  // MUTATIONS
+  // ===================
 
-    return () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-    };
-  }, [currentTheme, hasUnsavedChanges]);
+  // Apply theme mutation
+  const applyThemeMutation = useMutation({
+    mutationFn: async (themeId: string) => {
+      await applyThemeToForm(formId, themeId);
+      return themeId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: themeKeys.form(formId) });
+    },
+  });
 
-  // Load all themes
-  const loadThemes = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  // Save overrides mutation
+  const saveOverridesMutation = useMutation({
+    mutationFn: async (overrides: any) => {
+      await saveCustomThemeOverrides(formId, overrides);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: themeKeys.form(formId) });
+    },
+  });
 
-      // Load built-in themes
-      const builtIn = await getBuiltInThemes();
-      setBuiltInThemes(builtIn as any);
-
-      // Load user themes if userId provided
+  // Create theme mutation
+  const createThemeMutation = useMutation({
+    mutationFn: async ({
+      name,
+      description,
+    }: {
+      name: string;
+      description?: string;
+    }) => {
+      return await createTheme({
+        name,
+        description,
+        category: "custom",
+        userId,
+        workspaceId,
+        colors: currentTheme.colors,
+        typography: currentTheme.typography,
+        layout: currentTheme.layout,
+        buttons: currentTheme.buttons,
+        inputFields: currentTheme.inputFields,
+      });
+    },
+    onSuccess: (newTheme) => {
+      // Invalidate relevant caches
       if (userId) {
-        const userThemesList = await getUserThemes(userId);
-        setUserThemes(userThemesList as any);
+        queryClient.invalidateQueries({ queryKey: themeKeys.user(userId) });
       }
-
-      // Load workspace themes if workspaceId provided
       if (workspaceId) {
-        const workspaceThemesList = await getWorkspaceThemes(workspaceId);
-        setWorkspaceThemes(workspaceThemesList as any);
+        queryClient.invalidateQueries({
+          queryKey: themeKeys.workspace(workspaceId),
+        });
       }
+    },
+  });
 
-      // Load current form theme (this returns merged theme with base + overrides)
-      const formTheme = await getFormTheme(formId);
-      if (formTheme) {
-        const theme = formTheme as FormTheme;
-        setCurrentTheme(theme);
-        setOriginalTheme(theme);
-      } else {
-        // Use default theme if no theme is set
-        const defaultTheme =
-          builtIn.find((t) => t.id === "default") || DEFAULT_THEME;
-        setCurrentTheme(defaultTheme as any);
-        setOriginalTheme(defaultTheme as any);
+  // Duplicate theme mutation
+  const duplicateThemeMutation = useMutation({
+    mutationFn: async ({
+      themeId,
+      newName,
+    }: {
+      themeId: string;
+      newName: string;
+    }) => {
+      return await duplicateTheme(themeId, newName, userId, workspaceId);
+    },
+    onSuccess: () => {
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: themeKeys.user(userId) });
       }
-    } catch (err) {
-      console.error("Failed to load themes:", err);
-      setError("Failed to load themes");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [formId, userId, workspaceId]);
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: themeKeys.workspace(workspaceId),
+        });
+      }
+    },
+  });
 
-  // Initial load
-  useEffect(() => {
-    loadThemes();
-  }, [loadThemes]);
+  // Delete theme mutation
+  const deleteThemeMutation = useMutation({
+    mutationFn: async (themeId: string) => {
+      await deleteTheme(themeId);
+    },
+    onSuccess: () => {
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: themeKeys.user(userId) });
+      }
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: themeKeys.workspace(workspaceId),
+        });
+      }
+    },
+  });
 
-  // Check for unsaved changes
-  useEffect(() => {
-    const hasChanges =
-      JSON.stringify(currentTheme) !== JSON.stringify(originalTheme);
-    setHasUnsavedChanges(hasChanges);
-  }, [currentTheme, originalTheme]);
+  // Reset theme mutation
+  const resetThemeMutation = useMutation({
+    mutationFn: async () => {
+      await resetFormTheme(formId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: themeKeys.form(formId) });
+      setCurrentTheme(DEFAULT_THEME);
+      setOriginalTheme(DEFAULT_THEME);
+      hasUnsavedChangesRef.current = false;
+      setHasUnsavedChangesState(false);
+    },
+  });
+
+  // Import theme mutation
+  const importThemeMutation = useMutation({
+    mutationFn: async (jsonData: any) => {
+      await importTheme(jsonData, userId, workspaceId);
+    },
+    onSuccess: () => {
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: themeKeys.user(userId) });
+      }
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: themeKeys.workspace(workspaceId),
+        });
+      }
+    },
+  });
+
+  // ===================
+  // DERIVED STATE
+  // ===================
+
+  const builtInThemes = builtInQuery.data ?? [];
+  const userThemes = userQuery.data ?? [];
+  const workspaceThemes = workspaceQuery.data ?? [];
 
   // Combine all themes and remove duplicates by ID
   const allThemes = useMemo(() => {
@@ -173,227 +306,211 @@ export function useTheme({
     return Array.from(themeMap.values());
   }, [builtInThemes, userThemes, workspaceThemes]);
 
+  const isLoading =
+    builtInQuery.isLoading ||
+    userQuery.isLoading ||
+    workspaceQuery.isLoading ||
+    formThemeQuery.isLoading;
+
+  const error =
+    builtInQuery.error?.message ||
+    userQuery.error?.message ||
+    workspaceQuery.error?.message ||
+    formThemeQuery.error?.message ||
+    null;
+
+  const isSaving =
+    applyThemeMutation.isPending ||
+    saveOverridesMutation.isPending ||
+    createThemeMutation.isPending ||
+    duplicateThemeMutation.isPending ||
+    deleteThemeMutation.isPending ||
+    resetThemeMutation.isPending;
+
+  // ===================
+  // AUTO-SAVE EFFECT
+  // ===================
+
+  // Create a stable reference to currentTheme for the effect
+  const currentThemeRef = useRef(currentTheme);
+  currentThemeRef.current = currentTheme;
+
+  const originalThemeRef = useRef(originalTheme);
+  originalThemeRef.current = originalTheme;
+
+  useEffect(() => {
+    if (!hasUnsavedChangesRef.current) return;
+
+    // Clear existing timer
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    // Set new timer
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        await saveChangesInternal();
+      } catch (err) {
+        console.error("Auto-save failed:", err);
+      }
+    }, 800); // 800ms debounce (same as form)
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [currentTheme]);
+
+  // Internal save function that uses refs
+  const saveChangesInternal = useCallback(async () => {
+    const current = currentThemeRef.current;
+    const original = originalThemeRef.current;
+
+    // Calculate the difference from original theme
+    const overrides: any = {};
+
+    if (JSON.stringify(current.colors) !== JSON.stringify(original.colors)) {
+      overrides.colors = current.colors;
+    }
+    if (
+      JSON.stringify(current.typography) !== JSON.stringify(original.typography)
+    ) {
+      overrides.typography = current.typography;
+    }
+    if (JSON.stringify(current.layout) !== JSON.stringify(original.layout)) {
+      overrides.layout = current.layout;
+    }
+    if (JSON.stringify(current.buttons) !== JSON.stringify(original.buttons)) {
+      overrides.buttons = current.buttons;
+    }
+    if (
+      JSON.stringify(current.inputFields) !==
+      JSON.stringify(original.inputFields)
+    ) {
+      overrides.inputFields = current.inputFields;
+    }
+
+    console.log("Saving theme overrides:", overrides);
+
+    if (Object.keys(overrides).length > 0) {
+      await saveOverridesMutation.mutateAsync(overrides);
+      console.log("Theme overrides saved successfully");
+    } else {
+      console.log("No changes to save");
+    }
+
+    setOriginalTheme(current);
+    hasUnsavedChangesRef.current = false;
+    setHasUnsavedChangesState(false);
+  }, [saveOverridesMutation]);
+
+  // ===================
+  // ACTIONS
+  // ===================
+
   // Apply a theme to the form
   const applyTheme = useCallback(
     async (themeId: string) => {
-      try {
-        setIsLoading(true);
-        console.log("Applying theme:", themeId);
+      console.log("Applying theme:", themeId);
 
-        // Find the theme first
-        const theme = allThemes.find((t) => t.id === themeId);
-        if (!theme) {
-          throw new Error("Theme not found");
-        }
-
-        console.log("Theme found:", theme);
-
-        // Apply to form in database
-        await applyThemeToForm(formId, themeId);
-        console.log("Theme applied to database");
-
-        // Update local state with the full theme object
-        setCurrentTheme(theme);
-        setOriginalTheme(theme);
-        setHasUnsavedChanges(false);
-        console.log("Theme state updated");
-      } catch (err) {
-        console.error("Failed to apply theme:", err);
-        setError("Failed to apply theme");
-        throw err;
-      } finally {
-        setIsLoading(false);
+      // Find the theme first
+      const theme = allThemes.find((t) => t.id === themeId);
+      if (!theme) {
+        throw new Error("Theme not found");
       }
+
+      console.log("Theme found:", theme);
+
+      // Apply to form in database
+      await applyThemeMutation.mutateAsync(themeId);
+      console.log("Theme applied to database");
+
+      // Update local state with the full theme object
+      setCurrentTheme(theme);
+      setOriginalTheme(theme);
+      hasUnsavedChangesRef.current = false;
+      setHasUnsavedChangesState(false);
+      console.log("Theme state updated");
     },
-    [formId, allThemes]
+    [allThemes, applyThemeMutation]
   );
 
-  // Update current theme (local state only)
+  // Update current theme (local state only) - doesn't trigger re-renders
   const updateCurrentTheme = useCallback((updates: Partial<FormTheme>) => {
     setCurrentTheme((prev) => ({ ...prev, ...updates }));
-    setHasUnsavedChanges(true);
+    hasUnsavedChangesRef.current = true;
+    // Only update state when needed for UI feedback (debounced)
+    // setHasUnsavedChangesState(true); - removed to prevent re-renders
   }, []);
 
-  // Save changes to the form (as custom overrides)
+  // Save changes to the form (as custom overrides) - public version
   const saveChanges = useCallback(async () => {
-    try {
-      setIsLoading(true);
-
-      // Calculate the difference from original theme
-      const overrides: any = {};
-
-      if (
-        JSON.stringify(currentTheme.colors) !==
-        JSON.stringify(originalTheme.colors)
-      ) {
-        overrides.colors = currentTheme.colors;
-      }
-      if (
-        JSON.stringify(currentTheme.typography) !==
-        JSON.stringify(originalTheme.typography)
-      ) {
-        overrides.typography = currentTheme.typography;
-      }
-      if (
-        JSON.stringify(currentTheme.layout) !==
-        JSON.stringify(originalTheme.layout)
-      ) {
-        overrides.layout = currentTheme.layout;
-      }
-      if (
-        JSON.stringify(currentTheme.buttons) !==
-        JSON.stringify(originalTheme.buttons)
-      ) {
-        overrides.buttons = currentTheme.buttons;
-      }
-      if (
-        JSON.stringify(currentTheme.inputFields) !==
-        JSON.stringify(originalTheme.inputFields)
-      ) {
-        overrides.inputFields = currentTheme.inputFields;
-      }
-
-      console.log("Saving theme overrides:", overrides);
-
-      if (Object.keys(overrides).length > 0) {
-        await saveCustomThemeOverrides(formId, overrides);
-        console.log("Theme overrides saved successfully");
-      } else {
-        console.log("No changes to save");
-      }
-
-      setOriginalTheme(currentTheme);
-      setHasUnsavedChanges(false);
-    } catch (err) {
-      console.error("Failed to save changes:", err);
-      setError("Failed to save changes");
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [formId, currentTheme, originalTheme]);
+    await saveChangesInternal();
+  }, [saveChangesInternal]);
 
   // Save as new theme
   const saveAsNewTheme = useCallback(
     async (name: string, description?: string) => {
-      try {
-        setIsLoading(true);
+      const newTheme = await createThemeMutation.mutateAsync({
+        name,
+        description,
+      });
 
-        const newTheme = await createTheme({
-          name,
-          description,
-          category: "custom",
-          userId,
-          workspaceId,
-          colors: currentTheme.colors,
-          typography: currentTheme.typography,
-          layout: currentTheme.layout,
-          buttons: currentTheme.buttons,
-          inputFields: currentTheme.inputFields,
-        });
-
-        // Refresh themes
-        await loadThemes();
-
-        // Apply the new theme
-        if (newTheme.id) {
-          await applyTheme(newTheme.id);
-        }
-      } catch (err) {
-        console.error("Failed to save theme:", err);
-        setError("Failed to save theme");
-      } finally {
-        setIsLoading(false);
+      // Apply the new theme
+      if (newTheme.id) {
+        await applyTheme(newTheme.id);
       }
     },
-    [currentTheme, userId, workspaceId, loadThemes, applyTheme]
+    [createThemeMutation, applyTheme]
   );
 
   // Duplicate existing theme
   const duplicateExistingTheme = useCallback(
     async (themeId: string, newName: string) => {
-      try {
-        setIsLoading(true);
-        await duplicateTheme(themeId, newName, userId, workspaceId);
-        await loadThemes();
-      } catch (err) {
-        console.error("Failed to duplicate theme:", err);
-        setError("Failed to duplicate theme");
-      } finally {
-        setIsLoading(false);
-      }
+      await duplicateThemeMutation.mutateAsync({ themeId, newName });
     },
-    [userId, workspaceId, loadThemes]
+    [duplicateThemeMutation]
   );
 
   // Delete custom theme
   const deleteCustomTheme = useCallback(
     async (themeId: string) => {
-      try {
-        setIsLoading(true);
-        await deleteTheme(themeId);
-        await loadThemes();
-      } catch (err) {
-        console.error("Failed to delete theme:", err);
-        setError("Failed to delete theme");
-      } finally {
-        setIsLoading(false);
-      }
+      await deleteThemeMutation.mutateAsync(themeId);
     },
-    [loadThemes]
+    [deleteThemeMutation]
   );
 
   // Reset theme
   const resetTheme = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await resetFormTheme(formId);
-      setCurrentTheme(DEFAULT_THEME);
-      setOriginalTheme(DEFAULT_THEME);
-      setHasUnsavedChanges(false);
-    } catch (err) {
-      console.error("Failed to reset theme:", err);
-      setError("Failed to reset theme");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [formId]);
+    await resetThemeMutation.mutateAsync();
+  }, [resetThemeMutation]);
 
   // Export current theme
   const exportCurrentTheme = useCallback(async () => {
-    try {
-      if (!currentTheme.id) {
-        throw new Error("No theme selected");
-      }
-      return await exportTheme(currentTheme.id);
-    } catch (err) {
-      console.error("Failed to export theme:", err);
-      setError("Failed to export theme");
-      throw err;
+    if (!currentTheme.id) {
+      throw new Error("No theme selected");
     }
+    return await exportTheme(currentTheme.id);
   }, [currentTheme]);
 
   // Import theme from JSON
   const importThemeFromJson = useCallback(
     async (jsonData: any) => {
-      try {
-        setIsLoading(true);
-        await importTheme(jsonData, userId, workspaceId);
-        await loadThemes();
-      } catch (err) {
-        console.error("Failed to import theme:", err);
-        setError("Failed to import theme");
-      } finally {
-        setIsLoading(false);
-      }
+      await importThemeMutation.mutateAsync(jsonData);
     },
-    [userId, workspaceId, loadThemes]
+    [importThemeMutation]
   );
 
   // Refresh themes
   const refreshThemes = useCallback(async () => {
-    await loadThemes();
-  }, [loadThemes]);
+    await Promise.all([
+      builtInQuery.refetch(),
+      userQuery.refetch(),
+      workspaceQuery.refetch(),
+      formThemeQuery.refetch(),
+    ]);
+  }, [builtInQuery, userQuery, workspaceQuery, formThemeQuery]);
 
   return {
     currentTheme,
@@ -412,7 +529,7 @@ export function useTheme({
     exportCurrentTheme,
     importThemeFromJson,
     saveChanges,
-    hasUnsavedChanges,
+    hasUnsavedChanges: hasUnsavedChangesRef.current,
     isSaving,
     refreshThemes,
   };

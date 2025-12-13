@@ -1,23 +1,45 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { cn } from "@/lib/utils"
-import { X, Palette, Sparkles } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import type React from "react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { X, Palette } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import AIEnhanceIcon from "@/assets/icon/ai-enhance.png";
 
 interface CanvasSidebarProps {
-  side: "left" | "right"
-  isOpen: boolean
-  onClose: () => void
-  title: string
-  subtitle?: string
-  icon: "palette" | "sparkles"
-  children: React.ReactNode
+  side: "left" | "right";
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  icon: "palette" | "sparkles";
+  children: React.ReactNode;
 }
 
-export default function CanvasSidebar({ side, isOpen, onClose, title, subtitle, icon, children }: CanvasSidebarProps) {
-  const Icon = icon === "palette" ? Palette : Sparkles
+export default function CanvasSidebar({
+  side,
+  isOpen,
+  onClose,
+  title,
+  subtitle,
+  icon,
+  children,
+}: CanvasSidebarProps) {
+  const renderIcon = () => {
+    if (icon === "palette") {
+      return <Palette className="h-5 w-5 text-primary" />;
+    }
+    return (
+      <Image
+        src={AIEnhanceIcon}
+        alt="AI"
+        className="h-5 w-5"
+        width={20}
+        height={20}
+      />
+    );
+  };
 
   return (
     <div
@@ -30,7 +52,7 @@ export default function CanvasSidebar({ side, isOpen, onClose, title, subtitle, 
         side === "left" && "left-0 border-r",
         side === "right" && "right-0 border-l",
         side === "left" && (isOpen ? "translate-x-0" : "-translate-x-full"),
-        side === "right" && (isOpen ? "translate-x-0" : "translate-x-full"),
+        side === "right" && (isOpen ? "translate-x-0" : "translate-x-full")
       )}
     >
       <div className="h-full flex flex-col">
@@ -38,11 +60,15 @@ export default function CanvasSidebar({ side, isOpen, onClose, title, subtitle, 
         <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-border/50 bg-gradient-to-r from-muted/50 to-muted/30">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm">
-              <Icon className="h-5 w-5 text-primary" />
+              {renderIcon()}
             </div>
             <div>
-              <h2 className="font-heading text-base lg:text-lg font-semibold text-foreground">{title}</h2>
-              {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+              <h2 className="font-heading text-base lg:text-lg font-semibold text-foreground">
+                {title}
+              </h2>
+              {subtitle && (
+                <p className="text-xs text-muted-foreground">{subtitle}</p>
+              )}
             </div>
           </div>
           <Button
@@ -60,5 +86,5 @@ export default function CanvasSidebar({ side, isOpen, onClose, title, subtitle, 
         <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
-  )
+  );
 }

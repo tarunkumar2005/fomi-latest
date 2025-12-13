@@ -1,20 +1,55 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Palette, Sparkles } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, Palette } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import AIEnhanceIcon from "@/assets/icon/ai-enhance.png";
 
 interface SidebarToggleProps {
-  side: "left" | "right"
-  isOpen: boolean
-  onToggle: () => void
-  icon: "palette" | "sparkles"
-  label: string
+  side: "left" | "right";
+  isOpen: boolean;
+  onToggle: () => void;
+  icon: "palette" | "sparkles";
+  label: string;
 }
 
-export default function SidebarToggle({ side, isOpen, onToggle, icon, label }: SidebarToggleProps) {
-  const Icon = icon === "palette" ? Palette : Sparkles
-  const ChevronIcon = side === "left" ? (isOpen ? ChevronLeft : ChevronRight) : isOpen ? ChevronRight : ChevronLeft
+export default function SidebarToggle({
+  side,
+  isOpen,
+  onToggle,
+  icon,
+  label,
+}: SidebarToggleProps) {
+  const ChevronIcon =
+    side === "left"
+      ? isOpen
+        ? ChevronLeft
+        : ChevronRight
+      : isOpen
+      ? ChevronRight
+      : ChevronLeft;
+  const renderIcon = () => {
+    if (icon === "palette") {
+      return (
+        <Palette className="h-4.5 w-4.5 text-primary relative group-hover:scale-110 transition-transform duration-200" />
+      );
+    }
+    return (
+      <Image
+        src={AIEnhanceIcon}
+        alt="AI"
+        className="h-4.5 w-4.5 relative group-hover:scale-110 transition-transform duration-200"
+        width={18}
+        height={18}
+      />
+    );
+  };
 
   // Desktop toggle button
   const desktopButton = (
@@ -27,22 +62,28 @@ export default function SidebarToggle({ side, isOpen, onToggle, icon, label }: S
         "hover:bg-card hover:border-primary/30 hover:shadow-xl hover:w-12",
         "transition-all duration-200 ease-out group",
         // Position based on side and state
-        side === "left" && (isOpen ? "left-80 lg:left-[380px] rounded-l-none" : "left-0 rounded-l-none"),
-        side === "right" && (isOpen ? "right-80 lg:right-[380px] rounded-r-none" : "right-0 rounded-r-none"),
+        side === "left" &&
+          (isOpen
+            ? "left-80 lg:left-[380px] rounded-l-none"
+            : "left-0 rounded-l-none"),
+        side === "right" &&
+          (isOpen
+            ? "right-80 lg:right-[380px] rounded-r-none"
+            : "right-0 rounded-r-none")
       )}
       aria-label={isOpen ? `Close ${label}` : `Open ${label}`}
     >
       <div className="relative">
         <div
           className={cn(
-            "absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity",
+            "absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity"
           )}
         />
-        <Icon className="h-4.5 w-4.5 text-primary relative group-hover:scale-110 transition-transform duration-200" />
+        {renderIcon()}
       </div>
       <ChevronIcon className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
     </button>
-  )
+  );
 
   // Mobile floating action button
   const mobileButton = (
@@ -54,13 +95,23 @@ export default function SidebarToggle({ side, isOpen, onToggle, icon, label }: S
         "flex items-center justify-center",
         "hover:scale-105 active:scale-95 transition-all duration-200",
         side === "left" && "left-4 bg-card text-primary",
-        side === "right" && "right-4 bg-primary text-primary-foreground",
+        side === "right" && "right-4 bg-primary text-primary-foreground"
       )}
       aria-label={`Toggle ${label}`}
     >
-      <Icon className="h-5 w-5" />
+      {icon === "palette" ? (
+        <Palette className="h-5 w-5" />
+      ) : (
+        <Image
+          src={AIEnhanceIcon}
+          alt="AI"
+          className="h-5 w-5"
+          width={20}
+          height={20}
+        />
+      )}
     </button>
-  )
+  );
 
   return (
     <TooltipProvider>
@@ -72,5 +123,5 @@ export default function SidebarToggle({ side, isOpen, onToggle, icon, label }: S
       </Tooltip>
       {mobileButton}
     </TooltipProvider>
-  )
+  );
 }

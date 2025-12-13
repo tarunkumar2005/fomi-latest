@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Type } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { Type } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
 
 interface ShortAnswerFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    placeholder?: string
-    required: boolean
-    minLength?: number
-    maxLength?: number
-  }
-  index: number
-  onUpdate: (updates: Partial<ShortAnswerFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    placeholder?: string;
+    required: boolean;
+    minLength?: number;
+    maxLength?: number;
+  };
+  index: number;
+  onUpdate: (updates: Partial<ShortAnswerFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const ShortAnswerField = memo(
@@ -45,6 +45,8 @@ const ShortAnswerField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -59,34 +61,34 @@ const ShortAnswerField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value })
+        onUpdate({ placeholder: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMinLengthChange = useCallback(
       (value: string) => {
-        const num = Number.parseInt(value)
-        onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num })
+        const num = Number.parseInt(value);
+        onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxLengthChange = useCallback(
       (value: string) => {
-        const num = Number.parseInt(value)
-        onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num })
+        const num = Number.parseInt(value);
+        onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -95,8 +97,8 @@ const ShortAnswerField = memo(
           fieldType="Short Answer"
           fieldIcon={Type}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -124,7 +126,18 @@ const ShortAnswerField = memo(
             value=""
             placeholder={field.placeholder || "Your answer here..."}
             disabled
-            className="bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+            className="cursor-not-allowed"
+            style={{
+              backgroundColor:
+                "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+              borderColor:
+                "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+              color:
+                "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+              height: "var(--preview-input-height, 40px)",
+              fontSize: "var(--preview-input-font-size, 14px)",
+              borderRadius: "var(--preview-radius, 8px)",
+            }}
           />
         </FieldWrapper>
 
@@ -185,7 +198,7 @@ const ShortAnswerField = memo(
           </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -198,8 +211,8 @@ const ShortAnswerField = memo(
       prevProps.field.maxLength === nextProps.field.maxLength &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default ShortAnswerField
+export default ShortAnswerField;

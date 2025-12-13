@@ -1,47 +1,54 @@
-"use client"
+"use client";
 
-import { useState, useCallback, memo } from "react"
-import { X, CheckSquare, Plus, ChevronDown, ChevronUp, GripVertical } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useState, useCallback, memo } from "react";
+import {
+  X,
+  CheckSquare,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
-import { cn } from "@/lib/utils"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { cn } from "@/lib/utils";
 
 interface Option {
-  id: string
-  label: string
-  value: string
-  default?: boolean
-  image?: string
+  id: string;
+  label: string;
+  value: string;
+  default?: boolean;
+  image?: string;
 }
 
 interface CheckboxesFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    placeholder?: string
-    required: boolean
-    options?: Option[]
-    minSelections?: number
-    maxSelections?: number
-    randomizeOptions?: boolean
-    allowOther?: boolean
-  }
-  index: number
-  onUpdate: (updates: Partial<CheckboxesFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    placeholder?: string;
+    required: boolean;
+    options?: Option[];
+    minSelections?: number;
+    maxSelections?: number;
+    randomizeOptions?: boolean;
+    allowOther?: boolean;
+  };
+  index: number;
+  onUpdate: (updates: Partial<CheckboxesFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const CheckboxesField = memo(
@@ -59,6 +66,8 @@ const CheckboxesField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -73,9 +82,9 @@ const CheckboxesField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
-    const [editingOptionId, setEditingOptionId] = useState<string | null>(null)
+    const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
 
     const options: Option[] = Array.isArray(field.options)
       ? field.options
@@ -83,42 +92,42 @@ const CheckboxesField = memo(
           { id: "opt-1", label: "Option 1", value: "option_1", default: false },
           { id: "opt-2", label: "Option 2", value: "option_2", default: false },
           { id: "opt-3", label: "Option 3", value: "option_3", default: false },
-        ]
+        ];
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value })
+        onUpdate({ placeholder: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handleMinSelectionsChange = useCallback(
       (value: string) => {
-        const num = Number.parseInt(value)
-        onUpdate({ minSelections: isNaN(num) || num < 0 ? undefined : num })
+        const num = Number.parseInt(value);
+        onUpdate({ minSelections: isNaN(num) || num < 0 ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxSelectionsChange = useCallback(
       (value: string) => {
-        const num = Number.parseInt(value)
-        onUpdate({ maxSelections: isNaN(num) || num < 0 ? undefined : num })
+        const num = Number.parseInt(value);
+        onUpdate({ maxSelections: isNaN(num) || num < 0 ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleRandomizeOptionsToggle = useCallback(() => {
-      onUpdate({ randomizeOptions: !field.randomizeOptions })
-    }, [field.randomizeOptions, onUpdate])
+      onUpdate({ randomizeOptions: !field.randomizeOptions });
+    }, [field.randomizeOptions, onUpdate]);
 
     const handleAllowOtherToggle = useCallback(() => {
-      onUpdate({ allowOther: !field.allowOther })
-    }, [field.allowOther, onUpdate])
+      onUpdate({ allowOther: !field.allowOther });
+    }, [field.allowOther, onUpdate]);
 
     const generateValueFromLabel = (label: string): string => {
       return (
@@ -127,8 +136,8 @@ const CheckboxesField = memo(
           .replace(/[^a-z0-9]+/g, "_")
           .replace(/^_+|_+$/g, "")
           .substring(0, 50) || "option"
-      )
-    }
+      );
+    };
 
     const handleAddOption = useCallback(() => {
       const newOption: Option = {
@@ -136,18 +145,18 @@ const CheckboxesField = memo(
         label: `Option ${options.length + 1}`,
         value: `option_${options.length + 1}`,
         default: false,
-      }
-      onUpdate({ options: [...options, newOption] })
-    }, [options, onUpdate])
+      };
+      onUpdate({ options: [...options, newOption] });
+    }, [options, onUpdate]);
 
     const handleRemoveOption = useCallback(
       (optionId: string) => {
-        if (options.length <= 1) return
-        const updatedOptions = options.filter((opt) => opt.id !== optionId)
-        onUpdate({ options: updatedOptions })
+        if (options.length <= 1) return;
+        const updatedOptions = options.filter((opt) => opt.id !== optionId);
+        onUpdate({ options: updatedOptions });
       },
-      [options, onUpdate],
-    )
+      [options, onUpdate]
+    );
 
     const handleUpdateOption = useCallback(
       (optionId: string, updates: Partial<Option>) => {
@@ -158,39 +167,47 @@ const CheckboxesField = memo(
                 ...opt,
                 ...updates,
                 value: generateValueFromLabel(updates.label),
-              }
+              };
             }
-            return { ...opt, ...updates }
+            return { ...opt, ...updates };
           }
-          return opt
-        })
-        onUpdate({ options: updatedOptions })
+          return opt;
+        });
+        onUpdate({ options: updatedOptions });
       },
-      [options, onUpdate],
-    )
+      [options, onUpdate]
+    );
 
     const handleToggleDefault = useCallback(
       (optionId: string) => {
-        const updatedOptions = options.map((opt) => (opt.id === optionId ? { ...opt, default: !opt.default } : opt))
-        onUpdate({ options: updatedOptions })
+        const updatedOptions = options.map((opt) =>
+          opt.id === optionId ? { ...opt, default: !opt.default } : opt
+        );
+        onUpdate({ options: updatedOptions });
       },
-      [options, onUpdate],
-    )
+      [options, onUpdate]
+    );
 
     const handleMoveOption = useCallback(
       (optionId: string, direction: "up" | "down") => {
-        const idx = options.findIndex((opt) => opt.id === optionId)
-        if ((direction === "up" && idx === 0) || (direction === "down" && idx === options.length - 1)) {
-          return
+        const idx = options.findIndex((opt) => opt.id === optionId);
+        if (
+          (direction === "up" && idx === 0) ||
+          (direction === "down" && idx === options.length - 1)
+        ) {
+          return;
         }
 
-        const newOptions = [...options]
-        const targetIndex = direction === "up" ? idx - 1 : idx + 1
-        ;[newOptions[idx], newOptions[targetIndex]] = [newOptions[targetIndex], newOptions[idx]]
-        onUpdate({ options: newOptions })
+        const newOptions = [...options];
+        const targetIndex = direction === "up" ? idx - 1 : idx + 1;
+        [newOptions[idx], newOptions[targetIndex]] = [
+          newOptions[targetIndex],
+          newOptions[idx],
+        ];
+        onUpdate({ options: newOptions });
       },
-      [options, onUpdate],
-    )
+      [options, onUpdate]
+    );
 
     return (
       <>
@@ -199,8 +216,8 @@ const CheckboxesField = memo(
           fieldType="Checkboxes"
           fieldIcon={CheckSquare}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -225,16 +242,26 @@ const CheckboxesField = memo(
         >
           {/* Options List */}
           <div className="space-y-2">
-            {field.placeholder && <p className="text-sm text-muted-foreground/70 mb-3">{field.placeholder}</p>}
+            {field.placeholder && (
+              <p className="text-sm text-muted-foreground/70 mb-3">
+                {field.placeholder}
+              </p>
+            )}
 
             {options.map((option, idx) => (
               <div
                 key={option.id ?? `option-${idx}`}
                 className={cn(
-                  "group/option flex items-center gap-2 rounded-lg border bg-card px-3 py-2.5",
-                  "transition-all duration-150",
-                  "hover:border-primary/30 hover:shadow-sm",
+                  "group/option flex items-center gap-2 px-3 py-2.5",
+                  "transition-all duration-150"
                 )}
+                style={{
+                  backgroundColor: "var(--preview-card, hsl(var(--card)))",
+                  borderWidth: "1px",
+                  borderStyle: "solid",
+                  borderColor: "var(--preview-border, hsl(var(--border)))",
+                  borderRadius: "var(--preview-radius, 8px)",
+                }}
               >
                 {/* Drag Handle */}
                 <GripVertical className="h-4 w-4 text-muted-foreground/40 cursor-grab" />
@@ -244,20 +271,32 @@ const CheckboxesField = memo(
                   type="button"
                   onClick={() => handleToggleDefault(option.id)}
                   className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded border-2",
-                    "transition-colors duration-150",
-                    option.default ? "border-primary bg-primary" : "border-muted-foreground/30 hover:border-primary/50",
+                    "flex h-4 w-4 shrink-0 items-center justify-center border-2",
+                    "transition-colors duration-150"
                   )}
+                  style={{
+                    borderColor: option.default
+                      ? "var(--preview-primary, hsl(var(--primary)))"
+                      : "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 30%, transparent)",
+                    backgroundColor: option.default
+                      ? "var(--preview-primary, hsl(var(--primary)))"
+                      : "transparent",
+                    borderRadius: "4px",
+                  }}
                 >
                   {option.default && (
                     <svg
-                      className="h-3 w-3 text-primary-foreground"
+                      className="h-3 w-3 text-white"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                       strokeWidth={3}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   )}
                 </button>
@@ -275,14 +314,21 @@ const CheckboxesField = memo(
                         }
                         onBlur={() => setEditingOptionId(null)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === "Escape") setEditingOptionId(null)
+                          if (e.key === "Enter" || e.key === "Escape")
+                            setEditingOptionId(null);
                         }}
                         autoFocus
                         placeholder="Option label"
                         className="h-8 text-sm"
+                        style={{
+                          fontFamily: "var(--preview-font-body, inherit)",
+                          borderRadius: "var(--preview-radius, 8px)",
+                        }}
                       />
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">Value:</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          Value:
+                        </span>
                         <Input
                           value={option.value}
                           onChange={(e) =>
@@ -292,13 +338,35 @@ const CheckboxesField = memo(
                           }
                           placeholder="auto-generated"
                           className="h-7 text-xs text-muted-foreground font-mono"
+                          style={{
+                            borderRadius: "var(--preview-radius, 8px)",
+                          }}
                         />
                       </div>
                     </div>
                   ) : (
-                    <div onClick={() => setEditingOptionId(option.id)} className="cursor-text">
-                      <p className="text-sm text-foreground truncate">{option.label}</p>
-                      <p className="text-xs text-muted-foreground/50 truncate font-mono">{option.value}</p>
+                    <div
+                      onClick={() => setEditingOptionId(option.id)}
+                      className="cursor-text"
+                    >
+                      <p
+                        className="text-sm truncate"
+                        style={{
+                          fontFamily: "var(--preview-font-body, inherit)",
+                          color: "var(--preview-text, hsl(var(--foreground)))",
+                        }}
+                      >
+                        {option.label}
+                      </p>
+                      <p
+                        className="text-xs truncate font-mono"
+                        style={{
+                          color:
+                            "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                        }}
+                      >
+                        {option.value}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -416,7 +484,10 @@ const CheckboxesField = memo(
                 onCheckedChange={handleRandomizeOptionsToggle}
               />
               <div className="flex-1">
-                <label htmlFor="randomize-options" className="text-sm font-medium text-foreground cursor-pointer">
+                <label
+                  htmlFor="randomize-options"
+                  className="text-sm font-medium text-foreground cursor-pointer"
+                >
                   Randomize Option Order
                 </label>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -426,18 +497,27 @@ const CheckboxesField = memo(
             </div>
 
             <div className="flex items-start space-x-3">
-              <Checkbox id="allow-other" checked={field.allowOther || false} onCheckedChange={handleAllowOtherToggle} />
+              <Checkbox
+                id="allow-other"
+                checked={field.allowOther || false}
+                onCheckedChange={handleAllowOtherToggle}
+              />
               <div className="flex-1">
-                <label htmlFor="allow-other" className="text-sm font-medium text-foreground cursor-pointer">
+                <label
+                  htmlFor="allow-other"
+                  className="text-sm font-medium text-foreground cursor-pointer"
+                >
                   Add "Other" Option
                 </label>
-                <p className="text-xs text-muted-foreground mt-1">Allow respondents to enter a custom answer</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Allow respondents to enter a custom answer
+                </p>
               </div>
             </div>
           </div>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -446,15 +526,16 @@ const CheckboxesField = memo(
       prevProps.field.description === nextProps.field.description &&
       prevProps.field.placeholder === nextProps.field.placeholder &&
       prevProps.field.required === nextProps.field.required &&
-      JSON.stringify(prevProps.field.options) === JSON.stringify(nextProps.field.options) &&
+      JSON.stringify(prevProps.field.options) ===
+        JSON.stringify(nextProps.field.options) &&
       prevProps.field.minSelections === nextProps.field.minSelections &&
       prevProps.field.maxSelections === nextProps.field.maxSelections &&
       prevProps.field.randomizeOptions === nextProps.field.randomizeOptions &&
       prevProps.field.allowOther === nextProps.field.allowOther &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default CheckboxesField
+export default CheckboxesField;

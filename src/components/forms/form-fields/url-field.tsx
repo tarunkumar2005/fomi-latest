@@ -1,36 +1,36 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Link, Globe } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { Link, Globe } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
-import { cn } from "@/lib/utils"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { cn } from "@/lib/utils";
 
 interface UrlFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    placeholder?: string
-    required: boolean
-    requireHttps?: boolean
-    allowedDomains?: string
-  }
-  index: number
-  onUpdate: (updates: Partial<UrlFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    placeholder?: string;
+    required: boolean;
+    requireHttps?: boolean;
+    allowedDomains?: string;
+  };
+  index: number;
+  onUpdate: (updates: Partial<UrlFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const UrlField = memo(
@@ -48,6 +48,8 @@ const UrlField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -62,29 +64,29 @@ const UrlField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value })
+        onUpdate({ placeholder: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleRequireHttpsToggle = useCallback(() => {
-      onUpdate({ requireHttps: !field.requireHttps })
-    }, [field.requireHttps, onUpdate])
+      onUpdate({ requireHttps: !field.requireHttps });
+    }, [field.requireHttps, onUpdate]);
 
     const handleAllowedDomainsChange = useCallback(
       (value: string) => {
-        onUpdate({ allowedDomains: value || undefined })
+        onUpdate({ allowedDomains: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -93,8 +95,8 @@ const UrlField = memo(
           fieldType="URL"
           fieldIcon={Link}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -122,7 +124,7 @@ const UrlField = memo(
               <Globe
                 className={cn(
                   "h-4 w-4 text-muted-foreground/60",
-                  "group-hover/input:text-primary/60 transition-colors",
+                  "group-hover/input:text-primary/60 transition-colors"
                 )}
               />
             </div>
@@ -131,7 +133,18 @@ const UrlField = memo(
               value=""
               placeholder={field.placeholder || "https://example.com"}
               disabled
-              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+              className="pl-10 cursor-not-allowed"
+              style={{
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                borderColor:
+                  "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                color:
+                  "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                height: "var(--preview-input-height, 40px)",
+                fontSize: "var(--preview-input-font-size, 14px)",
+                borderRadius: "var(--preview-radius, 8px)",
+              }}
             />
           </div>
         </FieldWrapper>
@@ -166,10 +179,15 @@ const UrlField = memo(
                 onCheckedChange={handleRequireHttpsToggle}
               />
               <div className="flex-1">
-                <Label htmlFor="requireHttps" className="text-sm font-medium text-foreground cursor-pointer">
+                <Label
+                  htmlFor="requireHttps"
+                  className="text-sm font-medium text-foreground cursor-pointer"
+                >
                   Require HTTPS
                 </Label>
-                <p className="text-xs text-muted-foreground mt-1">Only accept secure URLs (https://)</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Only accept secure URLs (https://)
+                </p>
               </div>
             </div>
 
@@ -189,7 +207,7 @@ const UrlField = memo(
           </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -202,8 +220,8 @@ const UrlField = memo(
       prevProps.field.allowedDomains === nextProps.field.allowedDomains &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default UrlField
+export default UrlField;

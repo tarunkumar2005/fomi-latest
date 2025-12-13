@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { AlignLeft } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { AlignLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
 
 interface ParagraphFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    placeholder?: string
-    required: boolean
-    minLength?: number
-    maxLength?: number
-    rows?: number
-  }
-  index: number
-  onUpdate: (updates: Partial<ParagraphFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    placeholder?: string;
+    required: boolean;
+    minLength?: number;
+    maxLength?: number;
+    rows?: number;
+  };
+  index: number;
+  onUpdate: (updates: Partial<ParagraphFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const ParagraphField = memo(
@@ -47,6 +47,8 @@ const ParagraphField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -61,42 +63,42 @@ const ParagraphField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value })
+        onUpdate({ placeholder: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMinLengthChange = useCallback(
       (value: string) => {
-        const num = Number.parseInt(value)
-        onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num })
+        const num = Number.parseInt(value);
+        onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxLengthChange = useCallback(
       (value: string) => {
-        const num = Number.parseInt(value)
-        onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num })
+        const num = Number.parseInt(value);
+        onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleRowsChange = useCallback(
       (value: string) => {
-        const num = Number.parseInt(value)
-        onUpdate({ rows: isNaN(num) || num < 1 ? 4 : num })
+        const num = Number.parseInt(value);
+        onUpdate({ rows: isNaN(num) || num < 1 ? 4 : num });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -105,8 +107,8 @@ const ParagraphField = memo(
           fieldType="Paragraph"
           fieldIcon={AlignLeft}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -134,7 +136,17 @@ const ParagraphField = memo(
             placeholder={field.placeholder || "Your answer here..."}
             rows={field.rows || 4}
             disabled
-            className="bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50 resize-none"
+            className="cursor-not-allowed resize-none"
+            style={{
+              backgroundColor:
+                "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+              borderColor:
+                "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+              color:
+                "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+              fontSize: "var(--preview-input-font-size, 14px)",
+              borderRadius: "var(--preview-radius, 8px)",
+            }}
           />
         </FieldWrapper>
 
@@ -212,7 +224,7 @@ const ParagraphField = memo(
           </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -226,8 +238,8 @@ const ParagraphField = memo(
       prevProps.field.rows === nextProps.field.rows &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default ParagraphField
+export default ParagraphField;

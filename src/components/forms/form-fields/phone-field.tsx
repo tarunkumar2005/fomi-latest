@@ -1,35 +1,41 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Phone } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { Phone } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
-import { cn } from "@/lib/utils"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { cn } from "@/lib/utils";
 
 interface PhoneFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    placeholder?: string
-    required: boolean
-    countryCode?: string
-    formatTemplate?: string
-  }
-  index: number
-  onUpdate: (updates: Partial<PhoneFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    placeholder?: string;
+    required: boolean;
+    countryCode?: string;
+    formatTemplate?: string;
+  };
+  index: number;
+  onUpdate: (updates: Partial<PhoneFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const PhoneField = memo(
@@ -47,6 +53,8 @@ const PhoneField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -61,32 +69,32 @@ const PhoneField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value })
+        onUpdate({ placeholder: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleCountryCodeChange = useCallback(
       (value: string) => {
-        onUpdate({ countryCode: value })
+        onUpdate({ countryCode: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleFormatTemplateChange = useCallback(
       (value: string) => {
-        onUpdate({ formatTemplate: value })
+        onUpdate({ formatTemplate: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -95,8 +103,8 @@ const PhoneField = memo(
           fieldType="Phone"
           fieldIcon={Phone}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -124,7 +132,7 @@ const PhoneField = memo(
               <Phone
                 className={cn(
                   "h-4 w-4 text-muted-foreground/60",
-                  "group-hover/input:text-primary/60 transition-colors",
+                  "group-hover/input:text-primary/60 transition-colors"
                 )}
               />
             </div>
@@ -133,7 +141,18 @@ const PhoneField = memo(
               value=""
               placeholder={field.placeholder || "(555) 123-4567"}
               disabled
-              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+              className="pl-10 cursor-not-allowed"
+              style={{
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                borderColor:
+                  "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                color:
+                  "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                height: "var(--preview-input-height, 40px)",
+                fontSize: "var(--preview-input-font-size, 14px)",
+                borderRadius: "var(--preview-radius, 8px)",
+              }}
             />
           </div>
         </FieldWrapper>
@@ -167,7 +186,10 @@ const PhoneField = memo(
               htmlFor="countryCode"
               description="Restrict to specific country code or allow international"
             >
-              <Select value={field.countryCode || "INTERNATIONAL"} onValueChange={handleCountryCodeChange}>
+              <Select
+                value={field.countryCode || "INTERNATIONAL"}
+                onValueChange={handleCountryCodeChange}
+              >
                 <SelectTrigger id="countryCode" className="w-full">
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
@@ -187,13 +209,20 @@ const PhoneField = memo(
               htmlFor="formatTemplate"
               description="Phone number display format"
             >
-              <Select value={field.formatTemplate || "STANDARD"} onValueChange={handleFormatTemplateChange}>
+              <Select
+                value={field.formatTemplate || "STANDARD"}
+                onValueChange={handleFormatTemplateChange}
+              >
                 <SelectTrigger id="formatTemplate" className="w-full">
                   <SelectValue placeholder="Select format" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="STANDARD">Standard (###) ###-####</SelectItem>
-                  <SelectItem value="INTERNATIONAL">International +## ### ### ####</SelectItem>
+                  <SelectItem value="STANDARD">
+                    Standard (###) ###-####
+                  </SelectItem>
+                  <SelectItem value="INTERNATIONAL">
+                    International +## ### ### ####
+                  </SelectItem>
                   <SelectItem value="COMPACT">Compact ##########</SelectItem>
                   <SelectItem value="DASHES">Dashes ###-###-####</SelectItem>
                 </SelectContent>
@@ -202,7 +231,7 @@ const PhoneField = memo(
           </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -215,8 +244,8 @@ const PhoneField = memo(
       prevProps.field.formatTemplate === nextProps.field.formatTemplate &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default PhoneField
+export default PhoneField;

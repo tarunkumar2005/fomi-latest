@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback, type KeyboardEvent } from "react"
+import { useState, useRef, useCallback, useEffect, type KeyboardEvent } from "react"
 
 interface FieldBase {
   id: string
@@ -18,6 +18,20 @@ export function useFieldHandlers<T extends FieldBase>(
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
 
+  // Local state for editing - syncs from props but allows local edits
+  const [localQuestion, setLocalQuestion] = useState(field.question)
+  const [localDescription, setLocalDescription] = useState(field.description || "")
+
+  // Sync from props when field changes (e.g., after save, initial load, or AI enhancement)
+  // Always sync to ensure AI enhancements and other external updates are reflected
+  useEffect(() => {
+    setLocalQuestion(field.question)
+  }, [field.question])
+
+  useEffect(() => {
+    setLocalDescription(field.description || "")
+  }, [field.description])
+
   const questionRef = useRef<HTMLInputElement>(null)
   const descriptionRef = useRef<HTMLTextAreaElement>(null)
 
@@ -29,7 +43,8 @@ export function useFieldHandlers<T extends FieldBase>(
 
   const handleQuestionChange = useCallback(
     (value: string) => {
-      onUpdate({ question: value } as Partial<T>)
+      setLocalQuestion(value) // Update local state immediately
+      onUpdate({ question: value } as Partial<T>) // Trigger debounced save
     },
     [onUpdate],
   )
@@ -53,7 +68,8 @@ export function useFieldHandlers<T extends FieldBase>(
 
   const handleDescriptionChange = useCallback(
     (value: string) => {
-      onUpdate({ description: value || undefined } as Partial<T>)
+      setLocalDescription(value) // Update local state immediately
+      onUpdate({ description: value || undefined } as Partial<T>) // Trigger debounced save
     },
     [onUpdate],
   )
@@ -93,6 +109,8 @@ export function useFieldHandlers<T extends FieldBase>(
     isEditingQuestion,
     isEditingDescription,
     isHovered,
+    localQuestion,
+    localDescription,
     questionRef,
     descriptionRef,
     handleQuestionClick,

@@ -1,56 +1,75 @@
-"use client"
+"use client";
 
-import { createContext, useContext, type ReactNode, type RefObject, type KeyboardEvent } from "react"
-import { type LucideIcon, Trash2, Copy, Sparkles, Settings, GripVertical } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+import {
+  createContext,
+  useContext,
+  type ReactNode,
+  type RefObject,
+  type KeyboardEvent,
+} from "react";
+import {
+  type LucideIcon,
+  Trash2,
+  Copy,
+  Settings,
+  GripVertical,
+} from "lucide-react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import AIEnhanceIcon from "@/assets/icon/ai-enhance.png";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface DragHandleContextValue {
-  listeners?: Record<string, unknown>
-  attributes?: Record<string, unknown>
+  listeners?: Record<string, unknown>;
+  attributes?: Record<string, unknown>;
 }
 
-export const DragHandleContext = createContext<DragHandleContextValue>({})
+export const DragHandleContext = createContext<DragHandleContextValue>({});
 
 export function useDragHandle() {
-  return useContext(DragHandleContext)
+  return useContext(DragHandleContext);
 }
 
 interface FieldWrapperProps {
-  children: ReactNode
-  index: number
-  fieldType: string
-  fieldIcon: LucideIcon
-  fieldId: string
-  question: string
-  description?: string
-  required: boolean
-  isEditingQuestion: boolean
-  isEditingDescription: boolean
-  isHovered: boolean
-  onQuestionClick: () => void
-  onDescriptionClick: () => void
-  onQuestionChange: (value: string) => void
-  onDescriptionChange: (value: string) => void
-  onQuestionBlur: () => void
-  onDescriptionBlur: () => void
-  onQuestionKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void
-  onDescriptionKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void
-  onRequiredToggle: () => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  onAdvancedClick?: () => void
-  onMouseEnter: () => void
-  onMouseLeave: () => void
-  questionRef: RefObject<HTMLInputElement | null>
-  descriptionRef: RefObject<HTMLTextAreaElement | null>
-  showAdvanced?: boolean
+  children: ReactNode;
+  index: number;
+  fieldType: string;
+  fieldIcon: LucideIcon;
+  fieldId: string;
+  question: string;
+  description?: string;
+  required: boolean;
+  isEditingQuestion: boolean;
+  isEditingDescription: boolean;
+  isHovered: boolean;
+  onQuestionClick: () => void;
+  onDescriptionClick: () => void;
+  onQuestionChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onQuestionBlur: () => void;
+  onDescriptionBlur: () => void;
+  onQuestionKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
+  onDescriptionKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onRequiredToggle: () => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  onAdvancedClick?: () => void;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  questionRef: RefObject<HTMLInputElement | null>;
+  descriptionRef: RefObject<HTMLTextAreaElement | null>;
+  showAdvanced?: boolean;
 }
 
 export default function FieldWrapper({
@@ -84,34 +103,51 @@ export default function FieldWrapper({
   descriptionRef,
   showAdvanced = true,
 }: FieldWrapperProps) {
-  const { listeners, attributes } = useDragHandle()
+  const { listeners, attributes } = useDragHandle();
 
   return (
     <div
       className={cn(
-        "group relative rounded-xl border bg-card overflow-hidden",
-        "transition-all duration-300 ease-out",
-        "hover:shadow-xl hover:shadow-primary/8",
-        isHovered ? "border-primary/40 shadow-lg shadow-primary/10 scale-[1.002]" : "border-border/50 shadow-sm",
+        "group relative border overflow-hidden",
+        "transition-all duration-300 ease-out"
       )}
+      style={{
+        backgroundColor: "var(--preview-card, hsl(var(--card)))",
+        borderColor: isHovered
+          ? "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 40%, transparent)"
+          : "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+        boxShadow: isHovered
+          ? `0 10px 15px -3px color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent), var(--preview-shadow, 0 4px 6px -1px rgb(0 0 0 / 0.1))`
+          : "var(--preview-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05))",
+        borderRadius: "var(--preview-radius, 12px)",
+        transform: isHovered ? "scale(1.002)" : undefined,
+      }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
       <div
         className={cn(
-          "absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60",
+          "absolute top-0 left-0 right-0 h-1 bg-gradient-to-r",
           "opacity-0 transition-opacity duration-300",
-          isHovered && "opacity-100",
+          isHovered && "opacity-100"
         )}
+        style={{
+          backgroundImage: isHovered
+            ? `linear-gradient(to right, color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 60%, transparent), var(--preview-primary, hsl(var(--primary))), color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 60%, transparent))`
+            : undefined,
+        }}
       />
 
       {/* Drag Handle & Field Type Badge */}
       <div
         className={cn(
           "flex items-center justify-between px-4 py-3 border-b",
-          "bg-gradient-to-r from-muted/40 via-muted/20 to-muted/40",
-          "border-border/30",
+          "bg-gradient-to-r from-muted/40 via-muted/20 to-muted/40"
         )}
+        style={{
+          borderColor:
+            "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 30%, transparent)",
+        }}
       >
         <div className="flex items-center gap-3">
           <TooltipProvider delayDuration={300}>
@@ -125,7 +161,7 @@ export default function FieldWrapper({
                     "hover:bg-primary/10 hover:text-primary",
                     "focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                     "transition-all duration-200",
-                    "touch-none select-none",
+                    "touch-none select-none"
                   )}
                   {...listeners}
                   {...attributes}
@@ -143,11 +179,16 @@ export default function FieldWrapper({
           <Badge
             variant="secondary"
             className={cn(
-              "gap-1.5 px-3 py-1.5 font-medium text-xs",
-              "bg-primary/10 text-primary border border-primary/20",
-              "hover:bg-primary/15 hover:border-primary/30",
-              "transition-colors duration-200",
+              "gap-1.5 px-3 py-1.5 font-medium text-xs border",
+              "transition-colors duration-200"
             )}
+            style={{
+              backgroundColor:
+                "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
+              color: "var(--preview-primary, hsl(var(--primary)))",
+              borderColor:
+                "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 20%, transparent)",
+            }}
           >
             <FieldIcon className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{fieldType}</span>
@@ -156,11 +197,17 @@ export default function FieldWrapper({
           <div
             className={cn(
               "flex items-center justify-center w-6 h-6 rounded-full",
-              "bg-muted/60 text-muted-foreground/70",
               "text-xs font-semibold",
-              "transition-colors duration-200",
-              isHovered && "bg-primary/10 text-primary",
+              "transition-colors duration-200"
             )}
+            style={{
+              backgroundColor: isHovered
+                ? "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)"
+                : "color-mix(in srgb, var(--preview-text, hsl(var(--muted-foreground))) 10%, transparent)",
+              color: isHovered
+                ? "var(--preview-primary, hsl(var(--primary)))"
+                : "color-mix(in srgb, var(--preview-text, hsl(var(--muted-foreground))) 70%, transparent)",
+            }}
           >
             {index + 1}
           </div>
@@ -170,7 +217,9 @@ export default function FieldWrapper({
         <div
           className={cn(
             "flex items-center gap-0.5 transition-all duration-300",
-            isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none",
+            isHovered
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 translate-x-2 pointer-events-none"
           )}
         >
           <TooltipProvider delayDuration={200}>
@@ -185,10 +234,16 @@ export default function FieldWrapper({
                       "h-8 w-8 rounded-lg",
                       "text-muted-foreground hover:text-primary",
                       "hover:bg-primary/10 active:scale-95",
-                      "transition-all duration-200",
+                      "transition-all duration-200"
                     )}
                   >
-                    <Sparkles className="h-4 w-4" />
+                    <Image
+                      src={AIEnhanceIcon}
+                      alt="AI"
+                      className="h-4 w-4"
+                      width={16}
+                      height={16}
+                    />
                     <span className="sr-only">Enhance with AI</span>
                   </Button>
                 </TooltipTrigger>
@@ -208,7 +263,7 @@ export default function FieldWrapper({
                     "h-8 w-8 rounded-lg",
                     "text-muted-foreground hover:text-foreground",
                     "hover:bg-accent active:scale-95",
-                    "transition-all duration-200",
+                    "transition-all duration-200"
                   )}
                 >
                   <Copy className="h-4 w-4" />
@@ -231,7 +286,7 @@ export default function FieldWrapper({
                       "h-8 w-8 rounded-lg",
                       "text-muted-foreground hover:text-foreground",
                       "hover:bg-accent active:scale-95",
-                      "transition-all duration-200",
+                      "transition-all duration-200"
                     )}
                   >
                     <Settings className="h-4 w-4" />
@@ -254,7 +309,7 @@ export default function FieldWrapper({
                     "h-8 w-8 rounded-lg",
                     "text-muted-foreground hover:text-destructive",
                     "hover:bg-destructive/10 active:scale-95",
-                    "transition-all duration-200",
+                    "transition-all duration-200"
                   )}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -282,27 +337,46 @@ export default function FieldWrapper({
               onKeyDown={onQuestionKeyDown}
               placeholder="Enter your question..."
               className={cn(
-                "text-base font-semibold h-auto py-2.5 px-3",
-                "border-2 border-primary/40 bg-background",
-                "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
-                "transition-all duration-200",
+                "font-semibold h-auto py-2.5 px-3",
+                "border-2",
+                "focus-visible:ring-2",
+                "transition-all duration-200"
               )}
+              style={{
+                borderColor:
+                  "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 40%, transparent)",
+                backgroundColor:
+                  "var(--preview-background, hsl(var(--background)))",
+                fontFamily: "var(--preview-font-heading, var(--font-heading))",
+                color: "var(--preview-text, hsl(var(--foreground)))",
+                borderRadius: "var(--preview-radius, 8px)",
+                fontSize: "var(--preview-font-size, 16px)",
+              }}
               autoFocus
             />
           ) : (
             <div
               onClick={onQuestionClick}
               className={cn(
-                "text-base font-semibold text-foreground cursor-text",
+                "font-semibold cursor-text",
                 "rounded-lg px-3 py-2.5 -mx-3 -my-2.5",
                 "hover:bg-muted/60 active:bg-muted/80",
                 "transition-colors duration-150",
                 "flex items-start gap-1.5",
-                "min-h-[44px] items-center",
+                "min-h-[44px] items-center"
               )}
+              style={{
+                fontFamily: "var(--preview-font-heading, var(--font-heading))",
+                color: "var(--preview-text, hsl(var(--foreground)))",
+                fontSize: "var(--preview-font-size, 16px)",
+              }}
             >
-              <span className="flex-1 leading-relaxed">{question || "Click to add question..."}</span>
-              {required && <span className="text-destructive font-bold text-base shrink-0">*</span>}
+              <span className="flex-1 leading-relaxed">
+                {question || "Click to add question..."}
+              </span>
+              {required && (
+                <span className="text-destructive font-bold shrink-0">*</span>
+              )}
             </div>
           )}
         </div>
@@ -318,11 +392,22 @@ export default function FieldWrapper({
               onKeyDown={onDescriptionKeyDown}
               placeholder="Add a description (optional)..."
               className={cn(
-                "text-sm text-muted-foreground resize-none min-h-[72px]",
-                "border-2 border-primary/40 bg-background",
-                "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
-                "transition-all duration-200",
+                "resize-none min-h-[72px]",
+                "border-2",
+                "focus-visible:ring-2",
+                "transition-all duration-200"
               )}
+              style={{
+                borderColor:
+                  "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 40%, transparent)",
+                backgroundColor:
+                  "var(--preview-background, hsl(var(--background)))",
+                color:
+                  "var(--preview-text-muted, hsl(var(--muted-foreground)))",
+                fontFamily: "var(--preview-font-body, var(--font-body))",
+                borderRadius: "var(--preview-radius, 8px)",
+                fontSize: "calc(var(--preview-font-size, 16px) * 0.875)",
+              }}
               rows={2}
               autoFocus
             />
@@ -330,12 +415,19 @@ export default function FieldWrapper({
             <div
               onClick={onDescriptionClick}
               className={cn(
-                "text-sm cursor-text rounded-lg px-3 py-2 -mx-3 -my-2",
+                "cursor-text rounded-lg px-3 py-2 -mx-3 -my-2",
                 "hover:bg-muted/60 active:bg-muted/80",
                 "transition-colors duration-150",
                 "min-h-[36px] flex items-center",
-                description ? "text-muted-foreground" : "text-muted-foreground/50 italic",
+                !description && "italic"
               )}
+              style={{
+                fontFamily: "var(--preview-font-body, var(--font-body))",
+                color: description
+                  ? "var(--preview-text-muted, hsl(var(--muted-foreground)))"
+                  : "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                fontSize: "calc(var(--preview-font-size, 16px) * 0.875)",
+              }}
             >
               {description || "Click to add description..."}
             </div>
@@ -346,7 +438,12 @@ export default function FieldWrapper({
         <div className="pt-3">{children}</div>
 
         {/* Footer */}
-        <div className={cn("flex items-center justify-between pt-4 mt-2", "border-t border-border/40")}>
+        <div
+          className={cn(
+            "flex items-center justify-between pt-4 mt-2",
+            "border-t border-border/40"
+          )}
+        >
           <div className="flex items-center gap-3">
             <Switch
               id={`required-${fieldId}`}
@@ -359,18 +456,23 @@ export default function FieldWrapper({
               className={cn(
                 "text-sm font-medium cursor-pointer select-none",
                 "text-muted-foreground hover:text-foreground",
-                "transition-colors duration-150",
+                "transition-colors duration-150"
               )}
             >
               Required
             </label>
           </div>
 
-          <span className={cn("text-[10px] text-muted-foreground/40 font-mono", "px-2 py-1 rounded-md bg-muted/30")}>
+          <span
+            className={cn(
+              "text-[10px] text-muted-foreground/40 font-mono",
+              "px-2 py-1 rounded-md bg-muted/30"
+            )}
+          >
             {fieldId.slice(0, 8)}
           </span>
         </div>
       </div>
     </div>
-  )
+  );
 }

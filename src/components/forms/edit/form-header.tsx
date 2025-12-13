@@ -1,21 +1,25 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { ImageIcon, FileText, Clock, Upload, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { CldUploadWidget } from "next-cloudinary"
-import Image from "next/image"
+import { useState, useRef, useEffect } from "react";
+import { ImageIcon, FileText, Clock, Upload, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { CldUploadWidget } from "next-cloudinary";
+import Image from "next/image";
 
 interface FormHeaderProps {
-  formTitle: string
-  formDescription?: string
-  estimatedTime?: string
-  questionCount?: number
-  headerImageUrl?: string | null
-  onSaveHeader?: (title: string, description: string, headerImageUrl?: string) => void
-  isSaving?: boolean
+  formTitle: string;
+  formDescription?: string;
+  estimatedTime?: string;
+  questionCount?: number;
+  headerImageUrl?: string | null;
+  onSaveHeader?: (
+    title: string,
+    description: string,
+    headerImageUrl?: string
+  ) => void;
+  isSaving?: boolean;
 }
 
 export default function FormHeader({
@@ -27,62 +31,74 @@ export default function FormHeader({
   onSaveHeader,
   isSaving = false,
 }: FormHeaderProps) {
-  const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [isEditingDescription, setIsEditingDescription] = useState(false)
-  const [editTitle, setEditTitle] = useState(formTitle)
-  const [editDescription, setEditDescription] = useState(formDescription || "")
-  const [isImageHovered, setIsImageHovered] = useState(false)
-  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editTitle, setEditTitle] = useState(formTitle);
+  const [editDescription, setEditDescription] = useState(formDescription || "");
+  const [isImageHovered, setIsImageHovered] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  const titleRef = useRef<HTMLInputElement>(null)
-  const descriptionRef = useRef<HTMLTextAreaElement>(null)
-
-  useEffect(() => {
-    setEditTitle(formTitle)
-  }, [formTitle])
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    setEditDescription(formDescription || "")
-  }, [formDescription])
+    setEditTitle(formTitle);
+  }, [formTitle]);
+
+  useEffect(() => {
+    setEditDescription(formDescription || "");
+  }, [formDescription]);
 
   useEffect(() => {
     if (isEditingTitle && titleRef.current) {
-      titleRef.current.focus()
-      titleRef.current.select()
+      titleRef.current.focus();
+      titleRef.current.select();
     }
-  }, [isEditingTitle])
+  }, [isEditingTitle]);
 
   useEffect(() => {
     if (isEditingDescription && descriptionRef.current) {
-      descriptionRef.current.focus()
-      descriptionRef.current.select()
+      descriptionRef.current.focus();
+      descriptionRef.current.select();
     }
-  }, [isEditingDescription])
+  }, [isEditingDescription]);
 
   const handleTitleBlur = async () => {
-    setIsEditingTitle(false)
+    setIsEditingTitle(false);
     if (editTitle !== formTitle && onSaveHeader) {
-      await onSaveHeader(editTitle, editDescription, headerImageUrl || undefined)
+      await onSaveHeader(
+        editTitle,
+        editDescription,
+        headerImageUrl || undefined
+      );
     }
-  }
+  };
 
   const handleDescriptionBlur = async () => {
-    setIsEditingDescription(false)
+    setIsEditingDescription(false);
     if (editDescription !== formDescription && onSaveHeader) {
-      await onSaveHeader(editTitle, editDescription, headerImageUrl || undefined)
+      await onSaveHeader(
+        editTitle,
+        editDescription,
+        headerImageUrl || undefined
+      );
     }
-  }
+  };
 
   const handleImageUploadSuccess = async (result: any) => {
     if (typeof result.info === "object" && "secure_url" in result.info) {
-      setIsUploadingImage(true)
+      setIsUploadingImage(true);
       try {
-        await onSaveHeader?.(editTitle, editDescription, result.info.secure_url)
+        await onSaveHeader?.(
+          editTitle,
+          editDescription,
+          result.info.secure_url
+        );
       } finally {
-        setIsUploadingImage(false)
+        setIsUploadingImage(false);
       }
     }
-  }
+  };
 
   return (
     <div
@@ -110,17 +126,24 @@ export default function FormHeader({
         {({ open }) => (
           <div
             className="relative h-40 sm:h-56 lg:h-64 overflow-hidden group cursor-pointer focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:outline-none"
-            style={{ borderRadius: "var(--preview-border-radius, 1rem) var(--preview-border-radius, 1rem) 0 0" }}
+            style={{
+              borderRadius:
+                "var(--preview-border-radius, 1rem) var(--preview-border-radius, 1rem) 0 0",
+            }}
             onMouseEnter={() => setIsImageHovered(true)}
             onMouseLeave={() => setIsImageHovered(false)}
             onClick={() => open?.()}
             role="button"
             tabIndex={0}
-            aria-label={headerImageUrl ? "Change form header image" : "Add form header image"}
+            aria-label={
+              headerImageUrl
+                ? "Change form header image"
+                : "Add form header image"
+            }
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                open?.()
+                e.preventDefault();
+                open?.();
               }
             }}
           >
@@ -149,11 +172,18 @@ export default function FormHeader({
                     <Upload
                       className="h-7 w-7 sm:h-8 sm:w-8"
                       style={{
-                        color: "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 60%, transparent)",
+                        color:
+                          "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 60%, transparent)",
                       }}
                     />
                   </div>
-                  <p className="text-sm" style={{ color: "var(--preview-text-muted, hsl(var(--muted-foreground)))" }}>
+                  <p
+                    className="text-sm"
+                    style={{
+                      color:
+                        "var(--preview-text-muted, hsl(var(--muted-foreground)))",
+                    }}
+                  >
                     Click to add a header image
                   </p>
                 </div>
@@ -171,8 +201,8 @@ export default function FormHeader({
                 disabled={isUploadingImage || isSaving}
                 className="bg-white/95 hover:bg-white text-foreground shadow-lg rounded-xl px-4 py-2"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  open?.()
+                  e.stopPropagation();
+                  open?.();
                 }}
               >
                 {isUploadingImage ? (
@@ -203,13 +233,17 @@ export default function FormHeader({
               onBlur={handleTitleBlur}
               disabled={isSaving}
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleTitleBlur()
+                if (e.key === "Enter") handleTitleBlur();
                 if (e.key === "Escape") {
-                  setEditTitle(formTitle)
-                  setIsEditingTitle(false)
+                  setEditTitle(formTitle);
+                  setIsEditingTitle(false);
                 }
               }}
-              className="text-2xl sm:text-3xl lg:text-4xl font-bold h-auto py-2 border-2 border-primary font-heading rounded-xl"
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold h-auto py-2 border-2 border-primary rounded-xl"
+              style={{
+                fontFamily: "var(--preview-font-heading, var(--font-heading))",
+                borderRadius: "var(--preview-radius, 12px)",
+              }}
               placeholder="Enter form title"
             />
           ) : (
@@ -237,19 +271,29 @@ export default function FormHeader({
               disabled={isSaving}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
-                  setEditDescription(formDescription || "")
-                  setIsEditingDescription(false)
+                  setEditDescription(formDescription || "");
+                  setIsEditingDescription(false);
                 }
               }}
               rows={3}
-              className="text-sm sm:text-base resize-none border-2 border-primary font-body rounded-xl"
+              className="resize-none border-2 border-primary"
+              style={{
+                fontFamily: "var(--preview-font-body, var(--font-body))",
+                borderRadius: "var(--preview-radius, 12px)",
+                fontSize: "var(--preview-font-size, 16px)",
+              }}
               placeholder="Enter form description (optional)"
             />
           ) : (
             <p
               onClick={() => setIsEditingDescription(true)}
-              className="font-body text-sm sm:text-base leading-relaxed max-w-2xl cursor-text transition-all hover:opacity-80"
-              style={{ color: "var(--preview-text-muted, hsl(var(--muted-foreground)))" }}
+              className="font-body leading-relaxed max-w-2xl cursor-text transition-all hover:opacity-80"
+              style={{
+                color:
+                  "var(--preview-text-muted, hsl(var(--muted-foreground)))",
+                fontFamily: "var(--preview-font-body, var(--font-body))",
+                fontSize: "var(--preview-font-size, 16px)",
+              }}
             >
               {formDescription || "Click to add description (optional)"}
             </p>
@@ -260,15 +304,21 @@ export default function FormHeader({
         <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 pt-2 flex-wrap">
           <div
             className="flex items-center gap-2 text-sm rounded-xl px-3 py-2 transition-colors hover:opacity-90"
-            style={{ backgroundColor: "var(--preview-accent, hsl(var(--muted) / 0.5))" }}
+            style={{
+              backgroundColor: "var(--preview-accent, hsl(var(--muted) / 0.5))",
+            }}
           >
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{
-                backgroundColor: "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
               }}
             >
-              <Clock className="h-4 w-4" style={{ color: "var(--preview-primary, hsl(var(--primary)))" }} />
+              <Clock
+                className="h-4 w-4"
+                style={{ color: "var(--preview-primary, hsl(var(--primary)))" }}
+              />
             </div>
             <span
               className="font-body font-medium text-sm"
@@ -280,15 +330,21 @@ export default function FormHeader({
 
           <div
             className="flex items-center gap-2 text-sm rounded-xl px-3 py-2 transition-colors hover:opacity-90"
-            style={{ backgroundColor: "var(--preview-accent, hsl(var(--muted) / 0.5))" }}
+            style={{
+              backgroundColor: "var(--preview-accent, hsl(var(--muted) / 0.5))",
+            }}
           >
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{
-                backgroundColor: "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
               }}
             >
-              <FileText className="h-4 w-4" style={{ color: "var(--preview-primary, hsl(var(--primary)))" }} />
+              <FileText
+                className="h-4 w-4"
+                style={{ color: "var(--preview-primary, hsl(var(--primary)))" }}
+              />
             </div>
             <span
               className="font-body font-medium text-sm"
@@ -300,5 +356,5 @@ export default function FormHeader({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -38,7 +38,7 @@ export default function FormEditClient() {
     isSaving,
     isLoadingHeader,
     headerError,
-    hasUnsavedChanges,
+    getHasUnsavedChanges,
     isPublishing,
     isDuplicating,
     isDeleting,
@@ -103,7 +103,7 @@ export default function FormEditClient() {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       flushAllPendingUpdates()
 
-      if (hasUnsavedChanges || !isSaved) {
+      if (getHasUnsavedChanges() || !isSaved) {
         e.preventDefault()
         e.returnValue = "You have unsaved changes. Are you sure you want to leave?"
         return e.returnValue
@@ -116,7 +116,7 @@ export default function FormEditClient() {
       window.removeEventListener("beforeunload", handleBeforeUnload)
       flushAllPendingUpdates()
     }
-  }, [flushAllPendingUpdates, hasUnsavedChanges, isSaved])
+  }, [flushAllPendingUpdates, getHasUnsavedChanges, isSaved])
 
   // Handlers
   const handleSave = useCallback(

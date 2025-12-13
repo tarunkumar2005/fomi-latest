@@ -1,36 +1,42 @@
-"use client"
+"use client";
 
-import { useCallback, memo } from "react"
-import { Clock } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import FieldWrapper from "../edit/shared/FieldWrapper"
+import { useCallback, memo } from "react";
+import { Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FieldWrapper from "../edit/shared/FieldWrapper";
 import AdvancedPanel, {
   AdvancedPanelSection,
   AdvancedPanelFieldGroup,
   AdvancedPanelDivider,
-} from "../edit/shared/AdvancedPanel"
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
-import { cn } from "@/lib/utils"
+} from "../edit/shared/AdvancedPanel";
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { cn } from "@/lib/utils";
 
 interface TimeFieldProps {
   field: {
-    id: string
-    question: string
-    description?: string
-    required: boolean
-    placeholder?: string
-    timeFormat?: "12" | "24"
-    minTime?: string
-    maxTime?: string
-  }
-  index: number
-  onUpdate: (updates: Partial<TimeFieldProps["field"]>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  onEnhance?: () => void
-  isAdvancedOpen?: boolean
-  onAdvancedToggle?: () => void
+    id: string;
+    question: string;
+    description?: string;
+    required: boolean;
+    placeholder?: string;
+    timeFormat?: "12" | "24";
+    minTime?: string;
+    maxTime?: string;
+  };
+  index: number;
+  onUpdate: (updates: Partial<TimeFieldProps["field"]>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEnhance?: () => void;
+  isAdvancedOpen?: boolean;
+  onAdvancedToggle?: () => void;
 }
 
 const TimeField = memo(
@@ -48,6 +54,8 @@ const TimeField = memo(
       isEditingQuestion,
       isEditingDescription,
       isHovered,
+      localQuestion,
+      localDescription,
       questionRef,
       descriptionRef,
       handleQuestionClick,
@@ -62,39 +70,39 @@ const TimeField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required })
-    }, [field.required, onUpdate])
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value || undefined })
+        onUpdate({ placeholder: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleTimeFormatChange = useCallback(
       (value: "12" | "24") => {
-        onUpdate({ timeFormat: value })
+        onUpdate({ timeFormat: value });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMinTimeChange = useCallback(
       (value: string) => {
-        onUpdate({ minTime: value || undefined })
+        onUpdate({ minTime: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     const handleMaxTimeChange = useCallback(
       (value: string) => {
-        onUpdate({ maxTime: value || undefined })
+        onUpdate({ maxTime: value || undefined });
       },
-      [onUpdate],
-    )
+      [onUpdate]
+    );
 
     return (
       <>
@@ -103,8 +111,8 @@ const TimeField = memo(
           fieldType="Time"
           fieldIcon={Clock}
           fieldId={field.id}
-          question={field.question}
-          description={field.description}
+          question={localQuestion}
+          description={localDescription}
           required={field.required}
           isEditingQuestion={isEditingQuestion}
           isEditingDescription={isEditingDescription}
@@ -133,7 +141,7 @@ const TimeField = memo(
               <Clock
                 className={cn(
                   "h-4 w-4 text-muted-foreground/60",
-                  "group-hover/input:text-primary/60 transition-colors",
+                  "group-hover/input:text-primary/60 transition-colors"
                 )}
               />
             </div>
@@ -141,7 +149,18 @@ const TimeField = memo(
               type="time"
               value=""
               disabled
-              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+              className="pl-10 cursor-not-allowed"
+              style={{
+                backgroundColor:
+                  "color-mix(in srgb, var(--preview-card, hsl(var(--muted))) 30%, transparent)",
+                borderColor:
+                  "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
+                color:
+                  "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                height: "var(--preview-input-height, 40px)",
+                fontSize: "var(--preview-input-font-size, 14px)",
+                borderRadius: "var(--preview-radius, 8px)",
+              }}
             />
           </div>
         </FieldWrapper>
@@ -167,8 +186,15 @@ const TimeField = memo(
             />
           </AdvancedPanelFieldGroup>
 
-          <AdvancedPanelFieldGroup label="Time Format" htmlFor="timeFormat" description="Display format for time input">
-            <Select value={field.timeFormat || "24"} onValueChange={handleTimeFormatChange}>
+          <AdvancedPanelFieldGroup
+            label="Time Format"
+            htmlFor="timeFormat"
+            description="Display format for time input"
+          >
+            <Select
+              value={field.timeFormat || "24"}
+              onValueChange={handleTimeFormatChange}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
@@ -182,7 +208,11 @@ const TimeField = memo(
           <AdvancedPanelDivider />
 
           <AdvancedPanelSection title="Time Constraints">
-            <AdvancedPanelFieldGroup label="Minimum Time" htmlFor="minTime" description="Earliest selectable time">
+            <AdvancedPanelFieldGroup
+              label="Minimum Time"
+              htmlFor="minTime"
+              description="Earliest selectable time"
+            >
               <Input
                 id="minTime"
                 type="time"
@@ -192,7 +222,11 @@ const TimeField = memo(
               />
             </AdvancedPanelFieldGroup>
 
-            <AdvancedPanelFieldGroup label="Maximum Time" htmlFor="maxTime" description="Latest selectable time">
+            <AdvancedPanelFieldGroup
+              label="Maximum Time"
+              htmlFor="maxTime"
+              description="Latest selectable time"
+            >
               <Input
                 id="maxTime"
                 type="time"
@@ -204,7 +238,7 @@ const TimeField = memo(
           </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return (
@@ -218,8 +252,8 @@ const TimeField = memo(
       prevProps.field.maxTime === nextProps.field.maxTime &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    )
-  },
-)
+    );
+  }
+);
 
-export default TimeField
+export default TimeField;
