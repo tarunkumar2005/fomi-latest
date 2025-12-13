@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
-import { X, Settings } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import type { ReactNode } from "react";
+import { X, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface AdvancedPanelProps {
-  isOpen: boolean
-  onClose: () => void
-  title: string
-  subtitle?: string
-  children: ReactNode
-  showFooter?: boolean
-  footerButtonText?: string
-  onFooterButtonClick?: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  showFooter?: boolean;
+  footerButtonText?: string;
+  onFooterButtonClick?: () => void;
 }
 
 export default function AdvancedPanel({
@@ -28,22 +28,29 @@ export default function AdvancedPanel({
 }: AdvancedPanelProps) {
   const handleFooterClick = () => {
     if (onFooterButtonClick) {
-      onFooterButtonClick()
+      onFooterButtonClick();
     } else {
-      onClose()
+      onClose();
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <>
       {/* Advanced Panel - Slide from Right */}
       <div
         className={cn(
-          "fixed right-0 top-0 h-full w-full sm:w-[400px] md:w-[420px] bg-background border-l border-border/50 shadow-2xl z-50",
-          "animate-in slide-in-from-right duration-300",
+          "fixed right-0 top-0 h-screen w-full sm:w-[380px] md:w-[420px] bg-card/95 backdrop-blur-xl border-l border-border/50 shadow-2xl z-50",
+          "transition-transform duration-300 ease-out",
+          isOpen ? "translate-x-0" : "translate-x-full"
         )}
+        style={{
+          willChange: "transform",
+          transform: isOpen
+            ? "translateX(0) translateZ(0)"
+            : "translateX(100%) translateZ(0)",
+        }}
       >
         <div className="flex flex-col h-full">
           {/* Panel Header */}
@@ -53,8 +60,14 @@ export default function AdvancedPanel({
                 <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-semibold text-foreground">{title}</h3>
-                {subtitle && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{subtitle}</p>}
+                <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                  {title}
+                </h3>
+                {subtitle && (
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                    {subtitle}
+                  </p>
+                )}
               </div>
             </div>
             <Button
@@ -69,7 +82,15 @@ export default function AdvancedPanel({
           </div>
 
           {/* Panel Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">{children}</div>
+          <div
+            className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              transform: "translateZ(0)",
+            }}
+          >
+            {children}
+          </div>
 
           {/* Panel Footer */}
           {showFooter && (
@@ -89,8 +110,12 @@ export default function AdvancedPanel({
       {/* Overlay */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 transition-opacity duration-200"
+        style={{
+          willChange: "opacity",
+          transform: "translateZ(0)",
+        }}
       />
     </>
-  )
+  );
 }

@@ -803,48 +803,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type FormCreateNestedManyWithoutThemeInput = {
-  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
-  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
-  createMany?: Prisma.FormCreateManyThemeInputEnvelope
-  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-}
-
-export type FormUncheckedCreateNestedManyWithoutThemeInput = {
-  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
-  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
-  createMany?: Prisma.FormCreateManyThemeInputEnvelope
-  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-}
-
-export type FormUpdateManyWithoutThemeNestedInput = {
-  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
-  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
-  upsert?: Prisma.FormUpsertWithWhereUniqueWithoutThemeInput | Prisma.FormUpsertWithWhereUniqueWithoutThemeInput[]
-  createMany?: Prisma.FormCreateManyThemeInputEnvelope
-  set?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  disconnect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  delete?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  update?: Prisma.FormUpdateWithWhereUniqueWithoutThemeInput | Prisma.FormUpdateWithWhereUniqueWithoutThemeInput[]
-  updateMany?: Prisma.FormUpdateManyWithWhereWithoutThemeInput | Prisma.FormUpdateManyWithWhereWithoutThemeInput[]
-  deleteMany?: Prisma.FormScalarWhereInput | Prisma.FormScalarWhereInput[]
-}
-
-export type FormUncheckedUpdateManyWithoutThemeNestedInput = {
-  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
-  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
-  upsert?: Prisma.FormUpsertWithWhereUniqueWithoutThemeInput | Prisma.FormUpsertWithWhereUniqueWithoutThemeInput[]
-  createMany?: Prisma.FormCreateManyThemeInputEnvelope
-  set?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  disconnect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  delete?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
-  update?: Prisma.FormUpdateWithWhereUniqueWithoutThemeInput | Prisma.FormUpdateWithWhereUniqueWithoutThemeInput[]
-  updateMany?: Prisma.FormUpdateManyWithWhereWithoutThemeInput | Prisma.FormUpdateManyWithWhereWithoutThemeInput[]
-  deleteMany?: Prisma.FormScalarWhereInput | Prisma.FormScalarWhereInput[]
-}
-
 export type FormCreateNestedOneWithoutSectionsInput = {
   create?: Prisma.XOR<Prisma.FormCreateWithoutSectionsInput, Prisma.FormUncheckedCreateWithoutSectionsInput>
   connectOrCreate?: Prisma.FormCreateOrConnectWithoutSectionsInput
@@ -885,6 +843,48 @@ export type FormUpdateOneRequiredWithoutChatHistoriesNestedInput = {
   upsert?: Prisma.FormUpsertWithoutChatHistoriesInput
   connect?: Prisma.FormWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FormUpdateToOneWithWhereWithoutChatHistoriesInput, Prisma.FormUpdateWithoutChatHistoriesInput>, Prisma.FormUncheckedUpdateWithoutChatHistoriesInput>
+}
+
+export type FormCreateNestedManyWithoutThemeInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+}
+
+export type FormUncheckedCreateNestedManyWithoutThemeInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+}
+
+export type FormUpdateManyWithoutThemeNestedInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  upsert?: Prisma.FormUpsertWithWhereUniqueWithoutThemeInput | Prisma.FormUpsertWithWhereUniqueWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  set?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  disconnect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  delete?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  update?: Prisma.FormUpdateWithWhereUniqueWithoutThemeInput | Prisma.FormUpdateWithWhereUniqueWithoutThemeInput[]
+  updateMany?: Prisma.FormUpdateManyWithWhereWithoutThemeInput | Prisma.FormUpdateManyWithWhereWithoutThemeInput[]
+  deleteMany?: Prisma.FormScalarWhereInput | Prisma.FormScalarWhereInput[]
+}
+
+export type FormUncheckedUpdateManyWithoutThemeNestedInput = {
+  create?: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput> | Prisma.FormCreateWithoutThemeInput[] | Prisma.FormUncheckedCreateWithoutThemeInput[]
+  connectOrCreate?: Prisma.FormCreateOrConnectWithoutThemeInput | Prisma.FormCreateOrConnectWithoutThemeInput[]
+  upsert?: Prisma.FormUpsertWithWhereUniqueWithoutThemeInput | Prisma.FormUpsertWithWhereUniqueWithoutThemeInput[]
+  createMany?: Prisma.FormCreateManyThemeInputEnvelope
+  set?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  disconnect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  delete?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  connect?: Prisma.FormWhereUniqueInput | Prisma.FormWhereUniqueInput[]
+  update?: Prisma.FormUpdateWithWhereUniqueWithoutThemeInput | Prisma.FormUpdateWithWhereUniqueWithoutThemeInput[]
+  updateMany?: Prisma.FormUpdateManyWithWhereWithoutThemeInput | Prisma.FormUpdateManyWithWhereWithoutThemeInput[]
+  deleteMany?: Prisma.FormScalarWhereInput | Prisma.FormScalarWhereInput[]
 }
 
 export type FormCreateWithoutOwnerInput = {
@@ -1058,80 +1058,6 @@ export type FormUpdateWithWhereUniqueWithoutWorkspaceInput = {
 export type FormUpdateManyWithWhereWithoutWorkspaceInput = {
   where: Prisma.FormScalarWhereInput
   data: Prisma.XOR<Prisma.FormUpdateManyMutationInput, Prisma.FormUncheckedUpdateManyWithoutWorkspaceInput>
-}
-
-export type FormCreateWithoutThemeInput = {
-  id?: string
-  title: string
-  description?: string | null
-  slug: string
-  headerImageUrl?: string | null
-  status?: $Enums.FormStatus
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  publishedAt?: Date | string | null
-  archivedAt?: Date | string | null
-  closeDate?: Date | string | null
-  responseLimit?: number | null
-  oneResponsePerUser?: boolean
-  thankYouMessage?: string | null
-  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
-  owner: Prisma.UserCreateNestedOneWithoutFormsInput
-  sections?: Prisma.SectionCreateNestedManyWithoutFormInput
-  responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
-  chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
-}
-
-export type FormUncheckedCreateWithoutThemeInput = {
-  id?: string
-  userId: string
-  workspaceId: string
-  title: string
-  description?: string | null
-  slug: string
-  headerImageUrl?: string | null
-  status?: $Enums.FormStatus
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  publishedAt?: Date | string | null
-  archivedAt?: Date | string | null
-  closeDate?: Date | string | null
-  responseLimit?: number | null
-  oneResponsePerUser?: boolean
-  thankYouMessage?: string | null
-  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
-  responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
-  chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
-}
-
-export type FormCreateOrConnectWithoutThemeInput = {
-  where: Prisma.FormWhereUniqueInput
-  create: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput>
-}
-
-export type FormCreateManyThemeInputEnvelope = {
-  data: Prisma.FormCreateManyThemeInput | Prisma.FormCreateManyThemeInput[]
-  skipDuplicates?: boolean
-}
-
-export type FormUpsertWithWhereUniqueWithoutThemeInput = {
-  where: Prisma.FormWhereUniqueInput
-  update: Prisma.XOR<Prisma.FormUpdateWithoutThemeInput, Prisma.FormUncheckedUpdateWithoutThemeInput>
-  create: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput>
-}
-
-export type FormUpdateWithWhereUniqueWithoutThemeInput = {
-  where: Prisma.FormWhereUniqueInput
-  data: Prisma.XOR<Prisma.FormUpdateWithoutThemeInput, Prisma.FormUncheckedUpdateWithoutThemeInput>
-}
-
-export type FormUpdateManyWithWhereWithoutThemeInput = {
-  where: Prisma.FormScalarWhereInput
-  data: Prisma.XOR<Prisma.FormUpdateManyMutationInput, Prisma.FormUncheckedUpdateManyWithoutThemeInput>
 }
 
 export type FormCreateWithoutSectionsInput = {
@@ -1468,6 +1394,80 @@ export type FormUncheckedUpdateWithoutChatHistoriesInput = {
   customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sections?: Prisma.SectionUncheckedUpdateManyWithoutFormNestedInput
   responses?: Prisma.ResponseUncheckedUpdateManyWithoutFormNestedInput
+}
+
+export type FormCreateWithoutThemeInput = {
+  id?: string
+  title: string
+  description?: string | null
+  slug: string
+  headerImageUrl?: string | null
+  status?: $Enums.FormStatus
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  closeDate?: Date | string | null
+  responseLimit?: number | null
+  oneResponsePerUser?: boolean
+  thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutFormsInput
+  owner: Prisma.UserCreateNestedOneWithoutFormsInput
+  sections?: Prisma.SectionCreateNestedManyWithoutFormInput
+  responses?: Prisma.ResponseCreateNestedManyWithoutFormInput
+  chatHistories?: Prisma.ChatHistoryCreateNestedManyWithoutFormInput
+}
+
+export type FormUncheckedCreateWithoutThemeInput = {
+  id?: string
+  userId: string
+  workspaceId: string
+  title: string
+  description?: string | null
+  slug: string
+  headerImageUrl?: string | null
+  status?: $Enums.FormStatus
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  closeDate?: Date | string | null
+  responseLimit?: number | null
+  oneResponsePerUser?: boolean
+  thankYouMessage?: string | null
+  customTheme?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sections?: Prisma.SectionUncheckedCreateNestedManyWithoutFormInput
+  responses?: Prisma.ResponseUncheckedCreateNestedManyWithoutFormInput
+  chatHistories?: Prisma.ChatHistoryUncheckedCreateNestedManyWithoutFormInput
+}
+
+export type FormCreateOrConnectWithoutThemeInput = {
+  where: Prisma.FormWhereUniqueInput
+  create: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput>
+}
+
+export type FormCreateManyThemeInputEnvelope = {
+  data: Prisma.FormCreateManyThemeInput | Prisma.FormCreateManyThemeInput[]
+  skipDuplicates?: boolean
+}
+
+export type FormUpsertWithWhereUniqueWithoutThemeInput = {
+  where: Prisma.FormWhereUniqueInput
+  update: Prisma.XOR<Prisma.FormUpdateWithoutThemeInput, Prisma.FormUncheckedUpdateWithoutThemeInput>
+  create: Prisma.XOR<Prisma.FormCreateWithoutThemeInput, Prisma.FormUncheckedCreateWithoutThemeInput>
+}
+
+export type FormUpdateWithWhereUniqueWithoutThemeInput = {
+  where: Prisma.FormWhereUniqueInput
+  data: Prisma.XOR<Prisma.FormUpdateWithoutThemeInput, Prisma.FormUncheckedUpdateWithoutThemeInput>
+}
+
+export type FormUpdateManyWithWhereWithoutThemeInput = {
+  where: Prisma.FormScalarWhereInput
+  data: Prisma.XOR<Prisma.FormUpdateManyMutationInput, Prisma.FormUncheckedUpdateManyWithoutThemeInput>
 }
 
 export type FormCreateManyOwnerInput = {

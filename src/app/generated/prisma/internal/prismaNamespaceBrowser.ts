@@ -56,7 +56,6 @@ export const ModelName = {
   WorkspaceMember: 'WorkspaceMember',
   WorkspaceInvitation: 'WorkspaceInvitation',
   Form: 'Form',
-  FormTheme: 'FormTheme',
   Section: 'Section',
   Field: 'Field',
   Response: 'Response',
@@ -68,6 +67,7 @@ export const ModelName = {
   Account: 'Account',
   SectionTemplate: 'SectionTemplate',
   TemplateField: 'TemplateField',
+  FormTheme: 'FormTheme',
   Verification: 'Verification'
 } as const
 
@@ -162,25 +162,6 @@ export const FormScalarFieldEnum = {
 } as const
 
 export type FormScalarFieldEnum = (typeof FormScalarFieldEnum)[keyof typeof FormScalarFieldEnum]
-
-
-export const FormThemeScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  category: 'category',
-  thumbnail: 'thumbnail',
-  isBuiltIn: 'isBuiltIn',
-  isPublic: 'isPublic',
-  createdById: 'createdById',
-  colors: 'colors',
-  typography: 'typography',
-  layout: 'layout',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FormThemeScalarFieldEnum = (typeof FormThemeScalarFieldEnum)[keyof typeof FormThemeScalarFieldEnum]
 
 
 export const SectionScalarFieldEnum = {
@@ -371,6 +352,28 @@ export const TemplateFieldScalarFieldEnum = {
 } as const
 
 export type TemplateFieldScalarFieldEnum = (typeof TemplateFieldScalarFieldEnum)[keyof typeof TemplateFieldScalarFieldEnum]
+
+
+export const FormThemeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  category: 'category',
+  isBuiltIn: 'isBuiltIn',
+  isPublic: 'isPublic',
+  userId: 'userId',
+  workspaceId: 'workspaceId',
+  colors: 'colors',
+  typography: 'typography',
+  layout: 'layout',
+  buttons: 'buttons',
+  inputFields: 'inputFields',
+  usageCount: 'usageCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FormThemeScalarFieldEnum = (typeof FormThemeScalarFieldEnum)[keyof typeof FormThemeScalarFieldEnum]
 
 
 export const VerificationScalarFieldEnum = {

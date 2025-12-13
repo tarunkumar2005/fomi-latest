@@ -389,7 +389,6 @@ export const ModelName = {
   WorkspaceMember: 'WorkspaceMember',
   WorkspaceInvitation: 'WorkspaceInvitation',
   Form: 'Form',
-  FormTheme: 'FormTheme',
   Section: 'Section',
   Field: 'Field',
   Response: 'Response',
@@ -401,6 +400,7 @@ export const ModelName = {
   Account: 'Account',
   SectionTemplate: 'SectionTemplate',
   TemplateField: 'TemplateField',
+  FormTheme: 'FormTheme',
   Verification: 'Verification'
 } as const
 
@@ -417,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "workspaceMember" | "workspaceInvitation" | "form" | "formTheme" | "section" | "field" | "response" | "fieldResponse" | "chatHistory" | "agentCredit" | "notification" | "session" | "account" | "sectionTemplate" | "templateField" | "verification"
+    modelProps: "user" | "workspace" | "workspaceMember" | "workspaceInvitation" | "form" | "section" | "field" | "response" | "fieldResponse" | "chatHistory" | "agentCredit" | "notification" | "session" | "account" | "sectionTemplate" | "templateField" | "formTheme" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -788,80 +788,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FormCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FormCountAggregateOutputType> | number
-        }
-      }
-    }
-    FormTheme: {
-      payload: Prisma.$FormThemePayload<ExtArgs>
-      fields: Prisma.FormThemeFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.FormThemeFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.FormThemeFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
-        }
-        findFirst: {
-          args: Prisma.FormThemeFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.FormThemeFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
-        }
-        findMany: {
-          args: Prisma.FormThemeFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
-        }
-        create: {
-          args: Prisma.FormThemeCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
-        }
-        createMany: {
-          args: Prisma.FormThemeCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.FormThemeCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
-        }
-        delete: {
-          args: Prisma.FormThemeDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
-        }
-        update: {
-          args: Prisma.FormThemeUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
-        }
-        deleteMany: {
-          args: Prisma.FormThemeDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.FormThemeUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.FormThemeUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
-        }
-        upsert: {
-          args: Prisma.FormThemeUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
-        }
-        aggregate: {
-          args: Prisma.FormThemeAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateFormTheme>
-        }
-        groupBy: {
-          args: Prisma.FormThemeGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.FormThemeGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.FormThemeCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.FormThemeCountAggregateOutputType> | number
         }
       }
     }
@@ -1679,6 +1605,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    FormTheme: {
+      payload: Prisma.$FormThemePayload<ExtArgs>
+      fields: Prisma.FormThemeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FormThemeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FormThemeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        findFirst: {
+          args: Prisma.FormThemeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FormThemeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        findMany: {
+          args: Prisma.FormThemeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
+        }
+        create: {
+          args: Prisma.FormThemeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        createMany: {
+          args: Prisma.FormThemeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FormThemeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
+        }
+        delete: {
+          args: Prisma.FormThemeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        update: {
+          args: Prisma.FormThemeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        deleteMany: {
+          args: Prisma.FormThemeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FormThemeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FormThemeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>[]
+        }
+        upsert: {
+          args: Prisma.FormThemeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FormThemePayload>
+        }
+        aggregate: {
+          args: Prisma.FormThemeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFormTheme>
+        }
+        groupBy: {
+          args: Prisma.FormThemeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FormThemeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FormThemeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FormThemeCountAggregateOutputType> | number
+        }
+      }
+    }
     Verification: {
       payload: Prisma.$VerificationPayload<ExtArgs>
       fields: Prisma.VerificationFieldRefs
@@ -1869,25 +1869,6 @@ export const FormScalarFieldEnum = {
 export type FormScalarFieldEnum = (typeof FormScalarFieldEnum)[keyof typeof FormScalarFieldEnum]
 
 
-export const FormThemeScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  category: 'category',
-  thumbnail: 'thumbnail',
-  isBuiltIn: 'isBuiltIn',
-  isPublic: 'isPublic',
-  createdById: 'createdById',
-  colors: 'colors',
-  typography: 'typography',
-  layout: 'layout',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FormThemeScalarFieldEnum = (typeof FormThemeScalarFieldEnum)[keyof typeof FormThemeScalarFieldEnum]
-
-
 export const SectionScalarFieldEnum = {
   id: 'id',
   formId: 'formId',
@@ -2076,6 +2057,28 @@ export const TemplateFieldScalarFieldEnum = {
 } as const
 
 export type TemplateFieldScalarFieldEnum = (typeof TemplateFieldScalarFieldEnum)[keyof typeof TemplateFieldScalarFieldEnum]
+
+
+export const FormThemeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  category: 'category',
+  isBuiltIn: 'isBuiltIn',
+  isPublic: 'isPublic',
+  userId: 'userId',
+  workspaceId: 'workspaceId',
+  colors: 'colors',
+  typography: 'typography',
+  layout: 'layout',
+  buttons: 'buttons',
+  inputFields: 'inputFields',
+  usageCount: 'usageCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FormThemeScalarFieldEnum = (typeof FormThemeScalarFieldEnum)[keyof typeof FormThemeScalarFieldEnum]
 
 
 export const VerificationScalarFieldEnum = {
@@ -2404,7 +2407,6 @@ export type GlobalOmitConfig = {
   workspaceMember?: Prisma.WorkspaceMemberOmit
   workspaceInvitation?: Prisma.WorkspaceInvitationOmit
   form?: Prisma.FormOmit
-  formTheme?: Prisma.FormThemeOmit
   section?: Prisma.SectionOmit
   field?: Prisma.FieldOmit
   response?: Prisma.ResponseOmit
@@ -2416,6 +2418,7 @@ export type GlobalOmitConfig = {
   account?: Prisma.AccountOmit
   sectionTemplate?: Prisma.SectionTemplateOmit
   templateField?: Prisma.TemplateFieldOmit
+  formTheme?: Prisma.FormThemeOmit
   verification?: Prisma.VerificationOmit
 }
 

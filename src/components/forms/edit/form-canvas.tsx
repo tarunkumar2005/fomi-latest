@@ -46,119 +46,155 @@ import FileUploadField from "../form-fields/file-upload-field";
 
 import { calculateFormEstimatedTime } from "@/lib/field-time-estimation";
 import type { NextSectionLogic } from "@/types/conditional-logic";
+import type { FieldType } from "@/app/generated/prisma/enums";
+import type {
+  Section,
+  Field,
+  FormHeaderData,
+  SectionUpdateData,
+  FieldUpdateData,
+  AIEnhancementResult,
+  AIEnhancementSuggestion,
+  CircularReferenceResult,
+} from "@/types/form-edit";
 import SectionLogicDialog from "./section-logic-dialog";
 import SectionRepeatDialog from "./section-repeat-dialog";
 import SectionTemplateDialog from "./section-templates/section-template-dialog";
 import AIEnhanceDialog from "./ai-enhance-dialog";
+import ThemeSidebar from "./theme-sidebar";
 import type { FieldEnhanceResponse } from "@/lib/agent";
 import { toast } from "sonner";
-import { memo } from "react";
 
-// Memoized field renderer to prevent re-renders on every keystroke
-const FieldRenderer = memo(
-  ({
-    field,
+// Field renderer WITHOUT memo for debugging re-render issues
+const FieldRenderer = ({
+  field,
+  index,
+  openAdvancedFieldId,
+  onUpdate,
+  onDelete,
+  onDuplicate,
+  onEnhance,
+  onAdvancedToggle,
+}: {
+  field: Field;
+  index: number;
+  openAdvancedFieldId: string | null;
+  onUpdate: (fieldId: string, updates: FieldUpdateData) => void;
+  onDelete: (fieldId: string) => void;
+  onDuplicate: (fieldId: string) => void;
+  onEnhance: (fieldId: string) => void;
+  onAdvancedToggle: (fieldId: string) => void;
+}) => {
+  // Transform Prisma field to component field format
+  // Prisma uses `null` for optional fields, but components expect `undefined`
+  // Preserve the original type explicitly to avoid any issues
+  const transformedField = {
+    ...field,
+    description: field.description ?? undefined,
+    placeholder: field.placeholder ?? undefined,
+    minLabel: field.minLabel ?? undefined,
+    maxLabel: field.maxLabel ?? undefined,
+    minLength: field.minLength ?? undefined,
+    maxLength: field.maxLength ?? undefined,
+    min: field.min ?? undefined,
+    max: field.max ?? undefined,
+    minDate: field.minDate ?? undefined,
+    maxDate: field.maxDate ?? undefined,
+    minTime: field.minTime ?? undefined,
+    maxTime: field.maxTime ?? undefined,
+    maxRating: field.maxRating ?? undefined,
+    acceptedTypes: field.acceptedTypes ?? undefined,
+    maxFileSize: field.maxFileSize ?? undefined,
+  };
+
+  const commonProps = {
+    field: transformedField as any, // Type cast needed due to Prisma null vs component undefined
     index,
-    openAdvancedFieldId,
-    onUpdate,
-    onDelete,
-    onDuplicate,
-    onEnhance,
-    onAdvancedToggle,
-  }: {
-    field: any;
-    index: number;
-    openAdvancedFieldId: string | null;
-    onUpdate: (fieldId: string, updates: any) => void;
-    onDelete: (fieldId: string) => void;
-    onDuplicate: (fieldId: string) => void;
-    onEnhance: (fieldId: string) => void;
-    onAdvancedToggle: (fieldId: string) => void;
-  }) => {
-    const commonProps = {
-      field,
-      index,
-      onUpdate: (updates: any) => onUpdate(field.id, updates),
-      onDelete: () => onDelete(field.id),
-      onDuplicate: () => onDuplicate(field.id),
-      onEnhance: () => onEnhance(field.id),
-      isAdvancedOpen: openAdvancedFieldId === field.id,
-      onAdvancedToggle: () => onAdvancedToggle(field.id),
-    };
+    onUpdate: (updates: any) => onUpdate(field.id, updates),
+    onDelete: () => onDelete(field.id),
+    onDuplicate: () => onDuplicate(field.id),
+    onEnhance: () => onEnhance(field.id),
+    isAdvancedOpen: openAdvancedFieldId === field.id,
+    onAdvancedToggle: () => onAdvancedToggle(field.id),
+  };
 
-    let fieldComponent;
-    if (field.type === "paragraph") {
+  let fieldComponent;
+  // Field types from Prisma are UPPERCASE_SNAKE_CASE
+  switch (field.type) {
+    case "PARAGRAPH":
       fieldComponent = <ParagraphField {...commonProps} />;
-    } else if (field.type === "email") {
+      break;
+    case "EMAIL":
       fieldComponent = <EmailField {...commonProps} />;
-    } else if (field.type === "number") {
+      break;
+    case "NUMBER":
       fieldComponent = <NumberField {...commonProps} />;
-    } else if (field.type === "phone") {
+      break;
+    case "PHONE":
       fieldComponent = <PhoneField {...commonProps} />;
-    } else if (field.type === "multiple-choice") {
+      break;
+    case "MULTIPLE_CHOICE":
       fieldComponent = <MultipleChoiceField {...commonProps} />;
-    } else if (field.type === "checkboxes") {
+      break;
+    case "CHECKBOXES":
       fieldComponent = <CheckboxesField {...commonProps} />;
-    } else if (field.type === "dropdown") {
+      break;
+    case "DROPDOWN":
       fieldComponent = <DropdownField {...commonProps} />;
-    } else if (field.type === "rating") {
+      break;
+    case "RATING":
       fieldComponent = <RatingField {...commonProps} />;
-    } else if (field.type === "linear-scale") {
+      break;
+    case "LINEAR_SCALE":
       fieldComponent = <LinearScaleField {...commonProps} />;
-    } else if (field.type === "url") {
+      break;
+    case "URL":
       fieldComponent = <UrlField {...commonProps} />;
-    } else if (field.type === "date") {
+      break;
+    case "DATE":
       fieldComponent = <DateField {...commonProps} />;
-    } else if (field.type === "time") {
+      break;
+    case "TIME":
       fieldComponent = <TimeField {...commonProps} />;
-    } else if (field.type === "date-range") {
+      break;
+    case "DATE_RANGE":
       fieldComponent = <DateRangeField {...commonProps} />;
-    } else if (field.type === "file-upload") {
+      break;
+    case "FILE_UPLOAD":
       fieldComponent = <FileUploadField {...commonProps} />;
-    } else {
+      break;
+    case "SHORT_ANSWER":
       fieldComponent = <ShortAnswerField {...commonProps} />;
-    }
-
-    return (
-      <DraggableFieldWrapper key={field.id} id={field.id}>
-        {fieldComponent}
-      </DraggableFieldWrapper>
-    );
-  },
-  (prev, next) => {
-    // Only re-render if these props change
-    return (
-      prev.field === next.field &&
-      prev.index === next.index &&
-      prev.openAdvancedFieldId === next.openAdvancedFieldId
-    );
+      break;
+    default:
+      // This should never happen - log error if it does
+      console.error(
+        `[FieldRenderer] UNKNOWN FIELD TYPE: "${field.type}" for field ${field.id}. Falling back to ShortAnswerField.`
+      );
+      fieldComponent = <ShortAnswerField {...commonProps} />;
   }
-);
+
+  return (
+    <DraggableFieldWrapper key={field.id} id={field.id}>
+      {fieldComponent}
+    </DraggableFieldWrapper>
+  );
+};
 
 FieldRenderer.displayName = "FieldRenderer";
 
-interface Section {
-  id: string;
-  title: string;
-  description: string | null;
-  order: number;
-  nextSectionLogic: any;
-  isRepeatable?: boolean;
-  repeatCount?: number | null;
-  fields: any[];
-}
-
-interface Field {
-  id: string;
-  type: string;
-  question: string;
-  order: number;
-}
-
 interface FormCanvasProps {
+  formId: string;
   formSlug: string;
-  formHeaderData: any;
-  onHeaderSave?: (title: string, description: string) => void;
+  userId?: string;
+  workspaceId?: string;
+  formHeaderData: FormHeaderData | null;
+  onHeaderSave?: (
+    title: string,
+    description: string,
+    headerImageUrl?: string
+  ) => void;
+  isSaving?: boolean;
   // Section props
   sections: Section[];
   isLoadingSections: boolean;
@@ -168,15 +204,15 @@ interface FormCanvasProps {
     formId: string,
     title?: string,
     description?: string
-  ) => Promise<any>;
+  ) => Promise<Section>;
   onAddSectionFromTemplate?: (
     formId: string,
     templateId: string
-  ) => Promise<any>;
+  ) => Promise<Section>;
   onUpdateSection: (
     sectionId: string,
-    data: { title?: string; description?: string; nextSectionLogic?: any }
-  ) => Promise<any>;
+    data: SectionUpdateData
+  ) => Promise<Section>;
   onDeleteSection: (sectionId: string) => Promise<void>;
   onDuplicateSection: (sectionId: string) => Promise<void>;
   onReorderSections: (
@@ -185,10 +221,10 @@ interface FormCanvasProps {
   // Field props
   onAddField?: (
     sectionId: string,
-    fieldType: string,
+    fieldType: FieldType,
     question?: string
-  ) => Promise<any>;
-  onUpdateField?: (fieldId: string, data: Partial<Field>) => Promise<any>;
+  ) => Promise<Field>;
+  onUpdateField?: (fieldId: string, data: FieldUpdateData) => Promise<Field>;
   onDeleteField?: (fieldId: string) => Promise<void>;
   onDuplicateField?: (fieldId: string) => Promise<void>;
   onReorderFields?: (
@@ -201,22 +237,26 @@ interface FormCanvasProps {
   ) => Promise<void>;
   // AI Enhance props
   onEnhanceField?: (
-    field: any,
+    field: Field,
     sectionTitle?: string
-  ) => Promise<{ success: boolean; data?: any; error?: string }>;
+  ) => Promise<AIEnhancementResult>;
   onRegenerateEnhancement?: (
-    field: any,
-    previousSuggestion: any,
+    field: Field,
+    previousSuggestion: AIEnhancementResult["data"],
     feedback?: string,
     sectionTitle?: string
-  ) => Promise<{ success: boolean; data?: any; error?: string }>;
+  ) => Promise<AIEnhancementResult>;
   // Conditional logic props
   onUpdateSectionLogic: (
     sectionId: string,
     logic: NextSectionLogic
   ) => Promise<any>;
   onGetSectionDetails: (sectionId: string) => Promise<any>;
-  onGetConditionalFields: (sectionId: string) => Promise<Field[]>;
+  onGetConditionalFields: (
+    sectionId: string
+  ) => Promise<
+    Array<{ id: string; question: string; type: FieldType; options: any }>
+  >;
   onGetSectionsForNavigation: (
     formId: string
   ) => Promise<Array<{ id: string; title: string; order: number }>>;
@@ -225,10 +265,9 @@ interface FormCanvasProps {
     sectionId: string,
     logic: NextSectionLogic
   ) => Promise<{ valid: boolean; errors: string[] }>;
-  onCheckCircularReferences: (formId: string) => Promise<{
-    hasCircularReference: boolean;
-    cycles: string[][];
-  }>;
+  onCheckCircularReferences: (
+    formId: string
+  ) => Promise<CircularReferenceResult>;
   // Repeatability props
   onUpdateRepeatability?: (
     sectionId: string,
@@ -238,9 +277,13 @@ interface FormCanvasProps {
 }
 
 export default function FormCanvas({
+  formId,
   formSlug,
+  userId,
+  workspaceId,
   formHeaderData,
   onHeaderSave,
+  isSaving = false,
   // Section props
   sections,
   isLoadingSections,
@@ -288,6 +331,168 @@ export default function FormCanvas({
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
 
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState<any>(null);
+
+  // Memoize parsed theme data for preview container
+  const themeStyles = useMemo(() => {
+    if (!currentTheme) return null;
+
+    const colors =
+      typeof currentTheme.colors === "string"
+        ? JSON.parse(currentTheme.colors)
+        : currentTheme.colors;
+
+    const typography =
+      typeof currentTheme.typography === "string"
+        ? JSON.parse(currentTheme.typography)
+        : currentTheme.typography;
+
+    const layout =
+      typeof currentTheme.layout === "string"
+        ? JSON.parse(currentTheme.layout)
+        : currentTheme.layout;
+
+    const fontSizes: Record<string, string> = {
+      small: "14px",
+      medium: "16px",
+      large: "18px",
+    };
+
+    const spacings: Record<string, string> = {
+      compact: "0.75rem",
+      normal: "1rem",
+      relaxed: "1.5rem",
+    };
+
+    const shadows: Record<string, string> = {
+      none: "none",
+      sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+      lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+    };
+
+    return {
+      // Colors
+      primary: colors?.primary || "#6366f1",
+      background: colors?.background || "#ffffff",
+      card: colors?.card || "#ffffff",
+      text: colors?.text || "#0f172a",
+      textMuted: colors?.textMuted || "#64748b",
+      border: colors?.border || "#e2e8f0",
+      accent: colors?.accent || "#eef2ff",
+      // Typography
+      fontHeading: typography?.headingFont || "Sora",
+      fontBody: typography?.bodyFont || "Inter",
+      fontSize: fontSizes[typography?.fontSize as string] || "16px",
+      // Layout
+      borderRadius: `${layout?.borderRadius || 12}px`,
+      spacing: spacings[layout?.spacing as string] || "1rem",
+      shadow: shadows[layout?.shadow as string] || shadows.md,
+    };
+  }, [currentTheme]);
+
+  // Apply theme CSS variables in real-time
+  useEffect(() => {
+    if (!currentTheme) {
+      console.log("No theme to apply");
+      return;
+    }
+
+    console.log("Applying theme to canvas:", currentTheme);
+    const root = document.documentElement;
+
+    // Apply color variables
+    if (currentTheme.colors) {
+      const colors =
+        typeof currentTheme.colors === "string"
+          ? JSON.parse(currentTheme.colors)
+          : currentTheme.colors;
+
+      root.style.setProperty("--theme-primary", colors.primary || "#6366f1");
+      root.style.setProperty(
+        "--theme-background",
+        colors.background || "#ffffff"
+      );
+      root.style.setProperty("--theme-card", colors.card || "#ffffff");
+      root.style.setProperty("--theme-text", colors.text || "#0f172a");
+      root.style.setProperty(
+        "--theme-text-muted",
+        colors.textMuted || "#64748b"
+      );
+      root.style.setProperty("--theme-border", colors.border || "#e2e8f0");
+      root.style.setProperty("--theme-accent", colors.accent || "#eef2ff");
+      root.style.setProperty("--theme-input", colors.input || "#ffffff");
+      root.style.setProperty("--theme-ring", colors.ring || "#6366f1");
+    }
+
+    // Apply typography variables
+    if (currentTheme.typography) {
+      const typography =
+        typeof currentTheme.typography === "string"
+          ? JSON.parse(currentTheme.typography)
+          : currentTheme.typography;
+
+      root.style.setProperty(
+        "--theme-font-heading",
+        typography.headingFont || "Sora"
+      );
+      root.style.setProperty(
+        "--theme-font-body",
+        typography.bodyFont || "Inter"
+      );
+      const fontSizes: Record<string, string> = {
+        small: "14px",
+        medium: "16px",
+        large: "18px",
+      };
+      root.style.setProperty(
+        "--theme-font-size",
+        fontSizes[typography.fontSize as string] || "16px"
+      );
+    }
+
+    // Apply layout variables
+    if (currentTheme.layout) {
+      const layout =
+        typeof currentTheme.layout === "string"
+          ? JSON.parse(currentTheme.layout)
+          : currentTheme.layout;
+
+      root.style.setProperty(
+        "--theme-radius",
+        `${layout.borderRadius || 12}px`
+      );
+      const spacings: Record<string, string> = {
+        compact: "0.75rem",
+        normal: "1rem",
+        relaxed: "1.5rem",
+      };
+      root.style.setProperty(
+        "--theme-spacing",
+        spacings[layout.spacing as string] || "1rem"
+      );
+    }
+
+    // Cleanup function to remove theme variables
+    return () => {
+      root.style.removeProperty("--theme-primary");
+      root.style.removeProperty("--theme-background");
+      root.style.removeProperty("--theme-card");
+      root.style.removeProperty("--theme-text");
+      root.style.removeProperty("--theme-text-muted");
+      root.style.removeProperty("--theme-border");
+      root.style.removeProperty("--theme-accent");
+      root.style.removeProperty("--theme-input");
+      root.style.removeProperty("--theme-ring");
+      root.style.removeProperty("--theme-font-heading");
+      root.style.removeProperty("--theme-font-body");
+      root.style.removeProperty("--theme-font-size");
+      root.style.removeProperty("--theme-radius");
+      root.style.removeProperty("--theme-spacing");
+    };
+  }, [currentTheme]);
+
   // Advanced panel state
   const [openAdvancedFieldId, setOpenAdvancedFieldId] = useState<string | null>(
     null
@@ -321,15 +526,19 @@ export default function FormCanvas({
   const [enhanceSectionTitle, setEnhanceSectionTitle] = useState<
     string | undefined
   >(undefined);
-  const [enhancement, setEnhancement] = useState<FieldEnhanceResponse | null>(
-    null
-  );
+  const [enhancement, setEnhancement] =
+    useState<AIEnhancementSuggestion | null>(null);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhanceError, setEnhanceError] = useState<string | null>(null);
 
-  // Calculate stats
-  const allFields = sections.flatMap((section) => section.fields || []);
-  const questionCount = allFields.length;
-  const timeEstimate = calculateFormEstimatedTime(allFields);
+  // Calculate stats (memoized to prevent recalculation on every render)
+  const { questionCount, timeEstimate } = useMemo(() => {
+    const allFields = sections.flatMap((section) => section.fields || []);
+    return {
+      questionCount: allFields.length,
+      timeEstimate: calculateFormEstimatedTime(allFields),
+    };
+  }, [sections]);
 
   // Close sidebars on Escape key
   useEffect(() => {
@@ -396,7 +605,7 @@ export default function FormCanvas({
   );
 
   const handleAddQuestion = useCallback(
-    async (fieldType: string, sectionId?: string) => {
+    async (fieldType: FieldType, sectionId?: string) => {
       const targetSectionId = sectionId || activeSectionId;
       if (!onAddField || !targetSectionId) {
         console.warn("Cannot add field: No active section or handler missing");
@@ -452,9 +661,19 @@ export default function FormCanvas({
         const result = await onEnhanceField(targetField, targetSectionTitle);
         if (result.success && result.data) {
           setEnhancement(result.data);
+          setEnhanceError(null);
+        } else {
+          setEnhanceError(
+            result.error || "Enhancement failed. Please try again."
+          );
         }
       } catch (error) {
         console.error("Enhancement failed:", error);
+        setEnhanceError(
+          error instanceof Error
+            ? error.message
+            : "Enhancement failed. Please try again."
+        );
       } finally {
         setIsEnhancing(false);
       }
@@ -462,40 +681,93 @@ export default function FormCanvas({
     [sections, onEnhanceField]
   );
 
-  const handleApplyEnhancement = async () => {
-    if (!enhancement || !enhanceField || !onUpdateField) return;
+  const handleApplyEnhancement = () => {
+    if (!enhancement || !enhanceField || !onUpdateField) {
+      console.error("Cannot apply enhancement:", {
+        enhancement,
+        enhanceField,
+        onUpdateField,
+      });
+      toast.error("Cannot apply changes", {
+        description:
+          "Missing required data. Please try enhancing the field again.",
+      });
+      return;
+    }
+
+    const updates: any = {};
+
+    // Only add question if it exists
+    if (enhancement.question !== undefined && enhancement.question !== null) {
+      updates.question = enhancement.question;
+    }
+
+    if (enhancement.description !== undefined) {
+      updates.description = enhancement.description;
+    }
+
+    if (enhancement.placeholder !== undefined) {
+      updates.placeholder = enhancement.placeholder;
+    }
+
+    if (enhancement.options !== undefined && enhancement.options !== null) {
+      updates.options = enhancement.options;
+    }
+
+    if (enhancement.minLabel !== undefined) {
+      updates.minLabel = enhancement.minLabel;
+    }
+
+    if (enhancement.maxLabel !== undefined) {
+      updates.maxLabel = enhancement.maxLabel;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      toast.error("No changes to apply", {
+        description: "The enhancement didn't produce any changes.",
+      });
+      return;
+    }
+
+    // Fire and forget - optimistic update happens immediately in setSections
+    onUpdateField(enhanceField.id, updates);
+
+    toast.success("Enhancement applied", {
+      description: "Field updated successfully",
+    });
+
+    // Close dialog immediately after triggering update
+    setEnhanceDialogOpen(false);
+    setEnhanceField(null);
+    setEnhancement(null);
+    setEnhanceError(null);
+  };
+
+  const handleRetryEnhancement = async () => {
+    if (!enhanceField || !onEnhanceField) return;
+
+    setIsEnhancing(true);
+    setEnhanceError(null);
 
     try {
-      const updates: any = {
-        question: enhancement.question,
-      };
-
-      if (enhancement.description !== undefined) {
-        updates.description = enhancement.description;
+      const result = await onEnhanceField(enhanceField, enhanceSectionTitle);
+      if (result.success && result.data) {
+        setEnhancement(result.data);
+        setEnhanceError(null);
+      } else {
+        setEnhanceError(
+          result.error || "Enhancement failed. Please try again."
+        );
       }
-
-      if (enhancement.placeholder !== undefined) {
-        updates.placeholder = enhancement.placeholder;
-      }
-
-      if (enhancement.options !== undefined && enhancement.options !== null) {
-        updates.options = enhancement.options;
-      }
-
-      if (enhancement.minLabel !== undefined) {
-        updates.minLabel = enhancement.minLabel;
-      }
-
-      if (enhancement.maxLabel !== undefined) {
-        updates.maxLabel = enhancement.maxLabel;
-      }
-
-      await onUpdateField(enhanceField.id, updates);
-      setEnhanceDialogOpen(false);
-      setEnhanceField(null);
-      setEnhancement(null);
     } catch (error) {
-      console.error("Failed to apply enhancement:", error);
+      console.error("Enhancement retry failed:", error);
+      setEnhanceError(
+        error instanceof Error
+          ? error.message
+          : "Enhancement failed. Please try again."
+      );
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
@@ -503,6 +775,7 @@ export default function FormCanvas({
     if (!onRegenerateEnhancement || !enhanceField || !enhancement) return;
 
     setIsEnhancing(true);
+    setEnhanceError(null);
 
     try {
       const result = await onRegenerateEnhancement(
@@ -513,8 +786,13 @@ export default function FormCanvas({
       );
       if (result.success && result.data) {
         setEnhancement(result.data);
+        setEnhanceError(null);
       } else if (!result.success) {
-        // Show error toast when regeneration fails (e.g., validation error)
+        // Set error message for display in dialog
+        setEnhanceError(
+          result.error || "Please try again with different feedback."
+        );
+        // Also show toast for immediate feedback
         toast.error("Regeneration failed", {
           description:
             result.error || "Please try again with different feedback.",
@@ -522,8 +800,13 @@ export default function FormCanvas({
       }
     } catch (error) {
       console.error("Regeneration failed:", error);
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.";
+      setEnhanceError(errorMsg);
       toast.error("Regeneration failed", {
-        description: "Something went wrong. Please try again.",
+        description: errorMsg,
       });
     } finally {
       setIsEnhancing(false);
@@ -579,7 +862,7 @@ export default function FormCanvas({
 
       const [fields, availableSections] = await Promise.all([
         onGetConditionalFields(sectionId),
-        onGetSectionsForNavigation(formHeaderData?.id),
+        onGetSectionsForNavigation(formHeaderData?.id ?? ""),
       ]);
 
       setSelectedSectionForLogic(section);
@@ -695,7 +978,7 @@ export default function FormCanvas({
       const referencingSections = sections.filter((section) => {
         if (!section.nextSectionLogic || section.id === sectionId) return false;
 
-        const logic = section.nextSectionLogic as NextSectionLogic;
+        const logic = section.nextSectionLogic as unknown as NextSectionLogic;
 
         if (logic.defaultTarget === sectionId) return true;
 
@@ -713,7 +996,8 @@ export default function FormCanvas({
         if (!confirmDelete) return;
 
         for (const refSection of referencingSections) {
-          const logic = refSection.nextSectionLogic as NextSectionLogic;
+          const logic =
+            refSection.nextSectionLogic as unknown as NextSectionLogic;
           let needsUpdate = false;
 
           if (logic.defaultTarget === sectionId) {
@@ -805,9 +1089,17 @@ export default function FormCanvas({
       const fieldOrders = sourceSection.fields.map((field, index) => {
         if (index === oldIndex) {
           return { fieldId: field.id, order: newIndex };
-        } else if (oldIndex < newIndex && index > oldIndex && index <= newIndex) {
+        } else if (
+          oldIndex < newIndex &&
+          index > oldIndex &&
+          index <= newIndex
+        ) {
           return { fieldId: field.id, order: index - 1 };
-        } else if (oldIndex > newIndex && index >= newIndex && index < oldIndex) {
+        } else if (
+          oldIndex > newIndex &&
+          index >= newIndex &&
+          index < oldIndex
+        ) {
           return { fieldId: field.id, order: index + 1 };
         }
         return { fieldId: field.id, order: index };
@@ -832,48 +1124,23 @@ export default function FormCanvas({
             "w-[320px] lg:w-[380px]"
           )}
         >
-          <div className="h-full flex flex-col">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-border/50 bg-muted/30">
-              <div className="flex items-center gap-2.5">
-                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Palette className="h-4.5 w-4.5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="font-heading text-base lg:text-lg font-semibold">
-                    Theme Customizer
-                  </h2>
-                  <p className="text-xs text-muted-foreground">
-                    Customize your form's look
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setLeftSidebarOpen(false)}
-                className="p-2 hover:bg-muted rounded-lg transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+          <div className="h-full flex flex-col relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setLeftSidebarOpen(false)}
+              className="absolute top-4 right-4 z-10 p-2 hover:bg-muted rounded-lg transition-colors"
+              aria-label="Close theme customizer"
+            >
+              <X className="h-4 w-4" />
+            </button>
 
-            {/* Sidebar Content */}
-            <div className="flex-1 overflow-y-auto p-4 lg:p-6">
-              <div className="space-y-4">
-                <div className="h-28 bg-muted/50 rounded-xl border border-dashed border-border flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">
-                    Theme options will go here
-                  </p>
-                </div>
-                <div className="h-28 bg-muted/50 rounded-xl border border-dashed border-border flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">Color picker</p>
-                </div>
-                <div className="h-28 bg-muted/50 rounded-xl border border-dashed border-border flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">
-                    Typography settings
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Theme Sidebar Content */}
+            <ThemeSidebar
+              formId={formId}
+              userId={userId}
+              workspaceId={workspaceId}
+              onThemeChange={setCurrentTheme}
+            />
           </div>
         </div>
 
@@ -903,6 +1170,7 @@ export default function FormCanvas({
               <button
                 onClick={() => setRightSidebarOpen(false)}
                 className="p-2 hover:bg-muted rounded-lg transition-colors"
+                aria-label="Close Fomi Agent"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -928,6 +1196,7 @@ export default function FormCanvas({
 
         <button
           onClick={handleLeftSidebarToggle}
+          style={{ willChange: leftSidebarOpen ? "left" : "auto" }}
           className={cn(
             "hidden md:flex fixed top-1/2 -translate-y-1/2 z-30 flex-col items-center justify-center gap-1",
             "w-10 lg:w-12 h-16 lg:h-20 bg-card/90 backdrop-blur-sm border border-border/60 rounded-r-xl shadow-lg",
@@ -936,6 +1205,9 @@ export default function FormCanvas({
             leftSidebarOpen ? "left-80 lg:left-[380px]" : "left-0"
           )}
           title={leftSidebarOpen ? "Close Theme Customizer" : "Customize Theme"}
+          aria-label={
+            leftSidebarOpen ? "Close theme customizer" : "Open theme customizer"
+          }
         >
           <Palette className="h-4 w-4 text-primary group-hover:scale-110 transition-transform duration-200" />
           {leftSidebarOpen ? (
@@ -955,6 +1227,7 @@ export default function FormCanvas({
             rightSidebarOpen ? "right-80 lg:right-[380px]" : "right-0"
           )}
           title={rightSidebarOpen ? "Close Fomi Agent" : "Open Fomi Agent"}
+          aria-label={rightSidebarOpen ? "Close Fomi Agent" : "Open Fomi Agent"}
         >
           <Sparkles className="h-4 w-4 text-primary group-hover:scale-110 transition-transform duration-200" />
           {rightSidebarOpen ? (
@@ -967,6 +1240,7 @@ export default function FormCanvas({
         <button
           onClick={handleLeftSidebarToggle}
           className="md:hidden fixed bottom-20 left-4 z-30 w-12 h-12 bg-card border border-border/60 text-primary rounded-xl shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
+          aria-label="Toggle theme customizer"
         >
           <Palette className="h-5 w-5" />
         </button>
@@ -974,20 +1248,56 @@ export default function FormCanvas({
         <button
           onClick={handleRightSidebarToggle}
           className="md:hidden fixed bottom-20 right-4 z-30 w-12 h-12 bg-primary text-primary-foreground rounded-xl shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
+          aria-label="Toggle Fomi Agent"
         >
           <Sparkles className="h-5 w-5" />
         </button>
 
+        {/* Theme Preview Container */}
         <div
           className={cn(
             "flex-1 transition-all duration-300 ease-out overflow-y-auto",
-            "bg-linear-to-b from-muted/30 via-background to-muted/20",
             leftSidebarOpen && "md:ml-80 lg:md:ml-[380px]",
             rightSidebarOpen && "md:mr-80 lg:md:mr-[380px]"
           )}
+          style={
+            themeStyles
+              ? ({
+                  // Apply all theme variables as CSS custom properties scoped to this container
+                  "--preview-primary": themeStyles.primary,
+                  "--preview-background": themeStyles.background,
+                  "--preview-card": themeStyles.card,
+                  "--preview-text": themeStyles.text,
+                  "--preview-text-muted": themeStyles.textMuted,
+                  "--preview-border": themeStyles.border,
+                  "--preview-accent": themeStyles.accent,
+                  "--preview-font-heading": themeStyles.fontHeading,
+                  "--preview-font-body": themeStyles.fontBody,
+                  "--preview-font-size": themeStyles.fontSize,
+                  "--preview-border-radius": themeStyles.borderRadius,
+                  "--preview-spacing": themeStyles.spacing,
+                  "--preview-shadow": themeStyles.shadow,
+                  backgroundColor: themeStyles.background,
+                  fontFamily: themeStyles.fontBody,
+                  fontSize: themeStyles.fontSize,
+                } as React.CSSProperties)
+              : {}
+          }
         >
-          <div className="px-3 sm:px-4 lg:px-6 pt-20 sm:pt-24 pb-24 sm:pb-8">
-            <div className="max-w-3xl lg:max-w-4xl mx-auto space-y-4 sm:space-y-6">
+          <div
+            className="px-3 sm:px-4 lg:px-6 pt-20 sm:pt-24 pb-24 sm:pb-8"
+            style={{
+              gap: "var(--preview-spacing, 1rem)",
+            }}
+          >
+            <div
+              className="max-w-3xl lg:max-w-4xl mx-auto"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--preview-spacing, 1.5rem)",
+              }}
+            >
               {/* Form Header */}
               <FormHeader
                 formTitle={formHeaderData?.title || "Untitled Form"}
@@ -996,11 +1306,17 @@ export default function FormCanvas({
                 questionCount={questionCount}
                 headerImageUrl={formHeaderData?.headerImageUrl || null}
                 onSaveHeader={onHeaderSave}
+                isSaving={isSaving}
               />
 
               {/* Sections */}
               {isLoadingSections ? (
-                <div className="bg-card rounded-2xl border border-border/60 p-6 sm:p-8 text-center shadow-sm">
+                <div
+                  className="bg-card rounded-2xl border border-border/60 p-6 sm:p-8 text-center shadow-sm"
+                  role="status"
+                  aria-busy="true"
+                  aria-live="polite"
+                >
                   <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
                   <p className="text-sm text-muted-foreground">
                     Loading sections...
@@ -1017,13 +1333,15 @@ export default function FormCanvas({
                       items={sections.map((s) => s.id)}
                       strategy={verticalListSortingStrategy}
                     >
-                       {sections.map((section, idx) => {
+                      {sections.map((section, idx) => {
                         const hasConditionalLogic =
                           section.nextSectionLogic &&
-                          (section.nextSectionLogic as NextSectionLogic)
-                            .type === "conditional" &&
-                          (section.nextSectionLogic as NextSectionLogic).rules
-                            ?.length > 0;
+                          (
+                            section.nextSectionLogic as unknown as NextSectionLogic
+                          ).type === "conditional" &&
+                          (
+                            section.nextSectionLogic as unknown as NextSectionLogic
+                          ).rules?.length > 0;
 
                         return (
                           <SectionContainer
@@ -1034,7 +1352,7 @@ export default function FormCanvas({
                             description={section.description}
                             isActive={activeSectionId === section.id}
                             isCollapsed={collapsedSections.has(section.id)}
-                            hasConditionalLogic={hasConditionalLogic}
+                            hasConditionalLogic={Boolean(hasConditionalLogic)}
                             isRepeatable={section.isRepeatable}
                             repeatCount={section.repeatCount}
                             onTitleChange={(title: string) =>
@@ -1078,7 +1396,9 @@ export default function FormCanvas({
                                         key={field.id}
                                         field={field}
                                         index={fieldIdx + 1}
-                                        openAdvancedFieldId={openAdvancedFieldId}
+                                        openAdvancedFieldId={
+                                          openAdvancedFieldId
+                                        }
                                         onUpdate={handleFieldUpdate}
                                         onDelete={handleFieldDelete}
                                         onDuplicate={handleFieldDuplicate}
@@ -1131,12 +1451,24 @@ export default function FormCanvas({
                   <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                     Start building your form by adding your first section
                   </p>
-                  <button
-                    onClick={() => setTemplateDialogOpen(true)}
-                    className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium shadow-md hover:shadow-lg"
-                  >
-                    Add Your First Section
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                      onClick={async () => {
+                        if (formHeaderData?.id) {
+                          await onAddSection(formHeaderData.id);
+                        }
+                      }}
+                      className="px-6 py-3 bg-background border-2 border-border hover:border-primary/40 hover:bg-muted/50 text-foreground rounded-xl transition-all font-medium shadow-sm hover:shadow-md"
+                    >
+                      Add Blank Section
+                    </button>
+                    <button
+                      onClick={() => setTemplateDialogOpen(true)}
+                      className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium shadow-md hover:shadow-lg"
+                    >
+                      Choose from Template
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -1211,7 +1543,9 @@ export default function FormCanvas({
           onOpenChange={setLogicDialogOpen}
           sectionId={selectedSectionForLogic.id}
           sectionTitle={selectedSectionForLogic.title}
-          currentLogic={selectedSectionForLogic.nextSectionLogic}
+          currentLogic={
+            selectedSectionForLogic.nextSectionLogic as unknown as NextSectionLogic | null
+          }
           fields={logicDialogData.fields}
           availableSections={logicDialogData.sections}
           onSave={handleSaveLogic}
@@ -1246,13 +1580,16 @@ export default function FormCanvas({
           if (!open) {
             setEnhanceField(null);
             setEnhancement(null);
+            setEnhanceError(null);
           }
         }}
         field={enhanceField}
         enhancement={enhancement}
         isLoading={isEnhancing}
+        error={enhanceError}
         onApply={handleApplyEnhancement}
         onRegenerate={handleRegenerateEnhancement}
+        onRetry={handleRetryEnhancement}
       />
     </div>
   );

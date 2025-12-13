@@ -20,8 +20,18 @@ export type FormThemeModel = runtime.Types.Result.DefaultSelection<Prisma.$FormT
 
 export type AggregateFormTheme = {
   _count: FormThemeCountAggregateOutputType | null
+  _avg: FormThemeAvgAggregateOutputType | null
+  _sum: FormThemeSumAggregateOutputType | null
   _min: FormThemeMinAggregateOutputType | null
   _max: FormThemeMaxAggregateOutputType | null
+}
+
+export type FormThemeAvgAggregateOutputType = {
+  usageCount: number | null
+}
+
+export type FormThemeSumAggregateOutputType = {
+  usageCount: number | null
 }
 
 export type FormThemeMinAggregateOutputType = {
@@ -29,10 +39,11 @@ export type FormThemeMinAggregateOutputType = {
   name: string | null
   description: string | null
   category: string | null
-  thumbnail: string | null
   isBuiltIn: boolean | null
   isPublic: boolean | null
-  createdById: string | null
+  userId: string | null
+  workspaceId: string | null
+  usageCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,10 +53,11 @@ export type FormThemeMaxAggregateOutputType = {
   name: string | null
   description: string | null
   category: string | null
-  thumbnail: string | null
   isBuiltIn: boolean | null
   isPublic: boolean | null
-  createdById: string | null
+  userId: string | null
+  workspaceId: string | null
+  usageCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -55,28 +67,40 @@ export type FormThemeCountAggregateOutputType = {
   name: number
   description: number
   category: number
-  thumbnail: number
   isBuiltIn: number
   isPublic: number
-  createdById: number
+  userId: number
+  workspaceId: number
   colors: number
   typography: number
   layout: number
+  buttons: number
+  inputFields: number
+  usageCount: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type FormThemeAvgAggregateInputType = {
+  usageCount?: true
+}
+
+export type FormThemeSumAggregateInputType = {
+  usageCount?: true
+}
+
 export type FormThemeMinAggregateInputType = {
   id?: true
   name?: true
   description?: true
   category?: true
-  thumbnail?: true
   isBuiltIn?: true
   isPublic?: true
-  createdById?: true
+  userId?: true
+  workspaceId?: true
+  usageCount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -86,10 +110,11 @@ export type FormThemeMaxAggregateInputType = {
   name?: true
   description?: true
   category?: true
-  thumbnail?: true
   isBuiltIn?: true
   isPublic?: true
-  createdById?: true
+  userId?: true
+  workspaceId?: true
+  usageCount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -99,13 +124,16 @@ export type FormThemeCountAggregateInputType = {
   name?: true
   description?: true
   category?: true
-  thumbnail?: true
   isBuiltIn?: true
   isPublic?: true
-  createdById?: true
+  userId?: true
+  workspaceId?: true
   colors?: true
   typography?: true
   layout?: true
+  buttons?: true
+  inputFields?: true
+  usageCount?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -149,6 +177,18 @@ export type FormThemeAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: FormThemeAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: FormThemeSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: FormThemeMinAggregateInputType
@@ -179,6 +219,8 @@ export type FormThemeGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   _count?: FormThemeCountAggregateInputType | true
+  _avg?: FormThemeAvgAggregateInputType
+  _sum?: FormThemeSumAggregateInputType
   _min?: FormThemeMinAggregateInputType
   _max?: FormThemeMaxAggregateInputType
 }
@@ -188,16 +230,21 @@ export type FormThemeGroupByOutputType = {
   name: string
   description: string | null
   category: string | null
-  thumbnail: string | null
   isBuiltIn: boolean
   isPublic: boolean
-  createdById: string | null
+  userId: string | null
+  workspaceId: string | null
   colors: runtime.JsonValue
   typography: runtime.JsonValue
   layout: runtime.JsonValue
+  buttons: runtime.JsonValue
+  inputFields: runtime.JsonValue
+  usageCount: number
   createdAt: Date
   updatedAt: Date
   _count: FormThemeCountAggregateOutputType | null
+  _avg: FormThemeAvgAggregateOutputType | null
+  _sum: FormThemeSumAggregateOutputType | null
   _min: FormThemeMinAggregateOutputType | null
   _max: FormThemeMaxAggregateOutputType | null
 }
@@ -225,16 +272,20 @@ export type FormThemeWhereInput = {
   name?: Prisma.StringFilter<"FormTheme"> | string
   description?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   category?: Prisma.StringNullableFilter<"FormTheme"> | string | null
-  thumbnail?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   isBuiltIn?: Prisma.BoolFilter<"FormTheme"> | boolean
   isPublic?: Prisma.BoolFilter<"FormTheme"> | boolean
-  createdById?: Prisma.StringNullableFilter<"FormTheme"> | string | null
+  userId?: Prisma.StringNullableFilter<"FormTheme"> | string | null
+  workspaceId?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   colors?: Prisma.JsonFilter<"FormTheme">
   typography?: Prisma.JsonFilter<"FormTheme">
   layout?: Prisma.JsonFilter<"FormTheme">
+  buttons?: Prisma.JsonFilter<"FormTheme">
+  inputFields?: Prisma.JsonFilter<"FormTheme">
+  usageCount?: Prisma.IntFilter<"FormTheme"> | number
   createdAt?: Prisma.DateTimeFilter<"FormTheme"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormTheme"> | Date | string
-  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
   forms?: Prisma.FormListRelationFilter
 }
 
@@ -243,16 +294,20 @@ export type FormThemeOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
-  thumbnail?: Prisma.SortOrderInput | Prisma.SortOrder
   isBuiltIn?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   colors?: Prisma.SortOrder
   typography?: Prisma.SortOrder
   layout?: Prisma.SortOrder
+  buttons?: Prisma.SortOrder
+  inputFields?: Prisma.SortOrder
+  usageCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  createdBy?: Prisma.UserOrderByWithRelationInput
+  user?: Prisma.UserOrderByWithRelationInput
+  workspace?: Prisma.WorkspaceOrderByWithRelationInput
   forms?: Prisma.FormOrderByRelationAggregateInput
 }
 
@@ -264,16 +319,20 @@ export type FormThemeWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"FormTheme"> | string
   description?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   category?: Prisma.StringNullableFilter<"FormTheme"> | string | null
-  thumbnail?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   isBuiltIn?: Prisma.BoolFilter<"FormTheme"> | boolean
   isPublic?: Prisma.BoolFilter<"FormTheme"> | boolean
-  createdById?: Prisma.StringNullableFilter<"FormTheme"> | string | null
+  userId?: Prisma.StringNullableFilter<"FormTheme"> | string | null
+  workspaceId?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   colors?: Prisma.JsonFilter<"FormTheme">
   typography?: Prisma.JsonFilter<"FormTheme">
   layout?: Prisma.JsonFilter<"FormTheme">
+  buttons?: Prisma.JsonFilter<"FormTheme">
+  inputFields?: Prisma.JsonFilter<"FormTheme">
+  usageCount?: Prisma.IntFilter<"FormTheme"> | number
   createdAt?: Prisma.DateTimeFilter<"FormTheme"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormTheme"> | Date | string
-  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
   forms?: Prisma.FormListRelationFilter
 }, "id">
 
@@ -282,18 +341,23 @@ export type FormThemeOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
-  thumbnail?: Prisma.SortOrderInput | Prisma.SortOrder
   isBuiltIn?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   colors?: Prisma.SortOrder
   typography?: Prisma.SortOrder
   layout?: Prisma.SortOrder
+  buttons?: Prisma.SortOrder
+  inputFields?: Prisma.SortOrder
+  usageCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FormThemeCountOrderByAggregateInput
+  _avg?: Prisma.FormThemeAvgOrderByAggregateInput
   _max?: Prisma.FormThemeMaxOrderByAggregateInput
   _min?: Prisma.FormThemeMinOrderByAggregateInput
+  _sum?: Prisma.FormThemeSumOrderByAggregateInput
 }
 
 export type FormThemeScalarWhereWithAggregatesInput = {
@@ -304,13 +368,16 @@ export type FormThemeScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"FormTheme"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"FormTheme"> | string | null
   category?: Prisma.StringNullableWithAggregatesFilter<"FormTheme"> | string | null
-  thumbnail?: Prisma.StringNullableWithAggregatesFilter<"FormTheme"> | string | null
   isBuiltIn?: Prisma.BoolWithAggregatesFilter<"FormTheme"> | boolean
   isPublic?: Prisma.BoolWithAggregatesFilter<"FormTheme"> | boolean
-  createdById?: Prisma.StringNullableWithAggregatesFilter<"FormTheme"> | string | null
+  userId?: Prisma.StringNullableWithAggregatesFilter<"FormTheme"> | string | null
+  workspaceId?: Prisma.StringNullableWithAggregatesFilter<"FormTheme"> | string | null
   colors?: Prisma.JsonWithAggregatesFilter<"FormTheme">
   typography?: Prisma.JsonWithAggregatesFilter<"FormTheme">
   layout?: Prisma.JsonWithAggregatesFilter<"FormTheme">
+  buttons?: Prisma.JsonWithAggregatesFilter<"FormTheme">
+  inputFields?: Prisma.JsonWithAggregatesFilter<"FormTheme">
+  usageCount?: Prisma.IntWithAggregatesFilter<"FormTheme"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FormTheme"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FormTheme"> | Date | string
 }
@@ -320,15 +387,18 @@ export type FormThemeCreateInput = {
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedThemesInput
+  user?: Prisma.UserCreateNestedOneWithoutThemesInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutThemesInput
   forms?: Prisma.FormCreateNestedManyWithoutThemeInput
 }
 
@@ -337,13 +407,16 @@ export type FormThemeUncheckedCreateInput = {
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
-  createdById?: string | null
+  userId?: string | null
+  workspaceId?: string | null
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutThemeInput
@@ -354,15 +427,18 @@ export type FormThemeUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneWithoutCreatedThemesNestedInput
+  user?: Prisma.UserUpdateOneWithoutThemesNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutThemesNestedInput
   forms?: Prisma.FormUpdateManyWithoutThemeNestedInput
 }
 
@@ -371,13 +447,16 @@ export type FormThemeUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   forms?: Prisma.FormUncheckedUpdateManyWithoutThemeNestedInput
@@ -388,13 +467,16 @@ export type FormThemeCreateManyInput = {
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
-  createdById?: string | null
+  userId?: string | null
+  workspaceId?: string | null
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -404,12 +486,14 @@ export type FormThemeUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -419,13 +503,16 @@ export type FormThemeUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -450,15 +537,22 @@ export type FormThemeCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  thumbnail?: Prisma.SortOrder
   isBuiltIn?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   colors?: Prisma.SortOrder
   typography?: Prisma.SortOrder
   layout?: Prisma.SortOrder
+  buttons?: Prisma.SortOrder
+  inputFields?: Prisma.SortOrder
+  usageCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type FormThemeAvgOrderByAggregateInput = {
+  usageCount?: Prisma.SortOrder
 }
 
 export type FormThemeMaxOrderByAggregateInput = {
@@ -466,10 +560,11 @@ export type FormThemeMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  thumbnail?: Prisma.SortOrder
   isBuiltIn?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
+  usageCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -479,53 +574,100 @@ export type FormThemeMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   category?: Prisma.SortOrder
-  thumbnail?: Prisma.SortOrder
   isBuiltIn?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
+  usageCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
-export type FormThemeCreateNestedManyWithoutCreatedByInput = {
-  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutCreatedByInput, Prisma.FormThemeUncheckedCreateWithoutCreatedByInput> | Prisma.FormThemeCreateWithoutCreatedByInput[] | Prisma.FormThemeUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutCreatedByInput | Prisma.FormThemeCreateOrConnectWithoutCreatedByInput[]
-  createMany?: Prisma.FormThemeCreateManyCreatedByInputEnvelope
+export type FormThemeSumOrderByAggregateInput = {
+  usageCount?: Prisma.SortOrder
+}
+
+export type FormThemeCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutUserInput, Prisma.FormThemeUncheckedCreateWithoutUserInput> | Prisma.FormThemeCreateWithoutUserInput[] | Prisma.FormThemeUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutUserInput | Prisma.FormThemeCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.FormThemeCreateManyUserInputEnvelope
   connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
 }
 
-export type FormThemeUncheckedCreateNestedManyWithoutCreatedByInput = {
-  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutCreatedByInput, Prisma.FormThemeUncheckedCreateWithoutCreatedByInput> | Prisma.FormThemeCreateWithoutCreatedByInput[] | Prisma.FormThemeUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutCreatedByInput | Prisma.FormThemeCreateOrConnectWithoutCreatedByInput[]
-  createMany?: Prisma.FormThemeCreateManyCreatedByInputEnvelope
+export type FormThemeUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutUserInput, Prisma.FormThemeUncheckedCreateWithoutUserInput> | Prisma.FormThemeCreateWithoutUserInput[] | Prisma.FormThemeUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutUserInput | Prisma.FormThemeCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.FormThemeCreateManyUserInputEnvelope
   connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
 }
 
-export type FormThemeUpdateManyWithoutCreatedByNestedInput = {
-  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutCreatedByInput, Prisma.FormThemeUncheckedCreateWithoutCreatedByInput> | Prisma.FormThemeCreateWithoutCreatedByInput[] | Prisma.FormThemeUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutCreatedByInput | Prisma.FormThemeCreateOrConnectWithoutCreatedByInput[]
-  upsert?: Prisma.FormThemeUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.FormThemeUpsertWithWhereUniqueWithoutCreatedByInput[]
-  createMany?: Prisma.FormThemeCreateManyCreatedByInputEnvelope
+export type FormThemeUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutUserInput, Prisma.FormThemeUncheckedCreateWithoutUserInput> | Prisma.FormThemeCreateWithoutUserInput[] | Prisma.FormThemeUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutUserInput | Prisma.FormThemeCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.FormThemeUpsertWithWhereUniqueWithoutUserInput | Prisma.FormThemeUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.FormThemeCreateManyUserInputEnvelope
   set?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
   disconnect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
   delete?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
   connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
-  update?: Prisma.FormThemeUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.FormThemeUpdateWithWhereUniqueWithoutCreatedByInput[]
-  updateMany?: Prisma.FormThemeUpdateManyWithWhereWithoutCreatedByInput | Prisma.FormThemeUpdateManyWithWhereWithoutCreatedByInput[]
+  update?: Prisma.FormThemeUpdateWithWhereUniqueWithoutUserInput | Prisma.FormThemeUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.FormThemeUpdateManyWithWhereWithoutUserInput | Prisma.FormThemeUpdateManyWithWhereWithoutUserInput[]
   deleteMany?: Prisma.FormThemeScalarWhereInput | Prisma.FormThemeScalarWhereInput[]
 }
 
-export type FormThemeUncheckedUpdateManyWithoutCreatedByNestedInput = {
-  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutCreatedByInput, Prisma.FormThemeUncheckedCreateWithoutCreatedByInput> | Prisma.FormThemeCreateWithoutCreatedByInput[] | Prisma.FormThemeUncheckedCreateWithoutCreatedByInput[]
-  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutCreatedByInput | Prisma.FormThemeCreateOrConnectWithoutCreatedByInput[]
-  upsert?: Prisma.FormThemeUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.FormThemeUpsertWithWhereUniqueWithoutCreatedByInput[]
-  createMany?: Prisma.FormThemeCreateManyCreatedByInputEnvelope
+export type FormThemeUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutUserInput, Prisma.FormThemeUncheckedCreateWithoutUserInput> | Prisma.FormThemeCreateWithoutUserInput[] | Prisma.FormThemeUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutUserInput | Prisma.FormThemeCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.FormThemeUpsertWithWhereUniqueWithoutUserInput | Prisma.FormThemeUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.FormThemeCreateManyUserInputEnvelope
   set?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
   disconnect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
   delete?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
   connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
-  update?: Prisma.FormThemeUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.FormThemeUpdateWithWhereUniqueWithoutCreatedByInput[]
-  updateMany?: Prisma.FormThemeUpdateManyWithWhereWithoutCreatedByInput | Prisma.FormThemeUpdateManyWithWhereWithoutCreatedByInput[]
+  update?: Prisma.FormThemeUpdateWithWhereUniqueWithoutUserInput | Prisma.FormThemeUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.FormThemeUpdateManyWithWhereWithoutUserInput | Prisma.FormThemeUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.FormThemeScalarWhereInput | Prisma.FormThemeScalarWhereInput[]
+}
+
+export type FormThemeCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutWorkspaceInput, Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput> | Prisma.FormThemeCreateWithoutWorkspaceInput[] | Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput | Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.FormThemeCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+}
+
+export type FormThemeUncheckedCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutWorkspaceInput, Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput> | Prisma.FormThemeCreateWithoutWorkspaceInput[] | Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput | Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.FormThemeCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+}
+
+export type FormThemeUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutWorkspaceInput, Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput> | Prisma.FormThemeCreateWithoutWorkspaceInput[] | Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput | Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.FormThemeUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.FormThemeUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.FormThemeCreateManyWorkspaceInputEnvelope
+  set?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  disconnect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  delete?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  update?: Prisma.FormThemeUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.FormThemeUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.FormThemeUpdateManyWithWhereWithoutWorkspaceInput | Prisma.FormThemeUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.FormThemeScalarWhereInput | Prisma.FormThemeScalarWhereInput[]
+}
+
+export type FormThemeUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.FormThemeCreateWithoutWorkspaceInput, Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput> | Prisma.FormThemeCreateWithoutWorkspaceInput[] | Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput | Prisma.FormThemeCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.FormThemeUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.FormThemeUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.FormThemeCreateManyWorkspaceInputEnvelope
+  set?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  disconnect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  delete?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  connect?: Prisma.FormThemeWhereUniqueInput | Prisma.FormThemeWhereUniqueInput[]
+  update?: Prisma.FormThemeUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.FormThemeUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.FormThemeUpdateManyWithWhereWithoutWorkspaceInput | Prisma.FormThemeUpdateManyWithWhereWithoutWorkspaceInput[]
   deleteMany?: Prisma.FormThemeScalarWhereInput | Prisma.FormThemeScalarWhereInput[]
 }
 
@@ -545,62 +687,68 @@ export type FormThemeUpdateOneWithoutFormsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FormThemeUpdateToOneWithWhereWithoutFormsInput, Prisma.FormThemeUpdateWithoutFormsInput>, Prisma.FormThemeUncheckedUpdateWithoutFormsInput>
 }
 
-export type FormThemeCreateWithoutCreatedByInput = {
+export type FormThemeCreateWithoutUserInput = {
   id?: string
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutThemesInput
   forms?: Prisma.FormCreateNestedManyWithoutThemeInput
 }
 
-export type FormThemeUncheckedCreateWithoutCreatedByInput = {
+export type FormThemeUncheckedCreateWithoutUserInput = {
   id?: string
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
+  workspaceId?: string | null
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutThemeInput
 }
 
-export type FormThemeCreateOrConnectWithoutCreatedByInput = {
+export type FormThemeCreateOrConnectWithoutUserInput = {
   where: Prisma.FormThemeWhereUniqueInput
-  create: Prisma.XOR<Prisma.FormThemeCreateWithoutCreatedByInput, Prisma.FormThemeUncheckedCreateWithoutCreatedByInput>
+  create: Prisma.XOR<Prisma.FormThemeCreateWithoutUserInput, Prisma.FormThemeUncheckedCreateWithoutUserInput>
 }
 
-export type FormThemeCreateManyCreatedByInputEnvelope = {
-  data: Prisma.FormThemeCreateManyCreatedByInput | Prisma.FormThemeCreateManyCreatedByInput[]
+export type FormThemeCreateManyUserInputEnvelope = {
+  data: Prisma.FormThemeCreateManyUserInput | Prisma.FormThemeCreateManyUserInput[]
   skipDuplicates?: boolean
 }
 
-export type FormThemeUpsertWithWhereUniqueWithoutCreatedByInput = {
+export type FormThemeUpsertWithWhereUniqueWithoutUserInput = {
   where: Prisma.FormThemeWhereUniqueInput
-  update: Prisma.XOR<Prisma.FormThemeUpdateWithoutCreatedByInput, Prisma.FormThemeUncheckedUpdateWithoutCreatedByInput>
-  create: Prisma.XOR<Prisma.FormThemeCreateWithoutCreatedByInput, Prisma.FormThemeUncheckedCreateWithoutCreatedByInput>
+  update: Prisma.XOR<Prisma.FormThemeUpdateWithoutUserInput, Prisma.FormThemeUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.FormThemeCreateWithoutUserInput, Prisma.FormThemeUncheckedCreateWithoutUserInput>
 }
 
-export type FormThemeUpdateWithWhereUniqueWithoutCreatedByInput = {
+export type FormThemeUpdateWithWhereUniqueWithoutUserInput = {
   where: Prisma.FormThemeWhereUniqueInput
-  data: Prisma.XOR<Prisma.FormThemeUpdateWithoutCreatedByInput, Prisma.FormThemeUncheckedUpdateWithoutCreatedByInput>
+  data: Prisma.XOR<Prisma.FormThemeUpdateWithoutUserInput, Prisma.FormThemeUncheckedUpdateWithoutUserInput>
 }
 
-export type FormThemeUpdateManyWithWhereWithoutCreatedByInput = {
+export type FormThemeUpdateManyWithWhereWithoutUserInput = {
   where: Prisma.FormThemeScalarWhereInput
-  data: Prisma.XOR<Prisma.FormThemeUpdateManyMutationInput, Prisma.FormThemeUncheckedUpdateManyWithoutCreatedByInput>
+  data: Prisma.XOR<Prisma.FormThemeUpdateManyMutationInput, Prisma.FormThemeUncheckedUpdateManyWithoutUserInput>
 }
 
 export type FormThemeScalarWhereInput = {
@@ -611,15 +759,82 @@ export type FormThemeScalarWhereInput = {
   name?: Prisma.StringFilter<"FormTheme"> | string
   description?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   category?: Prisma.StringNullableFilter<"FormTheme"> | string | null
-  thumbnail?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   isBuiltIn?: Prisma.BoolFilter<"FormTheme"> | boolean
   isPublic?: Prisma.BoolFilter<"FormTheme"> | boolean
-  createdById?: Prisma.StringNullableFilter<"FormTheme"> | string | null
+  userId?: Prisma.StringNullableFilter<"FormTheme"> | string | null
+  workspaceId?: Prisma.StringNullableFilter<"FormTheme"> | string | null
   colors?: Prisma.JsonFilter<"FormTheme">
   typography?: Prisma.JsonFilter<"FormTheme">
   layout?: Prisma.JsonFilter<"FormTheme">
+  buttons?: Prisma.JsonFilter<"FormTheme">
+  inputFields?: Prisma.JsonFilter<"FormTheme">
+  usageCount?: Prisma.IntFilter<"FormTheme"> | number
   createdAt?: Prisma.DateTimeFilter<"FormTheme"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormTheme"> | Date | string
+}
+
+export type FormThemeCreateWithoutWorkspaceInput = {
+  id?: string
+  name: string
+  description?: string | null
+  category?: string | null
+  isBuiltIn?: boolean
+  isPublic?: boolean
+  colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutThemesInput
+  forms?: Prisma.FormCreateNestedManyWithoutThemeInput
+}
+
+export type FormThemeUncheckedCreateWithoutWorkspaceInput = {
+  id?: string
+  name: string
+  description?: string | null
+  category?: string | null
+  isBuiltIn?: boolean
+  isPublic?: boolean
+  userId?: string | null
+  colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  forms?: Prisma.FormUncheckedCreateNestedManyWithoutThemeInput
+}
+
+export type FormThemeCreateOrConnectWithoutWorkspaceInput = {
+  where: Prisma.FormThemeWhereUniqueInput
+  create: Prisma.XOR<Prisma.FormThemeCreateWithoutWorkspaceInput, Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type FormThemeCreateManyWorkspaceInputEnvelope = {
+  data: Prisma.FormThemeCreateManyWorkspaceInput | Prisma.FormThemeCreateManyWorkspaceInput[]
+  skipDuplicates?: boolean
+}
+
+export type FormThemeUpsertWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.FormThemeWhereUniqueInput
+  update: Prisma.XOR<Prisma.FormThemeUpdateWithoutWorkspaceInput, Prisma.FormThemeUncheckedUpdateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.FormThemeCreateWithoutWorkspaceInput, Prisma.FormThemeUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type FormThemeUpdateWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.FormThemeWhereUniqueInput
+  data: Prisma.XOR<Prisma.FormThemeUpdateWithoutWorkspaceInput, Prisma.FormThemeUncheckedUpdateWithoutWorkspaceInput>
+}
+
+export type FormThemeUpdateManyWithWhereWithoutWorkspaceInput = {
+  where: Prisma.FormThemeScalarWhereInput
+  data: Prisma.XOR<Prisma.FormThemeUpdateManyMutationInput, Prisma.FormThemeUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
 export type FormThemeCreateWithoutFormsInput = {
@@ -627,15 +842,18 @@ export type FormThemeCreateWithoutFormsInput = {
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedThemesInput
+  user?: Prisma.UserCreateNestedOneWithoutThemesInput
+  workspace?: Prisma.WorkspaceCreateNestedOneWithoutThemesInput
 }
 
 export type FormThemeUncheckedCreateWithoutFormsInput = {
@@ -643,13 +861,16 @@ export type FormThemeUncheckedCreateWithoutFormsInput = {
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
-  createdById?: string | null
+  userId?: string | null
+  workspaceId?: string | null
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -675,15 +896,18 @@ export type FormThemeUpdateWithoutFormsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneWithoutCreatedThemesNestedInput
+  user?: Prisma.UserUpdateOneWithoutThemesNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneWithoutThemesNestedInput
 }
 
 export type FormThemeUncheckedUpdateWithoutFormsInput = {
@@ -691,75 +915,164 @@ export type FormThemeUncheckedUpdateWithoutFormsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type FormThemeCreateManyCreatedByInput = {
+export type FormThemeCreateManyUserInput = {
   id?: string
   name: string
   description?: string | null
   category?: string | null
-  thumbnail?: string | null
   isBuiltIn?: boolean
   isPublic?: boolean
+  workspaceId?: string | null
   colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type FormThemeUpdateWithoutCreatedByInput = {
+export type FormThemeUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneWithoutThemesNestedInput
   forms?: Prisma.FormUpdateManyWithoutThemeNestedInput
 }
 
-export type FormThemeUncheckedUpdateWithoutCreatedByInput = {
+export type FormThemeUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   forms?: Prisma.FormUncheckedUpdateManyWithoutThemeNestedInput
 }
 
-export type FormThemeUncheckedUpdateManyWithoutCreatedByInput = {
+export type FormThemeUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  thumbnail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FormThemeCreateManyWorkspaceInput = {
+  id?: string
+  name: string
+  description?: string | null
+  category?: string | null
+  isBuiltIn?: boolean
+  isPublic?: boolean
+  userId?: string | null
+  colors: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  typography: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  layout: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FormThemeUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutThemesNestedInput
+  forms?: Prisma.FormUpdateManyWithoutThemeNestedInput
+}
+
+export type FormThemeUncheckedUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  forms?: Prisma.FormUncheckedUpdateManyWithoutThemeNestedInput
+}
+
+export type FormThemeUncheckedUpdateManyWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isBuiltIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  colors?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  typography?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  layout?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  buttons?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  inputFields?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  usageCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -800,16 +1113,20 @@ export type FormThemeSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   name?: boolean
   description?: boolean
   category?: boolean
-  thumbnail?: boolean
   isBuiltIn?: boolean
   isPublic?: boolean
-  createdById?: boolean
+  userId?: boolean
+  workspaceId?: boolean
   colors?: boolean
   typography?: boolean
   layout?: boolean
+  buttons?: boolean
+  inputFields?: boolean
+  usageCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdBy?: boolean | Prisma.FormTheme$createdByArgs<ExtArgs>
+  user?: boolean | Prisma.FormTheme$userArgs<ExtArgs>
+  workspace?: boolean | Prisma.FormTheme$workspaceArgs<ExtArgs>
   forms?: boolean | Prisma.FormTheme$formsArgs<ExtArgs>
   _count?: boolean | Prisma.FormThemeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["formTheme"]>
@@ -819,16 +1136,20 @@ export type FormThemeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   description?: boolean
   category?: boolean
-  thumbnail?: boolean
   isBuiltIn?: boolean
   isPublic?: boolean
-  createdById?: boolean
+  userId?: boolean
+  workspaceId?: boolean
   colors?: boolean
   typography?: boolean
   layout?: boolean
+  buttons?: boolean
+  inputFields?: boolean
+  usageCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdBy?: boolean | Prisma.FormTheme$createdByArgs<ExtArgs>
+  user?: boolean | Prisma.FormTheme$userArgs<ExtArgs>
+  workspace?: boolean | Prisma.FormTheme$workspaceArgs<ExtArgs>
 }, ExtArgs["result"]["formTheme"]>
 
 export type FormThemeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -836,16 +1157,20 @@ export type FormThemeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   name?: boolean
   description?: boolean
   category?: boolean
-  thumbnail?: boolean
   isBuiltIn?: boolean
   isPublic?: boolean
-  createdById?: boolean
+  userId?: boolean
+  workspaceId?: boolean
   colors?: boolean
   typography?: boolean
   layout?: boolean
+  buttons?: boolean
+  inputFields?: boolean
+  usageCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  createdBy?: boolean | Prisma.FormTheme$createdByArgs<ExtArgs>
+  user?: boolean | Prisma.FormTheme$userArgs<ExtArgs>
+  workspace?: boolean | Prisma.FormTheme$workspaceArgs<ExtArgs>
 }, ExtArgs["result"]["formTheme"]>
 
 export type FormThemeSelectScalar = {
@@ -853,34 +1178,41 @@ export type FormThemeSelectScalar = {
   name?: boolean
   description?: boolean
   category?: boolean
-  thumbnail?: boolean
   isBuiltIn?: boolean
   isPublic?: boolean
-  createdById?: boolean
+  userId?: boolean
+  workspaceId?: boolean
   colors?: boolean
   typography?: boolean
   layout?: boolean
+  buttons?: boolean
+  inputFields?: boolean
+  usageCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FormThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "category" | "thumbnail" | "isBuiltIn" | "isPublic" | "createdById" | "colors" | "typography" | "layout" | "createdAt" | "updatedAt", ExtArgs["result"]["formTheme"]>
+export type FormThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "category" | "isBuiltIn" | "isPublic" | "userId" | "workspaceId" | "colors" | "typography" | "layout" | "buttons" | "inputFields" | "usageCount" | "createdAt" | "updatedAt", ExtArgs["result"]["formTheme"]>
 export type FormThemeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.FormTheme$createdByArgs<ExtArgs>
+  user?: boolean | Prisma.FormTheme$userArgs<ExtArgs>
+  workspace?: boolean | Prisma.FormTheme$workspaceArgs<ExtArgs>
   forms?: boolean | Prisma.FormTheme$formsArgs<ExtArgs>
   _count?: boolean | Prisma.FormThemeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FormThemeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.FormTheme$createdByArgs<ExtArgs>
+  user?: boolean | Prisma.FormTheme$userArgs<ExtArgs>
+  workspace?: boolean | Prisma.FormTheme$workspaceArgs<ExtArgs>
 }
 export type FormThemeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.FormTheme$createdByArgs<ExtArgs>
+  user?: boolean | Prisma.FormTheme$userArgs<ExtArgs>
+  workspace?: boolean | Prisma.FormTheme$workspaceArgs<ExtArgs>
 }
 
 export type $FormThemePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FormTheme"
   objects: {
-    createdBy: Prisma.$UserPayload<ExtArgs> | null
+    user: Prisma.$UserPayload<ExtArgs> | null
+    workspace: Prisma.$WorkspacePayload<ExtArgs> | null
     forms: Prisma.$FormPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -888,13 +1220,16 @@ export type $FormThemePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     name: string
     description: string | null
     category: string | null
-    thumbnail: string | null
     isBuiltIn: boolean
     isPublic: boolean
-    createdById: string | null
+    userId: string | null
+    workspaceId: string | null
     colors: runtime.JsonValue
     typography: runtime.JsonValue
     layout: runtime.JsonValue
+    buttons: runtime.JsonValue
+    inputFields: runtime.JsonValue
+    usageCount: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["formTheme"]>
@@ -1291,7 +1626,8 @@ readonly fields: FormThemeFieldRefs;
  */
 export interface Prisma__FormThemeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  createdBy<T extends Prisma.FormTheme$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FormTheme$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.FormTheme$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FormTheme$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  workspace<T extends Prisma.FormTheme$workspaceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FormTheme$workspaceArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   forms<T extends Prisma.FormTheme$formsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FormTheme$formsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1326,13 +1662,16 @@ export interface FormThemeFieldRefs {
   readonly name: Prisma.FieldRef<"FormTheme", 'String'>
   readonly description: Prisma.FieldRef<"FormTheme", 'String'>
   readonly category: Prisma.FieldRef<"FormTheme", 'String'>
-  readonly thumbnail: Prisma.FieldRef<"FormTheme", 'String'>
   readonly isBuiltIn: Prisma.FieldRef<"FormTheme", 'Boolean'>
   readonly isPublic: Prisma.FieldRef<"FormTheme", 'Boolean'>
-  readonly createdById: Prisma.FieldRef<"FormTheme", 'String'>
+  readonly userId: Prisma.FieldRef<"FormTheme", 'String'>
+  readonly workspaceId: Prisma.FieldRef<"FormTheme", 'String'>
   readonly colors: Prisma.FieldRef<"FormTheme", 'Json'>
   readonly typography: Prisma.FieldRef<"FormTheme", 'Json'>
   readonly layout: Prisma.FieldRef<"FormTheme", 'Json'>
+  readonly buttons: Prisma.FieldRef<"FormTheme", 'Json'>
+  readonly inputFields: Prisma.FieldRef<"FormTheme", 'Json'>
+  readonly usageCount: Prisma.FieldRef<"FormTheme", 'Int'>
   readonly createdAt: Prisma.FieldRef<"FormTheme", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FormTheme", 'DateTime'>
 }
@@ -1731,9 +2070,9 @@ export type FormThemeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * FormTheme.createdBy
+ * FormTheme.user
  */
-export type FormTheme$createdByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type FormTheme$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the User
    */
@@ -1747,6 +2086,25 @@ export type FormTheme$createdByArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * FormTheme.workspace
+ */
+export type FormTheme$workspaceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Workspace
+   */
+  select?: Prisma.WorkspaceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Workspace
+   */
+  omit?: Prisma.WorkspaceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkspaceInclude<ExtArgs> | null
+  where?: Prisma.WorkspaceWhereInput
 }
 
 /**

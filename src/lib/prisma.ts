@@ -163,11 +163,20 @@ export async function getFormHeaderByFormSlug(slug: string) {
         publishedAt: true,
         updatedAt: true,
         headerImageUrl: true,
+        workspaceId: true, // Added for workspace operations
         // Form Settings
         closeDate: true,
         responseLimit: true,
         oneResponsePerUser: true,
         thankYouMessage: true,
+        // Workspace info for navigation
+        workspace: {
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+          },
+        },
       },
     });
   } catch (error) {
@@ -672,7 +681,7 @@ export async function updateSection(
   sectionId: string,
   data: {
     title?: string;
-    description?: string;
+    description?: string | null;
     nextSectionLogic?: any;
   }
 ): Promise<Section> {
@@ -1415,7 +1424,25 @@ export async function createField(
     });
 
     // Map frontend field type to Prisma FieldType enum
+    // Support both kebab-case (old) and UPPERCASE (Prisma enum)
     const fieldTypeMap: Record<string, string> = {
+      // Prisma enum format (UPPERCASE_SNAKE_CASE)
+      SHORT_ANSWER: "SHORT_ANSWER",
+      PARAGRAPH: "PARAGRAPH",
+      EMAIL: "EMAIL",
+      PHONE: "PHONE",
+      URL: "URL",
+      NUMBER: "NUMBER",
+      MULTIPLE_CHOICE: "MULTIPLE_CHOICE",
+      CHECKBOXES: "CHECKBOXES",
+      DROPDOWN: "DROPDOWN",
+      RATING: "RATING",
+      LINEAR_SCALE: "LINEAR_SCALE",
+      DATE: "DATE",
+      TIME: "TIME",
+      DATE_RANGE: "DATE_RANGE",
+      FILE_UPLOAD: "FILE_UPLOAD",
+      // Legacy kebab-case format for backwards compatibility
       "short-answer": "SHORT_ANSWER",
       paragraph: "PARAGRAPH",
       email: "EMAIL",
@@ -1437,14 +1464,14 @@ export async function createField(
 
     // Default question based on field type
     const defaultQuestion =
-      question || `Untitled ${fieldType.replace(/-/g, " ")}`;
+      question || `Untitled ${fieldType.replace(/-|_/g, " ")}`;
 
     // Create default options for choice fields
     let defaultOptions = null;
     if (
-      fieldType === "multiple-choice" ||
-      fieldType === "checkboxes" ||
-      fieldType === "dropdown"
+      prismaFieldType === "MULTIPLE_CHOICE" ||
+      prismaFieldType === "CHECKBOXES" ||
+      prismaFieldType === "DROPDOWN"
     ) {
       defaultOptions = [
         { id: "opt-1", label: "Option 1", value: "option_1", default: false },
@@ -1461,10 +1488,13 @@ export async function createField(
         type: prismaFieldType as any,
         required: false,
         order: lastField ? lastField.order + 1 : 1,
-        options: defaultOptions,
+        options: defaultOptions as any,
         // Set defaults based on field type
-        ...(fieldType === "rating" && { maxRating: 5, ratingStyle: "stars" }),
-        ...(fieldType === "linear-scale" && {
+        ...(prismaFieldType === "RATING" && {
+          maxRating: 5,
+          ratingStyle: "stars",
+        }),
+        ...(prismaFieldType === "LINEAR_SCALE" && {
           min: 1,
           max: 5,
           minLabel: "Not satisfied",
@@ -1498,7 +1528,7 @@ export async function updateField(
     return await prisma.field.update({
       where: { id: fieldId },
       data: {
-        ...data,
+        ...(data as any), // Type assertion needed for JsonValue fields
         updatedAt: new Date(),
       },
     });
@@ -1665,5 +1695,906 @@ export async function moveFieldToSection(
   } catch (error) {
     console.error("Failed to move field to section:", error);
     throw new Error("Failed to move field to section");
+  }
+}
+
+// ==================== THEME OPERATIONS ====================
+
+/**
+ * Get all built-in themes
+ */
+export async function getBuiltInThemes() {
+  try {
+    return await prisma.formTheme.findMany({
+      where: { isBuiltIn: true },
+      orderBy: { name: "asc" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch built-in themes:", error);
+    throw new Error("Failed to fetch built-in themes");
+  }
+}
+
+/**
+ * Get all themes for a specific user
+ */
+export async function getUserThemes(userId: string) {
+  try {
+    return await prisma.formTheme.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch user themes:", error);
+    throw new Error("Failed to fetch user themes");
+  }
+}
+
+/**
+ * Get all themes for a workspace (including built-in)
+ */
+export async function getWorkspaceThemes(workspaceId: string) {
+  try {
+    return await prisma.formTheme.findMany({
+      where: {
+        OR: [{ workspaceId }, { isBuiltIn: true }],
+      },
+      orderBy: [{ isBuiltIn: "desc" }, { createdAt: "desc" }],
+    });
+  } catch (error) {
+    console.error("Failed to fetch workspace themes:", error);
+    throw new Error("Failed to fetch workspace themes");
+  }
+}
+
+/**
+ * Get a single theme by ID
+ */
+export async function getThemeById(themeId: string) {
+  try {
+    return await prisma.formTheme.findUnique({
+      where: { id: themeId },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true },
+        },
+        workspace: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch theme:", error);
+    throw new Error("Failed to fetch theme");
+  }
+}
+
+/**
+ * Create a new custom theme
+ */
+export async function createTheme(data: {
+  name: string;
+  description?: string;
+  category?: string;
+  userId?: string;
+  workspaceId?: string;
+  colors: any;
+  typography: any;
+  layout: any;
+  buttons: any;
+  inputFields: any;
+}) {
+  try {
+    return await prisma.formTheme.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        category: data.category || "custom",
+        userId: data.userId,
+        workspaceId: data.workspaceId,
+        colors: data.colors,
+        typography: data.typography,
+        layout: data.layout,
+        buttons: data.buttons,
+        inputFields: data.inputFields,
+        isBuiltIn: false,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to create theme:", error);
+    throw new Error("Failed to create theme");
+  }
+}
+
+/**
+ * Update an existing theme
+ */
+export async function updateTheme(
+  themeId: string,
+  data: {
+    name?: string;
+    description?: string;
+    category?: string;
+    colors?: any;
+    typography?: any;
+    layout?: any;
+    buttons?: any;
+    inputFields?: any;
+  }
+) {
+  try {
+    return await prisma.formTheme.update({
+      where: { id: themeId },
+      data: {
+        ...data,
+        updatedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error("Failed to update theme:", error);
+    throw new Error("Failed to update theme");
+  }
+}
+
+/**
+ * Delete a custom theme
+ */
+export async function deleteTheme(themeId: string) {
+  try {
+    // Check if theme is built-in
+    const theme = await prisma.formTheme.findUnique({
+      where: { id: themeId },
+      select: { isBuiltIn: true },
+    });
+
+    if (theme?.isBuiltIn) {
+      throw new Error("Cannot delete built-in themes");
+    }
+
+    return await prisma.formTheme.delete({
+      where: { id: themeId },
+    });
+  } catch (error) {
+    console.error("Failed to delete theme:", error);
+    throw new Error("Failed to delete theme");
+  }
+}
+
+/**
+ * Duplicate an existing theme
+ */
+export async function duplicateTheme(
+  themeId: string,
+  newName: string,
+  userId?: string,
+  workspaceId?: string
+) {
+  try {
+    const originalTheme = await prisma.formTheme.findUnique({
+      where: { id: themeId },
+    });
+
+    if (!originalTheme) {
+      throw new Error("Theme not found");
+    }
+
+    return await prisma.formTheme.create({
+      data: {
+        name: newName,
+        description: originalTheme.description,
+        category: originalTheme.category,
+        userId,
+        workspaceId,
+        colors: originalTheme.colors as any,
+        typography: originalTheme.typography as any,
+        layout: originalTheme.layout as any,
+        buttons: originalTheme.buttons as any,
+        inputFields: originalTheme.inputFields as any,
+        isBuiltIn: false,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to duplicate theme:", error);
+    throw new Error("Failed to duplicate theme");
+  }
+}
+
+/**
+ * Apply theme to a form
+ */
+export async function applyThemeToForm(formId: string, themeId: string) {
+  try {
+    // Update form with theme
+    const form = await prisma.form.update({
+      where: { id: formId },
+      data: {
+        themeId,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Increment theme usage count
+    await prisma.formTheme.update({
+      where: { id: themeId },
+      data: {
+        usageCount: { increment: 1 },
+      },
+    });
+
+    return form;
+  } catch (error) {
+    console.error("Failed to apply theme to form:", error);
+    throw new Error("Failed to apply theme to form");
+  }
+}
+
+/**
+ * Save custom theme overrides for a form
+ */
+export async function saveCustomThemeOverrides(formId: string, overrides: any) {
+  try {
+    return await prisma.form.update({
+      where: { id: formId },
+      data: {
+        customTheme: overrides,
+        updatedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error("Failed to save custom theme overrides:", error);
+    throw new Error("Failed to save custom theme overrides");
+  }
+}
+
+/**
+ * Get complete theme for a form (base theme + custom overrides merged)
+ */
+export async function getFormTheme(formId: string) {
+  try {
+    const form = await prisma.form.findUnique({
+      where: { id: formId },
+      include: {
+        theme: true,
+      },
+    });
+
+    if (!form) {
+      throw new Error("Form not found");
+    }
+
+    // If no theme selected, return null
+    if (!form.theme) {
+      return null;
+    }
+
+    // Merge base theme with custom overrides
+    const baseTheme = form.theme;
+    const customOverrides = form.customTheme as any;
+
+    if (!customOverrides) {
+      return baseTheme;
+    }
+
+    // Deep merge the theme with overrides
+    const colors = baseTheme.colors as any;
+    const typography = baseTheme.typography as any;
+    const layout = baseTheme.layout as any;
+    const buttons = baseTheme.buttons as any;
+    const inputFields = baseTheme.inputFields as any;
+
+    return {
+      ...baseTheme,
+      colors: { ...colors, ...(customOverrides.colors || {}) },
+      typography: { ...typography, ...(customOverrides.typography || {}) },
+      layout: { ...layout, ...(customOverrides.layout || {}) },
+      buttons: { ...buttons, ...(customOverrides.buttons || {}) },
+      inputFields: { ...inputFields, ...(customOverrides.inputFields || {}) },
+    };
+  } catch (error) {
+    console.error("Failed to get form theme:", error);
+    throw new Error("Failed to get form theme");
+  }
+}
+
+/**
+ * Reset form theme (remove theme and custom overrides)
+ */
+export async function resetFormTheme(formId: string) {
+  try {
+    return await prisma.form.update({
+      where: { id: formId },
+      data: {
+        themeId: null,
+        customTheme: null as any,
+        updatedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error("Failed to reset form theme:", error);
+    throw new Error("Failed to reset form theme");
+  }
+}
+
+/**
+ * Export theme to JSON format
+ */
+export async function exportTheme(themeId: string) {
+  try {
+    const theme = await prisma.formTheme.findUnique({
+      where: { id: themeId },
+      include: {
+        user: {
+          select: { name: true },
+        },
+      },
+    });
+
+    if (!theme) {
+      throw new Error("Theme not found");
+    }
+
+    return {
+      version: "1.0",
+      exportedAt: new Date().toISOString(),
+      theme: {
+        name: theme.name,
+        description: theme.description || "",
+        category: theme.category,
+        colors: theme.colors,
+        typography: theme.typography,
+        layout: theme.layout,
+        buttons: theme.buttons,
+        inputFields: theme.inputFields,
+      },
+      metadata: {
+        author: theme.user?.name || "Fomi",
+        exportedBy: theme.user?.name || "System",
+      },
+    };
+  } catch (error) {
+    console.error("Failed to export theme:", error);
+    throw new Error("Failed to export theme");
+  }
+}
+
+/**
+ * Import theme from JSON format
+ */
+export async function importTheme(
+  jsonData: any,
+  userId?: string,
+  workspaceId?: string
+) {
+  try {
+    // Validate the import format
+    if (jsonData.version !== "1.0") {
+      throw new Error("Unsupported theme version");
+    }
+
+    if (!jsonData.theme) {
+      throw new Error("Invalid theme format");
+    }
+
+    const themeData = jsonData.theme;
+
+    // Create new theme from imported data
+    return await prisma.formTheme.create({
+      data: {
+        name: themeData.name,
+        description: themeData.description,
+        category: themeData.category || "custom",
+        userId,
+        workspaceId,
+        colors: themeData.colors,
+        typography: themeData.typography,
+        layout: themeData.layout,
+        buttons: themeData.buttons,
+        inputFields: themeData.inputFields,
+        isBuiltIn: false,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to import theme:", error);
+    throw new Error("Failed to import theme");
+  }
+}
+
+// ============================================================================
+// WORKSPACE CRUD FUNCTIONS
+// ============================================================================
+
+/**
+ * Create a new workspace
+ * @param userId - ID of the user creating the workspace
+ * @param name - Workspace name
+ * @param description - Optional workspace description
+ * @returns Newly created workspace
+ */
+export async function createWorkspace(
+  userId: string,
+  name: string,
+  description?: string
+) {
+  try {
+    // Generate unique slug from name
+    const baseSlug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Ensure slug is unique
+    while (await prisma.workspace.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    // Create workspace and add creator as admin in a transaction
+    const workspace = await prisma.$transaction(async (tx) => {
+      const newWorkspace = await tx.workspace.create({
+        data: {
+          name,
+          slug,
+          description: description || "",
+          plan: "FREE",
+        },
+      });
+
+      // Add creator as admin member
+      await tx.workspaceMember.create({
+        data: {
+          workspaceId: newWorkspace.id,
+          userId,
+          role: "ADMIN",
+        },
+      });
+
+      // Create notification for workspace creation
+      await tx.notification.create({
+        data: {
+          userId,
+          type: "WORKSPACE_CREATED",
+          title: "Workspace Created",
+          message: `Your workspace "${name}" has been created successfully.`,
+          metadata: {
+            workspaceId: newWorkspace.id,
+            slug,
+          },
+        },
+      });
+
+      return newWorkspace;
+    });
+
+    return workspace;
+  } catch (error) {
+    console.error("Failed to create workspace:", error);
+    throw new Error("Failed to create workspace");
+  }
+}
+
+/**
+ * Get all workspaces for a user
+ * @param userId - ID of the user
+ * @returns Array of workspaces the user is a member of
+ */
+export async function getUserWorkspaces(userId: string) {
+  try {
+    const memberships = await prisma.workspaceMember.findMany({
+      where: { userId },
+      include: {
+        workspace: {
+          include: {
+            _count: {
+              select: {
+                forms: true,
+                members: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        joinedAt: "desc",
+      },
+    });
+
+    return memberships.map((m) => ({
+      ...m.workspace,
+      role: m.role,
+      joinedAt: m.joinedAt,
+      formsCount: m.workspace._count.forms,
+      membersCount: m.workspace._count.members,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch user workspaces:", error);
+    throw new Error("Failed to fetch workspaces");
+  }
+}
+
+/**
+ * Get workspace by ID
+ * @param workspaceId - Workspace ID
+ * @param userId - User ID to verify membership
+ * @returns Workspace with details
+ */
+export async function getWorkspaceById(workspaceId: string, userId: string) {
+  try {
+    // Verify user is a member
+    const member = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId,
+        },
+      },
+    });
+
+    if (!member) {
+      throw new Error("User is not a member of this workspace");
+    }
+
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            forms: true,
+            invitations: true,
+          },
+        },
+      },
+    });
+
+    if (!workspace) {
+      throw new Error("Workspace not found");
+    }
+
+    return {
+      ...workspace,
+      currentUserRole: member.role,
+    };
+  } catch (error) {
+    console.error("Failed to fetch workspace:", error);
+    throw error;
+  }
+}
+
+/**
+ * Update workspace
+ * @param workspaceId - Workspace ID
+ * @param userId - User ID (must be admin)
+ * @param updates - Fields to update
+ * @returns Updated workspace
+ */
+export async function updateWorkspace(
+  workspaceId: string,
+  userId: string,
+  updates: {
+    name?: string;
+    description?: string;
+    plan?: "FREE" | "PRO";
+  }
+) {
+  try {
+    // Verify user is admin
+    const member = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId,
+        },
+      },
+    });
+
+    if (!member || member.role !== "ADMIN") {
+      throw new Error("Only workspace admins can update workspace settings");
+    }
+
+    // If name is being updated, generate new slug
+    let slug: string | undefined;
+    if (updates.name) {
+      const baseSlug = updates.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      slug = baseSlug;
+      let counter = 1;
+
+      // Ensure slug is unique (excluding current workspace)
+      while (true) {
+        const existing = await prisma.workspace.findUnique({
+          where: { slug },
+        });
+        if (!existing || existing.id === workspaceId) break;
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+    }
+
+    const workspace = await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: {
+        ...updates,
+        ...(slug && { slug }),
+      },
+    });
+
+    return workspace;
+  } catch (error) {
+    console.error("Failed to update workspace:", error);
+    throw error;
+  }
+}
+
+/**
+ * Delete workspace
+ * @param workspaceId - Workspace ID
+ * @param userId - User ID (must be admin)
+ */
+export async function deleteWorkspace(workspaceId: string, userId: string) {
+  try {
+    // Verify user is admin
+    const member = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId,
+        },
+      },
+    });
+
+    if (!member || member.role !== "ADMIN") {
+      throw new Error("Only workspace admins can delete the workspace");
+    }
+
+    // Delete workspace (cascade will handle related records)
+    await prisma.workspace.delete({
+      where: { id: workspaceId },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete workspace:", error);
+    throw error;
+  }
+}
+
+/**
+ * Add member to workspace
+ * @param workspaceId - Workspace ID
+ * @param adminUserId - Admin user ID (must be admin)
+ * @param newMemberEmail - Email of user to add
+ * @param role - Role to assign (default: MEMBER)
+ * @returns Created workspace member
+ */
+export async function addWorkspaceMember(
+  workspaceId: string,
+  adminUserId: string,
+  newMemberEmail: string,
+  role: "ADMIN" | "MEMBER" = "MEMBER"
+) {
+  try {
+    // Verify admin user
+    const adminMember = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: adminUserId,
+        },
+      },
+    });
+
+    if (!adminMember || adminMember.role !== "ADMIN") {
+      throw new Error("Only workspace admins can add members");
+    }
+
+    // Find user by email
+    const newUser = await prisma.user.findUnique({
+      where: { email: newMemberEmail },
+    });
+
+    if (!newUser) {
+      throw new Error("User not found with this email");
+    }
+
+    // Check if already a member
+    const existingMember = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: newUser.id,
+        },
+      },
+    });
+
+    if (existingMember) {
+      throw new Error("User is already a member of this workspace");
+    }
+
+    // Add member
+    const member = await prisma.workspaceMember.create({
+      data: {
+        workspaceId,
+        userId: newUser.id,
+        role,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    // Create notification
+    await prisma.notification.create({
+      data: {
+        userId: newUser.id,
+        type: "WORKSPACE_CREATED",
+        title: "Added to Workspace",
+        message: `You've been added to a workspace.`,
+        metadata: {
+          workspaceId,
+        },
+      },
+    });
+
+    return member;
+  } catch (error) {
+    console.error("Failed to add workspace member:", error);
+    throw error;
+  }
+}
+
+/**
+ * Remove member from workspace
+ * @param workspaceId - Workspace ID
+ * @param adminUserId - Admin user ID (must be admin)
+ * @param memberUserId - User ID to remove
+ */
+export async function removeWorkspaceMember(
+  workspaceId: string,
+  adminUserId: string,
+  memberUserId: string
+) {
+  try {
+    // Verify admin user
+    const adminMember = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: adminUserId,
+        },
+      },
+    });
+
+    if (!adminMember || adminMember.role !== "ADMIN") {
+      throw new Error("Only workspace admins can remove members");
+    }
+
+    // Can't remove yourself if you're the last admin
+    if (adminUserId === memberUserId) {
+      const adminCount = await prisma.workspaceMember.count({
+        where: {
+          workspaceId,
+          role: "ADMIN",
+        },
+      });
+
+      if (adminCount <= 1) {
+        throw new Error(
+          "Cannot remove the last admin. Promote another member to admin first."
+        );
+      }
+    }
+
+    // Remove member
+    await prisma.workspaceMember.delete({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: memberUserId,
+        },
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to remove workspace member:", error);
+    throw error;
+  }
+}
+
+/**
+ * Update member role
+ * @param workspaceId - Workspace ID
+ * @param adminUserId - Admin user ID (must be admin)
+ * @param memberUserId - User ID to update
+ * @param newRole - New role to assign
+ */
+export async function updateMemberRole(
+  workspaceId: string,
+  adminUserId: string,
+  memberUserId: string,
+  newRole: "ADMIN" | "MEMBER"
+) {
+  try {
+    // Verify admin user
+    const adminMember = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: adminUserId,
+        },
+      },
+    });
+
+    if (!adminMember || adminMember.role !== "ADMIN") {
+      throw new Error("Only workspace admins can update member roles");
+    }
+
+    // If demoting yourself from admin, ensure at least one other admin exists
+    if (adminUserId === memberUserId && newRole === "MEMBER") {
+      const adminCount = await prisma.workspaceMember.count({
+        where: {
+          workspaceId,
+          role: "ADMIN",
+        },
+      });
+
+      if (adminCount <= 1) {
+        throw new Error(
+          "Cannot demote the last admin. Promote another member to admin first."
+        );
+      }
+    }
+
+    // Update role
+    const updatedMember = await prisma.workspaceMember.update({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: memberUserId,
+        },
+      },
+      data: {
+        role: newRole,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    return updatedMember;
+  } catch (error) {
+    console.error("Failed to update member role:", error);
+    throw error;
   }
 }

@@ -1,18 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Search,
   MoreVertical,
@@ -25,37 +31,37 @@ import {
   FileText,
   Eye,
   CheckCircle,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import ShareFormDialog from "@/components/forms/share-form-dialog"
-import DeleteFormDialog from "@/components/forms/delete-form-dialog"
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import ShareFormDialog from "@/components/forms/share-form-dialog";
+import DeleteFormDialog from "@/components/forms/delete-form-dialog";
 
 interface FormData {
-  id: string
-  name: string
-  slug: string
-  status: string
-  createdAt: string
-  views: number
-  completions?: number
-  submissions?: number
-  rate?: number
-  conversionRate?: number
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  createdAt: string;
+  views: number;
+  completions?: number;
+  submissions?: number;
+  rate?: number;
+  conversionRate?: number;
 }
 
 interface PaginatedFormsResult {
-  forms: FormData[]
-  totalCount: number
-  page: number
-  pageSize: number
-  totalPages: number
+  forms: FormData[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 interface FormPaginatedProps {
-  formsData: PaginatedFormsResult | null
-  isLoading: boolean
-  currentPage: number
-  onPageChange: (page: number) => void
+  formsData: PaginatedFormsResult | null;
+  isLoading: boolean;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
 const LoadingSkeleton = () => (
@@ -78,84 +84,104 @@ const LoadingSkeleton = () => (
       </div>
     ))}
   </div>
-)
+);
 
 const EmptyState = () => (
   <div className="flex flex-col items-center justify-center py-16 px-4">
     <div className="rounded-2xl bg-muted/30 p-6 mb-4">
       <FileText className="h-12 w-12 text-muted-foreground/60" />
     </div>
-    <h3 className="text-lg font-semibold text-foreground mb-2">No forms found</h3>
+    <h3 className="text-lg font-semibold text-foreground mb-2">
+      No forms found
+    </h3>
     <p className="text-sm text-muted-foreground text-center max-w-sm">
       Get started by creating your first form to collect and analyze responses.
     </p>
   </div>
-)
+);
 
-export default function FormPaginated({ formsData, isLoading, currentPage, onPageChange }: FormPaginatedProps) {
-  const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [shareDialogOpen, setShareDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedForm, setSelectedForm] = useState<FormData | null>(null)
+export default function FormPaginated({
+  formsData,
+  isLoading,
+  currentPage,
+  onPageChange,
+}: FormPaginatedProps) {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedForm, setSelectedForm] = useState<FormData | null>(null);
 
   const filteredForms =
     formsData?.forms?.filter((form) => {
-      const matchesSearch = form.name.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus = statusFilter === "all" || form.status === statusFilter
-      return matchesSearch && matchesStatus
-    }) || []
+      const matchesSearch = form.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || form.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    }) || [];
 
-  const totalPages = formsData?.totalPages || 0
-  const totalCount = formsData?.totalCount || 0
-  const pageSize = formsData?.pageSize || 10
-  const startIndex = formsData ? (formsData.page - 1) * pageSize + 1 : 0
-  const endIndex = formsData ? Math.min(formsData.page * pageSize, totalCount) : 0
+  const totalPages = formsData?.totalPages || 0;
+  const totalCount = formsData?.totalCount || 0;
+  const pageSize = formsData?.pageSize || 10;
+  const startIndex = formsData ? (formsData.page - 1) * pageSize + 1 : 0;
+  const endIndex = formsData
+    ? Math.min(formsData.page * pageSize, totalCount)
+    : 0;
 
   const handleAction = (action: string, form: FormData) => {
     switch (action) {
       case "edit":
-        router.push(`/forms/${form.slug}/edit`)
-        break
+        router.push(`/forms/${form.slug}/edit`);
+        break;
       case "analytics":
-        router.push(`/forms/${form.slug}/analytics`)
-        break
+        router.push(`/forms/${form.slug}/analytics`);
+        break;
       case "share":
-        setSelectedForm(form)
-        setShareDialogOpen(true)
-        break
+        if (form.status !== "published") {
+          // Could show a toast notification here
+          return;
+        }
+        setSelectedForm(form);
+        setShareDialogOpen(true);
+        break;
       case "delete":
-        setSelectedForm(form)
-        setDeleteDialogOpen(true)
-        break
+        setSelectedForm(form);
+        setDeleteDialogOpen(true);
+        break;
       default:
-        break
+        break;
     }
-  }
+  };
 
   const handleDeleteConfirm = async () => {
-    if (!selectedForm) return
-    setDeleteDialogOpen(false)
-    setSelectedForm(null)
-  }
+    if (!selectedForm) return;
+    setDeleteDialogOpen(false);
+    setSelectedForm(null);
+  };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
-    })
-  }
+    });
+  };
 
   return (
     <div className="px-4 sm:px-6 py-6 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Forms Overview</h2>
-          <p className="text-sm text-muted-foreground mt-1">Manage and monitor all your forms</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+            Forms Overview
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage and monitor all your forms
+          </p>
         </div>
 
         {/* Main Card */}
@@ -167,8 +193,12 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                   <FileText className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-semibold text-foreground">All Forms</CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">{totalCount} total forms</p>
+                  <CardTitle className="text-lg font-semibold text-foreground">
+                    All Forms
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {totalCount} total forms
+                  </p>
                 </div>
               </div>
 
@@ -183,7 +213,11 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                     disabled={isLoading}
                   />
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter} disabled={isLoading}>
+                <Select
+                  value={statusFilter}
+                  onValueChange={setStatusFilter}
+                  disabled={isLoading}
+                >
                   <SelectTrigger className="w-full sm:w-[140px] h-10 text-sm bg-muted/50 border-border/50">
                     <SelectValue />
                   </SelectTrigger>
@@ -219,16 +253,21 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
 
             {isLoading && <LoadingSkeleton />}
 
-            {!isLoading && (!formsData || filteredForms.length === 0) && <EmptyState />}
+            {!isLoading && (!formsData || filteredForms.length === 0) && (
+              <EmptyState />
+            )}
 
             {!isLoading && filteredForms.length > 0 && (
               <div className="divide-y divide-border/50">
                 {filteredForms.map((form) => {
-                  const completions = form.completions ?? form.submissions ?? 0
-                  const rate = form.rate ?? form.conversionRate ?? 0
+                  const completions = form.completions ?? form.submissions ?? 0;
+                  const rate = form.rate ?? form.conversionRate ?? 0;
 
                   return (
-                    <div key={form.id} className="px-4 sm:px-6 py-4 hover:bg-muted/30 transition-colors group">
+                    <div
+                      key={form.id}
+                      className="px-4 sm:px-6 py-4 hover:bg-muted/30 transition-colors group"
+                    >
                       {/* Mobile Layout */}
                       <div className="sm:hidden space-y-3">
                         <div className="flex items-start justify-between">
@@ -237,27 +276,38 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                               <FileText className="h-4 w-4 text-muted-foreground" />
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-foreground">{form.name}</p>
+                              <p className="text-sm font-semibold text-foreground">
+                                {form.name}
+                              </p>
                               <span
                                 className={cn(
                                   "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1",
                                   form.status === "published"
                                     ? "bg-success/10 text-success"
-                                    : "bg-muted text-muted-foreground",
+                                    : "bg-muted text-muted-foreground"
                                 )}
                               >
-                                {form.status === "published" ? "Published" : "Unpublished"}
+                                {form.status === "published"
+                                  ? "Published"
+                                  : "Unpublished"}
                               </span>
                             </div>
                           </div>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                              >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem onClick={() => handleAction("edit", form)} className="cursor-pointer">
+                              <DropdownMenuItem
+                                onClick={() => handleAction("edit", form)}
+                                className="cursor-pointer"
+                              >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Form
                               </DropdownMenuItem>
@@ -268,9 +318,18 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                                 <BarChart3 className="h-4 w-4 mr-2" />
                                 View Analytics
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleAction("share", form)} className="cursor-pointer">
+                              <DropdownMenuItem
+                                onClick={() => handleAction("share", form)}
+                                className="cursor-pointer"
+                                disabled={form.status !== "published"}
+                              >
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share Form
+                                {form.status !== "published" && (
+                                  <span className="text-xs text-muted-foreground ml-auto">
+                                    (Publish first)
+                                  </span>
+                                )}
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -294,7 +353,9 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                               <CheckCircle className="h-3.5 w-3.5" />
                               <span>{completions}</span>
                             </div>
-                            <span className="font-semibold text-foreground">{rate.toFixed(1)}%</span>
+                            <span className="font-semibold text-foreground">
+                              {rate.toFixed(1)}%
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -307,23 +368,29 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                             <FileText className="h-4 w-4 text-muted-foreground" />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-foreground truncate">{form.name}</p>
+                            <p className="text-sm font-semibold text-foreground truncate">
+                              {form.name}
+                            </p>
                             <span
                               className={cn(
                                 "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1",
                                 form.status === "published"
                                   ? "bg-success/10 text-success"
-                                  : "bg-muted text-muted-foreground",
+                                  : "bg-muted text-muted-foreground"
                               )}
                             >
-                              {form.status === "published" ? "Published" : "Unpublished"}
+                              {form.status === "published"
+                                ? "Published"
+                                : "Unpublished"}
                             </span>
                           </div>
                         </div>
 
                         {/* Created */}
                         <div className="col-span-2">
-                          <p className="text-sm text-foreground">{formatDate(form.createdAt)}</p>
+                          <p className="text-sm text-foreground">
+                            {formatDate(form.createdAt)}
+                          </p>
                         </div>
 
                         {/* Views */}
@@ -347,7 +414,11 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                               <div
                                 className={cn(
                                   "h-full rounded-full transition-all",
-                                  rate >= 70 ? "bg-success" : rate >= 50 ? "bg-chart-1" : "bg-warning",
+                                  rate >= 70
+                                    ? "bg-success"
+                                    : rate >= 50
+                                    ? "bg-chart-1"
+                                    : "bg-warning"
                                 )}
                                 style={{ width: `${Math.min(rate, 100)}%` }}
                               />
@@ -371,7 +442,10 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem onClick={() => handleAction("edit", form)} className="cursor-pointer">
+                              <DropdownMenuItem
+                                onClick={() => handleAction("edit", form)}
+                                className="cursor-pointer"
+                              >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Form
                               </DropdownMenuItem>
@@ -382,9 +456,18 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                                 <BarChart3 className="h-4 w-4 mr-2" />
                                 View Analytics
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleAction("share", form)} className="cursor-pointer">
+                              <DropdownMenuItem
+                                onClick={() => handleAction("share", form)}
+                                className="cursor-pointer"
+                                disabled={form.status !== "published"}
+                              >
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share Form
+                                {form.status !== "published" && (
+                                  <span className="text-xs text-muted-foreground ml-auto">
+                                    (Publish first)
+                                  </span>
+                                )}
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -399,7 +482,7 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                         </div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             )}
@@ -407,9 +490,19 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
             {!isLoading && formsData && totalPages > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-border/50 bg-muted/20">
                 <p className="text-sm text-muted-foreground">
-                  Showing <span className="font-medium text-foreground">{startIndex}</span> to{" "}
-                  <span className="font-medium text-foreground">{endIndex}</span> of{" "}
-                  <span className="font-medium text-foreground">{totalCount}</span> forms
+                  Showing{" "}
+                  <span className="font-medium text-foreground">
+                    {startIndex}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-medium text-foreground">
+                    {endIndex}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-medium text-foreground">
+                    {totalCount}
+                  </span>{" "}
+                  forms
                 </p>
 
                 <div className="flex items-center gap-1">
@@ -433,12 +526,17 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                       >
                         1
                       </Button>
-                      {currentPage > 4 && <span className="px-2 text-muted-foreground">...</span>}
+                      {currentPage > 4 && (
+                        <span className="px-2 text-muted-foreground">...</span>
+                      )}
                     </>
                   )}
 
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((page) => page >= currentPage - 2 && page <= currentPage + 2)
+                    .filter(
+                      (page) =>
+                        page >= currentPage - 2 && page <= currentPage + 2
+                    )
                     .map((page) => (
                       <Button
                         key={page}
@@ -447,7 +545,8 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
                         onClick={() => onPageChange(page)}
                         className={cn(
                           "h-9 w-9 p-0 text-sm",
-                          currentPage === page && "bg-primary text-primary-foreground",
+                          currentPage === page &&
+                            "bg-primary text-primary-foreground"
                         )}
                       >
                         {page}
@@ -456,7 +555,9 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
 
                   {currentPage < totalPages - 2 && (
                     <>
-                      {currentPage < totalPages - 3 && <span className="px-2 text-muted-foreground">...</span>}
+                      {currentPage < totalPages - 3 && (
+                        <span className="px-2 text-muted-foreground">...</span>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -503,5 +604,5 @@ export default function FormPaginated({ formsData, isLoading, currentPage, onPag
         />
       )}
     </div>
-  )
+  );
 }

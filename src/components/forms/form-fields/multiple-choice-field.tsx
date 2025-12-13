@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo } from "react";
-import {
-  X,
-  ListOrdered,
-  Plus,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { X, ListOrdered, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,16 +68,18 @@ function MultipleChoiceField({
     handleAdvancedClick,
     handleAdvancedClose,
   } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
-  
+
   // Option editing state
   const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
 
-  // Initialize options if not present
-  const options = field.options || [
-    { id: "opt-1", label: "Option 1", value: "option_1", default: false },
-    { id: "opt-2", label: "Option 2", value: "option_2", default: false },
-    { id: "opt-3", label: "Option 3", value: "option_3", default: false },
-  ];
+  // Initialize options if not present or not an array
+  const options: Option[] = Array.isArray(field.options)
+    ? field.options
+    : [
+        { id: "opt-1", label: "Option 1", value: "option_1", default: false },
+        { id: "opt-2", label: "Option 2", value: "option_2", default: false },
+        { id: "opt-3", label: "Option 3", value: "option_3", default: false },
+      ];
 
   const handlePlaceholderChange = useCallback(
     (value: string) => {
@@ -95,7 +91,7 @@ function MultipleChoiceField({
   const handleRequiredToggle = useCallback(() => {
     onUpdate({ required: !field.required });
   }, [field.required, onUpdate]);
-  
+
   const handleRandomizeOptionsToggle = useCallback(() => {
     onUpdate({ randomizeOptions: !field.randomizeOptions });
   }, [field.randomizeOptions, onUpdate]);
@@ -351,7 +347,7 @@ function MultipleChoiceField({
 
       {/* Advanced Settings Panel */}
       <AdvancedPanel
-        isOpen={(isAdvancedOpen ?? false)}
+        isOpen={isAdvancedOpen ?? false}
         onClose={handleAdvancedClose}
         title="Multiple Choice Settings"
         subtitle="Configure options behavior"

@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo } from "react";
-import {
-  X,
-  CheckSquare,
-  Plus,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { X, CheckSquare, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,463 +40,469 @@ interface CheckboxesFieldProps {
   onAdvancedToggle?: () => void;
 }
 
-const CheckboxesField = memo(function CheckboxesField({
-  field,
-  index,
-  onUpdate,
-  onDelete,
-  onDuplicate,
-  onEnhance,
-  isAdvancedOpen,
-  onAdvancedToggle,
-}: CheckboxesFieldProps) {
-  // Use shared field handlers hook
-  const {
-    isEditingQuestion,
-    isEditingDescription,
-    isHovered,
-    questionRef,
-    descriptionRef,
-    handleQuestionClick,
-    handleDescriptionClick,
-    handleQuestionChange,
-    handleDescriptionChange,
-    handleQuestionBlur,
-    handleDescriptionBlur,
-    handleQuestionKeyDown,
-    handleDescriptionKeyDown,
-    handleMouseEnter,
-    handleMouseLeave,
-    handleAdvancedClick,
-    handleAdvancedClose,
-  } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
-  
-  // Option editing state
-  const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
+const CheckboxesField = memo(
+  function CheckboxesField({
+    field,
+    index,
+    onUpdate,
+    onDelete,
+    onDuplicate,
+    onEnhance,
+    isAdvancedOpen,
+    onAdvancedToggle,
+  }: CheckboxesFieldProps) {
+    // Use shared field handlers hook
+    const {
+      isEditingQuestion,
+      isEditingDescription,
+      isHovered,
+      questionRef,
+      descriptionRef,
+      handleQuestionClick,
+      handleDescriptionClick,
+      handleQuestionChange,
+      handleDescriptionChange,
+      handleQuestionBlur,
+      handleDescriptionBlur,
+      handleQuestionKeyDown,
+      handleDescriptionKeyDown,
+      handleMouseEnter,
+      handleMouseLeave,
+      handleAdvancedClick,
+      handleAdvancedClose,
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
 
-  // Initialize options if not present
-  const options = field.options || [
-    { id: "opt-1", label: "Option 1", value: "option_1", default: false },
-    { id: "opt-2", label: "Option 2", value: "option_2", default: false },
-    { id: "opt-3", label: "Option 3", value: "option_3", default: false },
-  ];
+    // Option editing state
+    const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
 
-  const handlePlaceholderChange = useCallback(
-    (value: string) => {
-      onUpdate({ placeholder: value });
-    },
-    [onUpdate]
-  );
+    // Initialize options if not present or not an array
+    const options: Option[] = Array.isArray(field.options)
+      ? field.options
+      : [
+          { id: "opt-1", label: "Option 1", value: "option_1", default: false },
+          { id: "opt-2", label: "Option 2", value: "option_2", default: false },
+          { id: "opt-3", label: "Option 3", value: "option_3", default: false },
+        ];
 
-  const handleRequiredToggle = useCallback(() => {
-    onUpdate({ required: !field.required });
-  }, [field.required, onUpdate]);
-
-  const handleMinSelectionsChange = useCallback(
-    (value: string) => {
-      const num = parseInt(value);
-      onUpdate({ minSelections: isNaN(num) || num < 0 ? undefined : num });
-    },
-    [onUpdate]
-  );
-
-  const handleMaxSelectionsChange = useCallback(
-    (value: string) => {
-      const num = parseInt(value);
-      onUpdate({ maxSelections: isNaN(num) || num < 0 ? undefined : num });
-    },
-    [onUpdate]
-  );
-
-  const handleRandomizeOptionsToggle = useCallback(() => {
-    onUpdate({ randomizeOptions: !field.randomizeOptions });
-  }, [field.randomizeOptions, onUpdate]);
-
-  const handleAllowOtherToggle = useCallback(() => {
-    onUpdate({ allowOther: !field.allowOther });
-  }, [field.allowOther, onUpdate]);
-
-  // Helper function to generate value from label
-  const generateValueFromLabel = (label: string): string => {
-    return (
-      label
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "_")
-        .replace(/^_+|_+$/g, "")
-        .substring(0, 50) || "option"
+    const handlePlaceholderChange = useCallback(
+      (value: string) => {
+        onUpdate({ placeholder: value });
+      },
+      [onUpdate]
     );
-  };
 
-  // Handle adding new option
-  const handleAddOption = useCallback(() => {
-    const newOption: Option = {
-      id: `opt-${Date.now()}`,
-      label: `Option ${options.length + 1}`,
-      value: `option_${options.length + 1}`,
-      default: false,
-    };
-    onUpdate({ options: [...options, newOption] });
-  }, [options, onUpdate]);
+    const handleRequiredToggle = useCallback(() => {
+      onUpdate({ required: !field.required });
+    }, [field.required, onUpdate]);
 
-  // Handle removing option
-  const handleRemoveOption = useCallback(
-    (optionId: string) => {
-      if (options.length <= 1) {
-        return; // Don't allow removing the last option
-      }
-      const updatedOptions = options.filter((opt) => opt.id !== optionId);
-      onUpdate({ options: updatedOptions });
-    },
-    [options, onUpdate]
-  );
+    const handleMinSelectionsChange = useCallback(
+      (value: string) => {
+        const num = parseInt(value);
+        onUpdate({ minSelections: isNaN(num) || num < 0 ? undefined : num });
+      },
+      [onUpdate]
+    );
 
-  // Handle updating option
-  const handleUpdateOption = useCallback(
-    (optionId: string, updates: Partial<Option>) => {
-      const updatedOptions = options.map((opt) => {
-        if (opt.id === optionId) {
-          // If label is updated and value hasn't been manually set, auto-sync value
-          if (updates.label !== undefined && updates.value === undefined) {
-            return {
-              ...opt,
-              ...updates,
-              value: generateValueFromLabel(updates.label),
-            };
-          }
-          return { ...opt, ...updates };
-        }
-        return opt;
-      });
-      onUpdate({ options: updatedOptions });
-    },
-    [options, onUpdate]
-  );
+    const handleMaxSelectionsChange = useCallback(
+      (value: string) => {
+        const num = parseInt(value);
+        onUpdate({ maxSelections: isNaN(num) || num < 0 ? undefined : num });
+      },
+      [onUpdate]
+    );
 
-  // Handle toggling default option (checkboxes allow multiple defaults)
-  const handleToggleDefault = useCallback(
-    (optionId: string) => {
-      const updatedOptions = options.map((opt) =>
-        opt.id === optionId ? { ...opt, default: !opt.default } : opt
+    const handleRandomizeOptionsToggle = useCallback(() => {
+      onUpdate({ randomizeOptions: !field.randomizeOptions });
+    }, [field.randomizeOptions, onUpdate]);
+
+    const handleAllowOtherToggle = useCallback(() => {
+      onUpdate({ allowOther: !field.allowOther });
+    }, [field.allowOther, onUpdate]);
+
+    // Helper function to generate value from label
+    const generateValueFromLabel = (label: string): string => {
+      return (
+        label
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "_")
+          .replace(/^_+|_+$/g, "")
+          .substring(0, 50) || "option"
       );
-      onUpdate({ options: updatedOptions });
-    },
-    [options, onUpdate]
-  );
+    };
 
-  // Handle reordering options
-  const handleMoveOption = useCallback(
-    (optionId: string, direction: "up" | "down") => {
-      const idx = options.findIndex((opt) => opt.id === optionId);
-      if (
-        (direction === "up" && idx === 0) ||
-        (direction === "down" && idx === options.length - 1)
-      ) {
-        return;
-      }
+    // Handle adding new option
+    const handleAddOption = useCallback(() => {
+      const newOption: Option = {
+        id: `opt-${Date.now()}`,
+        label: `Option ${options.length + 1}`,
+        value: `option_${options.length + 1}`,
+        default: false,
+      };
+      onUpdate({ options: [...options, newOption] });
+    }, [options, onUpdate]);
 
-      const newOptions = [...options];
-      const targetIndex = direction === "up" ? idx - 1 : idx + 1;
-      [newOptions[idx], newOptions[targetIndex]] = [
-        newOptions[targetIndex],
-        newOptions[idx],
-      ];
-      onUpdate({ options: newOptions });
-    },
-    [options, onUpdate]
-  );
+    // Handle removing option
+    const handleRemoveOption = useCallback(
+      (optionId: string) => {
+        if (options.length <= 1) {
+          return; // Don't allow removing the last option
+        }
+        const updatedOptions = options.filter((opt) => opt.id !== optionId);
+        onUpdate({ options: updatedOptions });
+      },
+      [options, onUpdate]
+    );
 
-  return (
-    <>
-      <FieldWrapper
-        index={index}
-        fieldType="Checkboxes"
-        fieldIcon={CheckSquare}
-        fieldId={field.id}
-        question={field.question}
-        description={field.description}
-        required={field.required}
-        isEditingQuestion={isEditingQuestion}
-        isEditingDescription={isEditingDescription}
-        isHovered={isHovered}
-        onQuestionClick={handleQuestionClick}
-        onDescriptionClick={handleDescriptionClick}
-        onQuestionChange={handleQuestionChange}
-        onDescriptionChange={handleDescriptionChange}
-        onQuestionBlur={handleQuestionBlur}
-        onDescriptionBlur={handleDescriptionBlur}
-        onQuestionKeyDown={handleQuestionKeyDown}
-        onDescriptionKeyDown={handleDescriptionKeyDown}
-        onRequiredToggle={handleRequiredToggle}
-        onDelete={onDelete}
-        onDuplicate={onDuplicate}
-        onEnhance={onEnhance}
-        onAdvancedClick={handleAdvancedClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        questionRef={questionRef}
-        descriptionRef={descriptionRef}
-      >
-        {/* Options List - Field-Specific Content */}
-        <div className="space-y-2">
+    // Handle updating option
+    const handleUpdateOption = useCallback(
+      (optionId: string, updates: Partial<Option>) => {
+        const updatedOptions = options.map((opt) => {
+          if (opt.id === optionId) {
+            // If label is updated and value hasn't been manually set, auto-sync value
+            if (updates.label !== undefined && updates.value === undefined) {
+              return {
+                ...opt,
+                ...updates,
+                value: generateValueFromLabel(updates.label),
+              };
+            }
+            return { ...opt, ...updates };
+          }
+          return opt;
+        });
+        onUpdate({ options: updatedOptions });
+      },
+      [options, onUpdate]
+    );
+
+    // Handle toggling default option (checkboxes allow multiple defaults)
+    const handleToggleDefault = useCallback(
+      (optionId: string) => {
+        const updatedOptions = options.map((opt) =>
+          opt.id === optionId ? { ...opt, default: !opt.default } : opt
+        );
+        onUpdate({ options: updatedOptions });
+      },
+      [options, onUpdate]
+    );
+
+    // Handle reordering options
+    const handleMoveOption = useCallback(
+      (optionId: string, direction: "up" | "down") => {
+        const idx = options.findIndex((opt) => opt.id === optionId);
+        if (
+          (direction === "up" && idx === 0) ||
+          (direction === "down" && idx === options.length - 1)
+        ) {
+          return;
+        }
+
+        const newOptions = [...options];
+        const targetIndex = direction === "up" ? idx - 1 : idx + 1;
+        [newOptions[idx], newOptions[targetIndex]] = [
+          newOptions[targetIndex],
+          newOptions[idx],
+        ];
+        onUpdate({ options: newOptions });
+      },
+      [options, onUpdate]
+    );
+
+    return (
+      <>
+        <FieldWrapper
+          index={index}
+          fieldType="Checkboxes"
+          fieldIcon={CheckSquare}
+          fieldId={field.id}
+          question={field.question}
+          description={field.description}
+          required={field.required}
+          isEditingQuestion={isEditingQuestion}
+          isEditingDescription={isEditingDescription}
+          isHovered={isHovered}
+          onQuestionClick={handleQuestionClick}
+          onDescriptionClick={handleDescriptionClick}
+          onQuestionChange={handleQuestionChange}
+          onDescriptionChange={handleDescriptionChange}
+          onQuestionBlur={handleQuestionBlur}
+          onDescriptionBlur={handleDescriptionBlur}
+          onQuestionKeyDown={handleQuestionKeyDown}
+          onDescriptionKeyDown={handleDescriptionKeyDown}
+          onRequiredToggle={handleRequiredToggle}
+          onDelete={onDelete}
+          onDuplicate={onDuplicate}
+          onEnhance={onEnhance}
+          onAdvancedClick={handleAdvancedClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          questionRef={questionRef}
+          descriptionRef={descriptionRef}
+        >
+          {/* Options List - Field-Specific Content */}
+          <div className="space-y-2">
             {field.placeholder && (
               <p className="text-sm text-muted-foreground/60 mb-2">
                 {field.placeholder}
               </p>
             )}
 
-          {options.map((option, idx) => (
-            <div
-              key={option.id}
-              className="group/option flex items-center gap-2.5 rounded-lg border border-border/50 bg-background/50 px-3 py-2 transition-all hover:border-primary/30 hover:bg-background"
-            >
-              {/* Checkbox Indicator */}
+            {options.map((option, idx) => (
               <div
-                onClick={() => handleToggleDefault(option.id)}
-                className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground/30 cursor-pointer hover:border-primary transition-colors"
+                key={option.id ?? `option-${idx}`}
+                className="group/option flex items-center gap-2.5 rounded-lg border border-border/50 bg-background/50 px-3 py-2 transition-all hover:border-primary/30 hover:bg-background"
               >
-                {option.default && (
-                  <div className="h-2.5 w-2.5 rounded-sm bg-primary" />
-                )}
-              </div>
+                {/* Checkbox Indicator */}
+                <div
+                  onClick={() => handleToggleDefault(option.id)}
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground/30 cursor-pointer hover:border-primary transition-colors"
+                >
+                  {option.default && (
+                    <div className="h-2.5 w-2.5 rounded-sm bg-primary" />
+                  )}
+                </div>
 
-              {/* Option Content */}
-              <div className="flex-1 min-w-0">
-                {editingOptionId === option.id ? (
-                  <div className="space-y-2">
-                    <Input
-                      value={option.label}
-                      onChange={(e) =>
-                        handleUpdateOption(option.id, {
-                          label: e.target.value,
-                        })
-                      }
-                      onBlur={() => setEditingOptionId(null)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") setEditingOptionId(null);
-                        if (e.key === "Escape") setEditingOptionId(null);
-                      }}
-                      autoFocus
-                      placeholder="Option label"
-                      className="h-8 text-sm"
-                    />
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        Value:
-                      </span>
+                {/* Option Content */}
+                <div className="flex-1 min-w-0">
+                  {editingOptionId === option.id ? (
+                    <div className="space-y-2">
                       <Input
-                        value={option.value}
+                        value={option.label}
                         onChange={(e) =>
                           handleUpdateOption(option.id, {
-                            value: e.target.value,
+                            label: e.target.value,
                           })
                         }
-                        placeholder="auto-generated"
-                        className="h-7 text-xs text-muted-foreground font-mono"
+                        onBlur={() => setEditingOptionId(null)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") setEditingOptionId(null);
+                          if (e.key === "Escape") setEditingOptionId(null);
+                        }}
+                        autoFocus
+                        placeholder="Option label"
+                        className="h-8 text-sm"
                       />
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          Value:
+                        </span>
+                        <Input
+                          value={option.value}
+                          onChange={(e) =>
+                            handleUpdateOption(option.id, {
+                              value: e.target.value,
+                            })
+                          }
+                          placeholder="auto-generated"
+                          className="h-7 text-xs text-muted-foreground font-mono"
+                        />
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => setEditingOptionId(option.id)}
-                    className="cursor-text"
+                  ) : (
+                    <div
+                      onClick={() => setEditingOptionId(option.id)}
+                      className="cursor-text"
+                    >
+                      <p className="text-sm text-foreground truncate">
+                        {option.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground/50 truncate font-mono">
+                        {option.value}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Option Actions */}
+                <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/option:opacity-100">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleMoveOption(option.id, "up")}
+                    disabled={idx === 0}
+                    className="h-6 w-6"
+                    title="Move up"
                   >
-                    <p className="text-sm text-foreground truncate">
-                      {option.label}
-                    </p>
-                    <p className="text-xs text-muted-foreground/50 truncate font-mono">
-                      {option.value}
-                    </p>
-                  </div>
-                )}
+                    <ChevronUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleMoveOption(option.id, "down")}
+                    disabled={idx === options.length - 1}
+                    className="h-6 w-6"
+                    title="Move down"
+                  >
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveOption(option.id)}
+                    disabled={options.length <= 1}
+                    className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
+                    title="Remove option"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
+            ))}
 
-              {/* Option Actions */}
-              <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/option:opacity-100">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMoveOption(option.id, "up")}
-                  disabled={idx === 0}
-                  className="h-6 w-6"
-                  title="Move up"
-                >
-                  <ChevronUp className="h-3 w-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleMoveOption(option.id, "down")}
-                  disabled={idx === options.length - 1}
-                  className="h-6 w-6"
-                  title="Move down"
-                >
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveOption(option.id)}
-                  disabled={options.length <= 1}
-                  className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
-                  title="Remove option"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-          ))}
-
-          {/* Add Option Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleAddOption}
-            className="w-full h-8 border-dashed border-border/50 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"
-          >
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
-            Add Option
-          </Button>
-        </div>
-      </FieldWrapper>
-
-      {/* Advanced Settings Panel */}
-      <AdvancedPanel
-        isOpen={(isAdvancedOpen ?? false)}
-        onClose={handleAdvancedClose}
-        title="Checkboxes Settings"
-        subtitle="Configure validation and behavior"
-      >
-        {/* Placeholder */}
-        <div className="space-y-2">
-          <Label htmlFor="placeholder" className="text-sm font-medium">
-            Placeholder Text
-          </Label>
-          <Input
-            id="placeholder"
-            value={field.placeholder || ""}
-            onChange={(e) => handlePlaceholderChange(e.target.value)}
-            placeholder="e.g., Select all that apply"
-            className="w-full"
-          />
-          <p className="text-xs text-muted-foreground">
-            Optional hint text shown above the options
-          </p>
-        </div>
-
-        {/* Selection Limits */}
-        <div className="pt-4 border-t border-border/50">
-          <h4 className="text-sm font-semibold text-foreground mb-4">
-            Selection Limits
-          </h4>
-
-          {/* Min Selections */}
-          <div className="space-y-2 mb-4">
-            <Label
-              htmlFor="minSelections"
-              className="text-sm font-medium text-foreground"
+            {/* Add Option Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAddOption}
+              className="w-full h-8 border-dashed border-border/50 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5"
             >
-              Minimum Selections
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              Add Option
+            </Button>
+          </div>
+        </FieldWrapper>
+
+        {/* Advanced Settings Panel */}
+        <AdvancedPanel
+          isOpen={isAdvancedOpen ?? false}
+          onClose={handleAdvancedClose}
+          title="Checkboxes Settings"
+          subtitle="Configure validation and behavior"
+        >
+          {/* Placeholder */}
+          <div className="space-y-2">
+            <Label htmlFor="placeholder" className="text-sm font-medium">
+              Placeholder Text
             </Label>
             <Input
-              id="minSelections"
-              type="number"
-              min="0"
-              value={field.minSelections || ""}
-              onChange={(e) => handleMinSelectionsChange(e.target.value)}
-              placeholder="No minimum"
+              id="placeholder"
+              value={field.placeholder || ""}
+              onChange={(e) => handlePlaceholderChange(e.target.value)}
+              placeholder="e.g., Select all that apply"
               className="w-full"
             />
             <p className="text-xs text-muted-foreground">
-              Minimum number of options that must be selected
+              Optional hint text shown above the options
             </p>
           </div>
 
-          {/* Max Selections */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="maxSelections"
-              className="text-sm font-medium text-foreground"
-            >
-              Maximum Selections
-            </Label>
-            <Input
-              id="maxSelections"
-              type="number"
-              min="0"
-              value={field.maxSelections || ""}
-              onChange={(e) => handleMaxSelectionsChange(e.target.value)}
-              placeholder="No maximum"
-              className="w-full"
-            />
-            <p className="text-xs text-muted-foreground">
-              Maximum number of options that can be selected
-            </p>
-          </div>
-        </div>
+          {/* Selection Limits */}
+          <div className="pt-4 border-t border-border/50">
+            <h4 className="text-sm font-semibold text-foreground mb-4">
+              Selection Limits
+            </h4>
 
-        {/* Randomize Options */}
-        <div className="pt-4 border-t border-border/50">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="randomize-options"
-                checked={field.randomizeOptions || false}
-                onCheckedChange={handleRandomizeOptionsToggle}
-                className="rounded"
-              />
+            {/* Min Selections */}
+            <div className="space-y-2 mb-4">
               <Label
-                htmlFor="randomize-options"
-                className="text-sm font-medium cursor-pointer"
+                htmlFor="minSelections"
+                className="text-sm font-medium text-foreground"
               >
-                Randomize Option Order
+                Minimum Selections
               </Label>
-            </div>
-            <p className="text-xs text-muted-foreground pl-6">
-              Display options in random order for each respondent
-            </p>
-          </div>
-        </div>
-
-        {/* Allow Other Option */}
-        <div className="pt-4 border-t border-border/50">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="allow-other"
-                checked={field.allowOther || false}
-                onCheckedChange={handleAllowOtherToggle}
-                className="rounded"
+              <Input
+                id="minSelections"
+                type="number"
+                min="0"
+                value={field.minSelections || ""}
+                onChange={(e) => handleMinSelectionsChange(e.target.value)}
+                placeholder="No minimum"
+                className="w-full"
               />
-              <Label
-                htmlFor="allow-other"
-                className="text-sm font-medium cursor-pointer"
-              >
-                Add "Other" Option
-              </Label>
+              <p className="text-xs text-muted-foreground">
+                Minimum number of options that must be selected
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground pl-6">
-              Allow respondents to enter a custom answer
-            </p>
+
+            {/* Max Selections */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="maxSelections"
+                className="text-sm font-medium text-foreground"
+              >
+                Maximum Selections
+              </Label>
+              <Input
+                id="maxSelections"
+                type="number"
+                min="0"
+                value={field.maxSelections || ""}
+                onChange={(e) => handleMaxSelectionsChange(e.target.value)}
+                placeholder="No maximum"
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Maximum number of options that can be selected
+              </p>
+            </div>
           </div>
-        </div>
-      </AdvancedPanel>
-    </>
-  );
-}, (prevProps, nextProps) => {
-  return (
-    prevProps.field.id === nextProps.field.id &&
-    prevProps.field.question === nextProps.field.question &&
-    prevProps.field.description === nextProps.field.description &&
-    prevProps.field.placeholder === nextProps.field.placeholder &&
-    prevProps.field.required === nextProps.field.required &&
-    JSON.stringify(prevProps.field.options) === JSON.stringify(nextProps.field.options) &&
-    prevProps.field.minSelections === nextProps.field.minSelections &&
-    prevProps.field.maxSelections === nextProps.field.maxSelections &&
-    prevProps.field.randomizeOptions === nextProps.field.randomizeOptions &&
-    prevProps.field.allowOther === nextProps.field.allowOther &&
-    prevProps.index === nextProps.index &&
-    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-  );
-});
+
+          {/* Randomize Options */}
+          <div className="pt-4 border-t border-border/50">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="randomize-options"
+                  checked={field.randomizeOptions || false}
+                  onCheckedChange={handleRandomizeOptionsToggle}
+                  className="rounded"
+                />
+                <Label
+                  htmlFor="randomize-options"
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Randomize Option Order
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground pl-6">
+                Display options in random order for each respondent
+              </p>
+            </div>
+          </div>
+
+          {/* Allow Other Option */}
+          <div className="pt-4 border-t border-border/50">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="allow-other"
+                  checked={field.allowOther || false}
+                  onCheckedChange={handleAllowOtherToggle}
+                  className="rounded"
+                />
+                <Label
+                  htmlFor="allow-other"
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Add "Other" Option
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground pl-6">
+                Allow respondents to enter a custom answer
+              </p>
+            </div>
+          </div>
+        </AdvancedPanel>
+      </>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.field.id === nextProps.field.id &&
+      prevProps.field.question === nextProps.field.question &&
+      prevProps.field.description === nextProps.field.description &&
+      prevProps.field.placeholder === nextProps.field.placeholder &&
+      prevProps.field.required === nextProps.field.required &&
+      JSON.stringify(prevProps.field.options) ===
+        JSON.stringify(nextProps.field.options) &&
+      prevProps.field.minSelections === nextProps.field.minSelections &&
+      prevProps.field.maxSelections === nextProps.field.maxSelections &&
+      prevProps.field.randomizeOptions === nextProps.field.randomizeOptions &&
+      prevProps.field.allowOther === nextProps.field.allowOther &&
+      prevProps.index === nextProps.index &&
+      prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+    );
+  }
+);
 
 export default CheckboxesField;

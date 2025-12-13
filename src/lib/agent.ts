@@ -265,9 +265,56 @@ export async function enhanceField(
     };
   } catch (error) {
     console.error("Enhancement failed:", error);
+
+    // Provide user-friendly error messages
+    let errorMessage = "Enhancement failed";
+
+    if (error instanceof Error) {
+      const errorStr = error.message.toLowerCase();
+
+      // Authentication/API key errors
+      if (errorStr.includes("401") || errorStr.includes("unauthorized")) {
+        errorMessage =
+          "AI service authentication failed. Please check your API key configuration.";
+      }
+      // Bad request / API version errors
+      else if (
+        errorStr.includes("400") ||
+        errorStr.includes("bad request") ||
+        errorStr.includes("version not supported")
+      ) {
+        errorMessage =
+          "API version not supported. Please contact support to update the configuration.";
+      }
+      // Rate limiting
+      else if (errorStr.includes("429") || errorStr.includes("rate limit")) {
+        errorMessage = "Rate limit reached. Please try again in a few moments.";
+      }
+      // Network errors
+      else if (
+        errorStr.includes("network") ||
+        errorStr.includes("timeout") ||
+        errorStr.includes("econnrefused")
+      ) {
+        errorMessage =
+          "Network error. Please check your connection and try again.";
+      }
+      // Quota/billing errors
+      else if (
+        errorStr.includes("quota") ||
+        errorStr.includes("insufficient")
+      ) {
+        errorMessage = "API quota exceeded. Please check your account billing.";
+      }
+      // Generic error with details
+      else {
+        errorMessage = error.message;
+      }
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Enhancement failed",
+      error: errorMessage,
     };
   }
 }

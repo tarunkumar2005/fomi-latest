@@ -83,6 +83,7 @@ model User {
   notifications       Notification[]
   forms               Form[]
   sectionTemplates    SectionTemplate[]     @relation("CreatedTemplates")
+  themes              FormTheme[]           @relation("UserThemes")
 
   @@unique([email])
   @@map("user")
@@ -101,6 +102,7 @@ model Workspace {
   forms       Form[]
   members     WorkspaceMember[]
   invitations WorkspaceInvitation[]
+  themes      FormTheme[]           @relation("WorkspaceThemes")
 
   @@map("workspaces")
 }
@@ -155,8 +157,13 @@ model Form {
   oneResponsePerUser  Boolean   @default(false) // Limit to 1 response per user
   thankYouMessage     String?   // Custom confirmation message after submission
 
+  // Theme Configuration
+  themeId     String?    // Reference to selected theme
+  customTheme Json?      // Custom theme overrides
+
   workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   owner         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme         FormTheme?    @relation("FormTheme", fields: [themeId], references: [id], onDelete: SetNull)
   sections      Section[]
   responses     Response[]
   chatHistories ChatHistory[]
@@ -408,6 +415,45 @@ model TemplateField {
   @@index([templateId])
   @@index([templateId, order])
   @@map("template_fields")
+}
+
+model FormTheme {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String?  // 'professional' | 'creative' | 'minimal' | 'custom'
+  isBuiltIn   Boolean  @default(false)
+  isPublic    Boolean  @default(false) // For future public theme sharing
+  
+  // Owner information
+  userId      String?  // null for built-in themes
+  workspaceId String?  // null for user-level themes
+  
+  // Theme data stored as JSON (matches FormTheme interface)
+  colors       Json
+  typography   Json
+  layout       Json
+  buttons      Json
+  inputFields  Json
+  
+  // Usage tracking
+  usageCount   Int      @default(0)
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  user         User?      @relation("UserThemes", fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace? @relation("WorkspaceThemes", fields: [workspaceId], references: [id], onDelete: Cascade)
+  forms        Form[]     @relation("FormTheme")
+  
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([isBuiltIn])
+  @@index([isPublic])
+  @@index([category])
+  @@map("form_themes")
 }
 
 model Verification {

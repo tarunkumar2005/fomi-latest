@@ -1,60 +1,80 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { RangeOption, Workspace, Plan } from "@/types/dashboard";
+import { RangeOption, Workspace } from "@/types/dashboard";
+import {
+  fetchUserWorkspaces,
+  createWorkspaceAction,
+  updateWorkspaceAction,
+  deleteWorkspaceAction,
+} from "@/lib/workspace-actions";
 
 // ===========================
-// WORKSPACES (Temporary Mock Data)
+// WORKSPACES
 // ===========================
-
-// TODO: Replace with API call to fetch user's workspaces
-const getWorkspaces = (): Workspace[] => {
-  return [
-    {
-      id: "demo_workspace_001",
-      name: "Acme Corp",
-      slug: "acme-corp",
-      description: "Workspace for Acme Corporation",
-      plan: Plan.FREE,
-      createdAt: "2023-01-15T10:00:00Z",
-      updatedAt: "2023-06-20T12:00:00Z",
-    },
-    {
-      id: "workspace-2",
-      name: "Beta LLC",
-      slug: "beta-llc",
-      description: "Workspace for Beta LLC",
-      plan: Plan.PRO,
-      createdAt: "2022-11-05T14:30:00Z",
-      updatedAt: "2023-05-18T09:15:00Z",
-    },
-    {
-      id: "workspace-3",
-      name: "Gamma Inc",
-      slug: "gamma-inc",
-      description: "Workspace for Gamma Inc",
-      plan: Plan.FREE,
-      createdAt: "2023-02-10T11:00:00Z",
-      updatedAt: "2023-06-15T08:30:00Z",
-    },
-  ];
-};
 
 export const useWorkspaces = () => {
   return useQuery<Workspace[]>({
     queryKey: ["workspaces"],
     queryFn: async () => {
-      // TODO: Replace with real API call when ready
-      // const response = await axios.get('/api/workspaces');
-      // return response.data;
-
-      // For now, return mock data
-      return getWorkspaces();
+      return await fetchUserWorkspaces();
     },
     staleTime: 1000 * 60 * 5, // 5 minutes (workspaces rarely change)
     refetchOnWindowFocus: false,
     retry: 1,
+  });
+};
+
+export const useCreateWorkspace = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      name,
+      description,
+    }: {
+      name: string;
+      description?: string;
+    }) => {
+      return await createWorkspaceAction(name, description);
+    },
+    onSuccess: () => {
+      // Invalidate workspaces query to refetch
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    },
+  });
+};
+
+export const useUpdateWorkspace = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      workspaceId,
+      updates,
+    }: {
+      workspaceId: string;
+      updates: { name?: string; description?: string; plan?: "FREE" | "PRO" };
+    }) => {
+      return await updateWorkspaceAction(workspaceId, updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    },
+  });
+};
+
+export const useDeleteWorkspace = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (workspaceId: string) => {
+      return await deleteWorkspaceAction(workspaceId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    },
   });
 };
 

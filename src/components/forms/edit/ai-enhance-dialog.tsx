@@ -22,17 +22,19 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import AIEnhanceIcon from "@/assets/icon/ai-enhance.png";
-import type { FieldEnhanceResponse } from "@/lib/agent";
+import type { AIEnhancementSuggestion } from "@/types/form-edit";
 import { cn } from "@/lib/utils";
 
 interface AIEnhanceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   field: any;
-  enhancement: FieldEnhanceResponse | null;
+  enhancement: AIEnhancementSuggestion | null;
   isLoading: boolean;
+  error?: string | null;
   onApply: () => void;
   onRegenerate: (feedback?: string) => void;
+  onRetry: () => void;
 }
 
 export default function AIEnhanceDialog({
@@ -41,8 +43,10 @@ export default function AIEnhanceDialog({
   field,
   enhancement,
   isLoading,
+  error,
   onApply,
   onRegenerate,
+  onRetry,
 }: AIEnhanceDialogProps) {
   const [feedback, setFeedback] = useState("");
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
@@ -182,7 +186,7 @@ export default function AIEnhanceDialog({
                   )}
               </div>
             ) : (
-              <ErrorState onRetry={() => onRegenerate()} />
+              <ErrorState onRetry={onRetry} errorMessage={error} />
             )}
           </div>
 
@@ -306,7 +310,13 @@ function LoadingState() {
 }
 
 // Error State Component
-function ErrorState({ onRetry }: { onRetry: () => void }) {
+function ErrorState({
+  onRetry,
+  errorMessage,
+}: {
+  onRetry: () => void;
+  errorMessage?: string | null;
+}) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
       <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
@@ -315,8 +325,8 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
       <h3 className="text-lg font-semibold text-foreground mb-1">
         Enhancement Failed
       </h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        Something went wrong. Please try again.
+      <p className="text-sm text-muted-foreground mb-4 max-w-md">
+        {errorMessage || "Something went wrong. Please try again."}
       </p>
       <Button variant="outline" onClick={onRetry}>
         <RefreshCw className="h-4 w-4 mr-2" />

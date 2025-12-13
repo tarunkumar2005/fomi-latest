@@ -201,6 +201,7 @@ export type WorkspaceWhereInput = {
   forms?: Prisma.FormListRelationFilter
   members?: Prisma.WorkspaceMemberListRelationFilter
   invitations?: Prisma.WorkspaceInvitationListRelationFilter
+  themes?: Prisma.FormThemeListRelationFilter
 }
 
 export type WorkspaceOrderByWithRelationInput = {
@@ -214,6 +215,7 @@ export type WorkspaceOrderByWithRelationInput = {
   forms?: Prisma.FormOrderByRelationAggregateInput
   members?: Prisma.WorkspaceMemberOrderByRelationAggregateInput
   invitations?: Prisma.WorkspaceInvitationOrderByRelationAggregateInput
+  themes?: Prisma.FormThemeOrderByRelationAggregateInput
 }
 
 export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -230,6 +232,7 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   forms?: Prisma.FormListRelationFilter
   members?: Prisma.WorkspaceMemberListRelationFilter
   invitations?: Prisma.WorkspaceInvitationListRelationFilter
+  themes?: Prisma.FormThemeListRelationFilter
 }, "id" | "slug">
 
 export type WorkspaceOrderByWithAggregationInput = {
@@ -269,6 +272,7 @@ export type WorkspaceCreateInput = {
   forms?: Prisma.FormCreateNestedManyWithoutWorkspaceInput
   members?: Prisma.WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateInput = {
@@ -282,6 +286,7 @@ export type WorkspaceUncheckedCreateInput = {
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutWorkspaceInput
   members?: Prisma.WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUpdateInput = {
@@ -295,6 +300,7 @@ export type WorkspaceUpdateInput = {
   forms?: Prisma.FormUpdateManyWithoutWorkspaceNestedInput
   members?: Prisma.WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateInput = {
@@ -308,6 +314,7 @@ export type WorkspaceUncheckedUpdateInput = {
   forms?: Prisma.FormUncheckedUpdateManyWithoutWorkspaceNestedInput
   members?: Prisma.WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateManyInput = {
@@ -375,6 +382,11 @@ export type WorkspaceScalarRelationFilter = {
   isNot?: Prisma.WorkspaceWhereInput
 }
 
+export type WorkspaceNullableScalarRelationFilter = {
+  is?: Prisma.WorkspaceWhereInput | null
+  isNot?: Prisma.WorkspaceWhereInput | null
+}
+
 export type EnumPlanFieldUpdateOperationsInput = {
   set?: $Enums.Plan
 }
@@ -421,6 +433,22 @@ export type WorkspaceUpdateOneRequiredWithoutFormsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutFormsInput, Prisma.WorkspaceUpdateWithoutFormsInput>, Prisma.WorkspaceUncheckedUpdateWithoutFormsInput>
 }
 
+export type WorkspaceCreateNestedOneWithoutThemesInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutThemesInput, Prisma.WorkspaceUncheckedCreateWithoutThemesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutThemesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneWithoutThemesNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutThemesInput, Prisma.WorkspaceUncheckedCreateWithoutThemesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutThemesInput
+  upsert?: Prisma.WorkspaceUpsertWithoutThemesInput
+  disconnect?: Prisma.WorkspaceWhereInput | boolean
+  delete?: Prisma.WorkspaceWhereInput | boolean
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutThemesInput, Prisma.WorkspaceUpdateWithoutThemesInput>, Prisma.WorkspaceUncheckedUpdateWithoutThemesInput>
+}
+
 export type WorkspaceCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -431,6 +459,7 @@ export type WorkspaceCreateWithoutMembersInput = {
   updatedAt?: Date | string
   forms?: Prisma.FormCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutMembersInput = {
@@ -443,6 +472,7 @@ export type WorkspaceUncheckedCreateWithoutMembersInput = {
   updatedAt?: Date | string
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutMembersInput = {
@@ -471,6 +501,7 @@ export type WorkspaceUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   forms?: Prisma.FormUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutMembersInput = {
@@ -483,6 +514,7 @@ export type WorkspaceUncheckedUpdateWithoutMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   forms?: Prisma.FormUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutInvitationsInput = {
@@ -495,6 +527,7 @@ export type WorkspaceCreateWithoutInvitationsInput = {
   updatedAt?: Date | string
   forms?: Prisma.FormCreateNestedManyWithoutWorkspaceInput
   members?: Prisma.WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
@@ -507,6 +540,7 @@ export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
   updatedAt?: Date | string
   forms?: Prisma.FormUncheckedCreateNestedManyWithoutWorkspaceInput
   members?: Prisma.WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
@@ -535,6 +569,7 @@ export type WorkspaceUpdateWithoutInvitationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   forms?: Prisma.FormUpdateManyWithoutWorkspaceNestedInput
   members?: Prisma.WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
@@ -547,6 +582,7 @@ export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   forms?: Prisma.FormUncheckedUpdateManyWithoutWorkspaceNestedInput
   members?: Prisma.WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutFormsInput = {
@@ -559,6 +595,7 @@ export type WorkspaceCreateWithoutFormsInput = {
   updatedAt?: Date | string
   members?: Prisma.WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutFormsInput = {
@@ -571,6 +608,7 @@ export type WorkspaceUncheckedCreateWithoutFormsInput = {
   updatedAt?: Date | string
   members?: Prisma.WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
   invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  themes?: Prisma.FormThemeUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutFormsInput = {
@@ -599,6 +637,7 @@ export type WorkspaceUpdateWithoutFormsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutFormsInput = {
@@ -609,6 +648,75 @@ export type WorkspaceUncheckedUpdateWithoutFormsInput = {
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  themes?: Prisma.FormThemeUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutThemesInput = {
+  id?: string
+  name: string
+  slug: string
+  description?: string | null
+  plan?: $Enums.Plan
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  forms?: Prisma.FormCreateNestedManyWithoutWorkspaceInput
+  members?: Prisma.WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutThemesInput = {
+  id?: string
+  name: string
+  slug: string
+  description?: string | null
+  plan?: $Enums.Plan
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  forms?: Prisma.FormUncheckedCreateNestedManyWithoutWorkspaceInput
+  members?: Prisma.WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutThemesInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutThemesInput, Prisma.WorkspaceUncheckedCreateWithoutThemesInput>
+}
+
+export type WorkspaceUpsertWithoutThemesInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutThemesInput, Prisma.WorkspaceUncheckedUpdateWithoutThemesInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutThemesInput, Prisma.WorkspaceUncheckedCreateWithoutThemesInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutThemesInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutThemesInput, Prisma.WorkspaceUncheckedUpdateWithoutThemesInput>
+}
+
+export type WorkspaceUpdateWithoutThemesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  forms?: Prisma.FormUpdateManyWithoutWorkspaceNestedInput
+  members?: Prisma.WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutThemesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  forms?: Prisma.FormUncheckedUpdateManyWithoutWorkspaceNestedInput
   members?: Prisma.WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
   invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -622,12 +730,14 @@ export type WorkspaceCountOutputType = {
   forms: number
   members: number
   invitations: number
+  themes: number
 }
 
 export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   forms?: boolean | WorkspaceCountOutputTypeCountFormsArgs
   members?: boolean | WorkspaceCountOutputTypeCountMembersArgs
   invitations?: boolean | WorkspaceCountOutputTypeCountInvitationsArgs
+  themes?: boolean | WorkspaceCountOutputTypeCountThemesArgs
 }
 
 /**
@@ -661,6 +771,13 @@ export type WorkspaceCountOutputTypeCountInvitationsArgs<ExtArgs extends runtime
   where?: Prisma.WorkspaceInvitationWhereInput
 }
 
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountThemesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FormThemeWhereInput
+}
+
 
 export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -673,6 +790,7 @@ export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   forms?: boolean | Prisma.Workspace$formsArgs<ExtArgs>
   members?: boolean | Prisma.Workspace$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.Workspace$invitationsArgs<ExtArgs>
+  themes?: boolean | Prisma.Workspace$themesArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspace"]>
 
@@ -711,6 +829,7 @@ export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   forms?: boolean | Prisma.Workspace$formsArgs<ExtArgs>
   members?: boolean | Prisma.Workspace$membersArgs<ExtArgs>
   invitations?: boolean | Prisma.Workspace$invitationsArgs<ExtArgs>
+  themes?: boolean | Prisma.Workspace$themesArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -722,6 +841,7 @@ export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     forms: Prisma.$FormPayload<ExtArgs>[]
     members: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
     invitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
+    themes: Prisma.$FormThemePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1128,6 +1248,7 @@ export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtim
   forms<T extends Prisma.Workspace$formsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$formsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   members<T extends Prisma.Workspace$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invitations<T extends Prisma.Workspace$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  themes<T extends Prisma.Workspace$themesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$themesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormThemePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1621,6 +1742,30 @@ export type Workspace$invitationsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.WorkspaceInvitationScalarFieldEnum | Prisma.WorkspaceInvitationScalarFieldEnum[]
+}
+
+/**
+ * Workspace.themes
+ */
+export type Workspace$themesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FormTheme
+   */
+  select?: Prisma.FormThemeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FormTheme
+   */
+  omit?: Prisma.FormThemeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FormThemeInclude<ExtArgs> | null
+  where?: Prisma.FormThemeWhereInput
+  orderBy?: Prisma.FormThemeOrderByWithRelationInput | Prisma.FormThemeOrderByWithRelationInput[]
+  cursor?: Prisma.FormThemeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FormThemeScalarFieldEnum | Prisma.FormThemeScalarFieldEnum[]
 }
 
 /**

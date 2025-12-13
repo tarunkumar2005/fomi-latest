@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Plus,
   Type,
@@ -18,7 +18,7 @@ import {
   Clock,
   CalendarRange,
   Upload,
-} from "lucide-react"
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,56 +26,57 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import type { FieldType as PrismaFieldType } from "@/app/generated/prisma/enums";
 
-interface FieldType {
-  id: string
-  label: string
-  description: string
-  icon: typeof Type
-  category: "text" | "choice" | "advanced" | "date" | "file"
+interface FieldTypeDefinition {
+  id: PrismaFieldType;
+  label: string;
+  description: string;
+  icon: typeof Type;
+  category: "text" | "choice" | "advanced" | "date" | "file";
 }
 
-const fieldTypes: FieldType[] = [
+const fieldTypes: FieldTypeDefinition[] = [
   // Text Input Fields
   {
-    id: "short-answer",
+    id: "SHORT_ANSWER",
     label: "Short Answer",
     description: "Single line text input",
     icon: Type,
     category: "text",
   },
   {
-    id: "paragraph",
+    id: "PARAGRAPH",
     label: "Paragraph",
     description: "Multi-line text area",
     icon: AlignLeft,
     category: "text",
   },
   {
-    id: "email",
+    id: "EMAIL",
     label: "Email",
     description: "Email address input",
     icon: Mail,
     category: "text",
   },
   {
-    id: "number",
+    id: "NUMBER",
     label: "Number",
     description: "Numeric input field",
     icon: Hash,
     category: "text",
   },
   {
-    id: "phone",
+    id: "PHONE",
     label: "Phone",
     description: "Phone number input",
     icon: Phone,
     category: "text",
   },
   {
-    id: "url",
+    id: "URL",
     label: "URL",
     description: "Website link input",
     icon: Link,
@@ -83,21 +84,21 @@ const fieldTypes: FieldType[] = [
   },
   // Choice Fields
   {
-    id: "multiple-choice",
+    id: "MULTIPLE_CHOICE",
     label: "Multiple Choice",
     description: "Single selection from options",
     icon: ListOrdered,
     category: "choice",
   },
   {
-    id: "checkboxes",
+    id: "CHECKBOXES",
     label: "Checkboxes",
     description: "Multiple selection allowed",
     icon: CheckSquare,
     category: "choice",
   },
   {
-    id: "dropdown",
+    id: "DROPDOWN",
     label: "Dropdown",
     description: "Select from dropdown menu",
     icon: ChevronDownIcon,
@@ -105,14 +106,14 @@ const fieldTypes: FieldType[] = [
   },
   // Advanced Fields
   {
-    id: "rating",
+    id: "RATING",
     label: "Rating",
     description: "Star, number, or emoji rating",
     icon: Star,
     category: "advanced",
   },
   {
-    id: "linear-scale",
+    id: "LINEAR_SCALE",
     label: "Linear Scale",
     description: "Numeric scale selection",
     icon: Sliders,
@@ -120,21 +121,21 @@ const fieldTypes: FieldType[] = [
   },
   // Date & Time Fields
   {
-    id: "date",
+    id: "DATE",
     label: "Date",
     description: "Single date picker",
     icon: Calendar,
     category: "date",
   },
   {
-    id: "time",
+    id: "TIME",
     label: "Time",
     description: "Time selection",
     icon: Clock,
     category: "date",
   },
   {
-    id: "date-range",
+    id: "DATE_RANGE",
     label: "Date Range",
     description: "Start and end dates",
     icon: CalendarRange,
@@ -142,51 +143,57 @@ const fieldTypes: FieldType[] = [
   },
   // File Upload
   {
-    id: "file-upload",
+    id: "FILE_UPLOAD",
     label: "File Upload",
     description: "File attachment field",
     icon: Upload,
     category: "file",
   },
-]
+];
 
 interface AddQuestionButtonProps {
-  onAddQuestion: (fieldType: string, sectionId?: string) => void
-  sectionId?: string
+  onAddQuestion: (fieldType: PrismaFieldType, sectionId?: string) => void;
+  sectionId?: string;
 }
 
-export default function AddQuestionButton({ onAddQuestion, sectionId }: AddQuestionButtonProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export default function AddQuestionButton({
+  onAddQuestion,
+  sectionId,
+}: AddQuestionButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
       case "text":
-        return "Text Inputs"
+        return "Text Inputs";
       case "choice":
-        return "Choice Fields"
+        return "Choice Fields";
       case "advanced":
-        return "Interactive"
+        return "Interactive";
       case "date":
-        return "Date & Time"
+        return "Date & Time";
       case "file":
-        return "File Upload"
+        return "File Upload";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
-  const groupedFields = fieldTypes.reduce(
-    (acc, field) => {
-      if (!acc[field.category]) {
-        acc[field.category] = []
-      }
-      acc[field.category].push(field)
-      return acc
-    },
-    {} as Record<string, FieldType[]>,
-  )
+  const groupedFields = fieldTypes.reduce((acc, field) => {
+    if (!acc[field.category]) {
+      acc[field.category] = [];
+    }
+    acc[field.category].push(field);
+    return acc;
+  }, {} as Record<string, FieldType[]>);
 
-  const categoryOrder: Array<FieldType["category"]> = ["text", "choice", "advanced", "date", "file"]
+  const categoryOrder: Array<FieldType["category"]> = [
+    "text",
+    "choice",
+    "advanced",
+    "date",
+    "file",
+  ];
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -199,7 +206,7 @@ export default function AddQuestionButton({ onAddQuestion, sectionId }: AddQuest
             "group",
             isOpen
               ? "border-primary/50 bg-primary/5 text-primary"
-              : "border-border/50 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary",
+              : "border-border/50 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary"
           )}
         >
           <Plus className="h-4 w-4 group-hover:scale-110 transition-transform" />
@@ -217,30 +224,34 @@ export default function AddQuestionButton({ onAddQuestion, sectionId }: AddQuest
         <DropdownMenuSeparator className="my-1" />
 
         {categoryOrder.map((category, categoryIndex) => {
-          const fields = groupedFields[category]
-          if (!fields || fields.length === 0) return null
+          const fields = groupedFields[category];
+          if (!fields || fields.length === 0) return null;
 
           return (
             <div key={category}>
-              {categoryIndex > 0 && <DropdownMenuSeparator className="my-1.5" />}
+              {categoryIndex > 0 && (
+                <DropdownMenuSeparator className="my-1.5" />
+              )}
 
               <div className="px-2 py-1.5">
-                <p className="text-xs font-semibold text-muted-foreground">{getCategoryLabel(category)}</p>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {getCategoryLabel(category)}
+                </p>
               </div>
 
               {fields.map((field) => {
-                const Icon = field.icon
+                const Icon = field.icon;
                 return (
                   <DropdownMenuItem
                     key={field.id}
                     onClick={() => {
-                      onAddQuestion(field.id, sectionId)
-                      setIsOpen(false)
+                      onAddQuestion(field.id, sectionId);
+                      setIsOpen(false);
                     }}
                     className={cn(
                       "flex items-start gap-3 px-3 py-2.5 cursor-pointer rounded-lg",
                       "transition-all duration-200 group/item",
-                      "hover:bg-primary/5",
+                      "hover:bg-primary/5"
                     )}
                   >
                     <div
@@ -248,7 +259,7 @@ export default function AddQuestionButton({ onAddQuestion, sectionId }: AddQuest
                         "w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5",
                         "bg-primary/10 text-primary border border-primary/20",
                         "transition-all duration-200",
-                        "group-hover/item:bg-primary/15 group-hover/item:border-primary/30 group-hover/item:scale-105",
+                        "group-hover/item:bg-primary/15 group-hover/item:border-primary/30 group-hover/item:scale-105"
                       )}
                     >
                       <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200 group-hover/item:scale-110" />
@@ -262,12 +273,12 @@ export default function AddQuestionButton({ onAddQuestion, sectionId }: AddQuest
                       </p>
                     </div>
                   </DropdownMenuItem>
-                )
+                );
               })}
             </div>
-          )
+          );
         })}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

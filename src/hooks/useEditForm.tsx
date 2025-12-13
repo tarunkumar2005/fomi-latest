@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import {
   saveForm,
   getFormHeaderByFormSlug,
@@ -30,38 +31,43 @@ import {
   updateFormSettings,
 } from "@/lib/prisma";
 import type { NextSectionLogic } from "@/types/conditional-logic";
+import type {
+  Section,
+  Field,
+  FormHeaderData,
+  FormSettings,
+  FieldUpdateData,
+  SectionUpdateData,
+  AIEnhancementResult,
+  AIEnhancementSuggestion,
+  SectionDetailsForLogic,
+  ConditionalField,
+  SectionForNavigation,
+  CircularReferenceResult,
+} from "@/types/form-edit";
+import type { FieldType } from "@/app/generated/prisma/enums";
 import { useRouter } from "next/navigation";
 
 // Debounce delay in milliseconds
 const DEBOUNCE_DELAY = 800;
 
-interface Section {
-  id: string;
-  title: string;
-  description: string | null;
-  order: number;
-  nextSectionLogic: any;
-  isRepeatable?: boolean;
-  repeatCount?: number | null;
-  fields: Field[];
-}
-
-interface Field {
-  id: string;
-  sectionId: string;
-  type: string;
-  question: string;
-  order: number;
-  // ...other field properties
-}
-
 export const useEditForm = () => {
   const router = useRouter();
 
-  const [formHeaderData, setFormHeaderData] = useState<any>(null);
+  const [formHeaderData, setFormHeaderData] = useState<FormHeaderData | null>(
+    null
+  );
   const [isPublished, setIsPublished] = useState(false);
   const [isSaved, setIsSaved] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingHeader, setIsLoadingHeader] = useState(false);
+  const [headerError, setHeaderError] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Action loading states
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [sections, setSections] = useState<Section[]>([]);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
@@ -70,9 +76,11 @@ export const useEditForm = () => {
   // Debounce refs for field and section updates
   const fieldDebounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const sectionDebounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
-  const pendingFieldUpdates = useRef<Map<string, Partial<Field>>>(new Map());
-  const pendingSectionUpdates = useRef<Map<string, any>>(new Map());
-  
+  const pendingFieldUpdates = useRef<Map<string, FieldUpdateData>>(new Map());
+  const pendingSectionUpdates = useRef<Map<string, SectionUpdateData>>(
+    new Map()
+  );
+
   // Version tracking for optimistic locking
   const fieldUpdateVersions = useRef<Map<string, number>>(new Map());
   const sectionUpdateVersions = useRef<Map<string, number>>(new Map());
@@ -91,7 +99,7 @@ export const useEditForm = () => {
       // Clear pending updates maps
       pendingFieldUpdates.current.clear();
       pendingSectionUpdates.current.clear();
-      
+
       // Clear version tracking
       fieldUpdateVersions.current.clear();
       sectionUpdateVersions.current.clear();
@@ -101,12 +109,26 @@ export const useEditForm = () => {
   /**
    * Fetch form header data
    */
-  async function getFormHeaderData(slug: string): Promise<any> {
-    const data = await getFormHeaderByFormSlug(slug);
-    console.log("Form Header Data", data);
-    setFormHeaderData(data);
-    setIsPublished(data?.status === "PUBLISHED");
-    return data;
+  async function getFormHeaderData(slug: string): Promise<FormHeaderData> {
+    setIsLoadingHeader(true);
+    setHeaderError(null);
+    try {
+      const data = await getFormHeaderByFormSlug(slug);
+      if (!data) {
+        throw new Error("Form not found");
+      }
+      setFormHeaderData(data);
+      setIsPublished(data.status === "PUBLISHED");
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch form header:", error);
+      setHeaderError(
+        error instanceof Error ? error.message : "Failed to load form"
+      );
+      throw error;
+    } finally {
+      setIsLoadingHeader(false);
+    }
   }
 
   /**
@@ -122,16 +144,24 @@ export const useEditForm = () => {
     setIsSaved(false);
     try {
       await saveForm(slug, { title, description, headerImageUrl });
-      setFormHeaderData((prev: any) => ({
-        ...prev,
-        title,
-        description,
-        headerImageUrl:
-          headerImageUrl !== undefined ? headerImageUrl : prev.headerImageUrl,
-      }));
+      setFormHeaderData((prev) =>
+        prev
+          ? {
+              ...prev,
+              title,
+              description,
+              headerImageUrl:
+                headerImageUrl !== undefined
+                  ? headerImageUrl
+                  : prev.headerImageUrl,
+            }
+          : null
+      );
       setIsSaved(true);
+      return Promise.resolve();
     } catch (error) {
       console.error("Failed to update form header:", error);
+      throw error;
     } finally {
       setIsSaving(false);
     }
@@ -172,10 +202,14 @@ export const useEditForm = () => {
     setIsSaved(false);
     try {
       await updateFormSettings(slug, settings);
-      setFormHeaderData((prev: any) => ({
-        ...prev,
-        ...settings,
-      }));
+      setFormHeaderData((prev) =>
+        prev
+          ? {
+              ...prev,
+              ...settings,
+            }
+          : null
+      );
       setIsSaved(true);
     } catch (error) {
       console.error("Failed to update form settings:", error);
@@ -189,12 +223,16 @@ export const useEditForm = () => {
    * Toggle form publish status
    */
   async function toggleFormStatusHandler(slug: string): Promise<void> {
+    setIsPublishing(true);
     try {
       const newStatus = isPublished ? "DRAFT" : "PUBLISHED";
       await toggleFormStatusPrisma(slug, newStatus);
       setIsPublished(!isPublished);
     } catch (error) {
       console.error("Failed to toggle form status:", error);
+      throw error;
+    } finally {
+      setIsPublishing(false);
     }
   }
 
@@ -206,11 +244,15 @@ export const useEditForm = () => {
     workspaceId: string,
     userId: string
   ): Promise<void> {
+    setIsDuplicating(true);
     try {
       const newForm = await duplicateFormPrisma(formId, workspaceId, userId);
       router.push(`/forms/${newForm.slug}/edit`);
     } catch (error) {
       console.error("Failed to duplicate form:", error);
+      throw error;
+    } finally {
+      setIsDuplicating(false);
     }
   }
 
@@ -221,11 +263,15 @@ export const useEditForm = () => {
     slug: string,
     workspaceSlug: string
   ): Promise<void> {
+    setIsDeleting(true);
     try {
       await deleteFormBySlug(slug);
       router.push(`/dashboard/${workspaceSlug}`);
     } catch (error) {
       console.error("Failed to delete form:", error);
+      throw error;
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -258,19 +304,17 @@ export const useEditForm = () => {
     formId: string,
     title: string = "Untitled Section",
     description: string = ""
-  ): Promise<any> {
+  ): Promise<Section> {
     setIsSaving(true);
     setIsSaved(false);
     try {
       const newSection = await createSection(formId, title, description);
 
-      setSections((prev) => [
-        ...prev,
-        { ...newSection, fields: [] } as Section,
-      ]);
+      const sectionWithFields = { ...newSection, fields: [] };
+      setSections((prev) => [...prev, sectionWithFields]);
       setActiveSectionId(newSection.id);
       setIsSaved(true);
-      return newSection;
+      return sectionWithFields;
     } catch (error) {
       console.error("Failed to add section:", error);
       throw error;
@@ -284,14 +328,7 @@ export const useEditForm = () => {
    * Uses optimistic locking to prevent race conditions
    */
   const updateSectionData = useCallback(
-    (
-      sectionId: string,
-      data: {
-        title?: string;
-        description?: string;
-        nextSectionLogic?: any;
-      }
-    ): Promise<any> => {
+    (sectionId: string, data: SectionUpdateData): Promise<Section> => {
       // If updating logic, do it immediately (not debounced)
       if (data.nextSectionLogic !== undefined) {
         return (async () => {
@@ -299,6 +336,11 @@ export const useEditForm = () => {
           setIsSaved(false);
           try {
             const updatedSection = await updateSection(sectionId, data);
+            const currentSection = sections.find((s) => s.id === sectionId);
+            const sectionWithFields = {
+              ...updatedSection,
+              fields: currentSection?.fields || [],
+            };
             setSections((prev) =>
               prev.map((section) =>
                 section.id === sectionId
@@ -307,7 +349,7 @@ export const useEditForm = () => {
               )
             );
             setIsSaved(true);
-            return updatedSection;
+            return sectionWithFields;
           } catch (error) {
             console.error("Failed to update section:", error);
             throw error;
@@ -318,7 +360,8 @@ export const useEditForm = () => {
       }
 
       // Increment version for this section update
-      const currentVersion = (sectionUpdateVersions.current.get(sectionId) || 0) + 1;
+      const currentVersion =
+        (sectionUpdateVersions.current.get(sectionId) || 0) + 1;
       sectionUpdateVersions.current.set(sectionId, currentVersion);
 
       // Update local state immediately (optimistic update)
@@ -330,6 +373,7 @@ export const useEditForm = () => {
 
       // Mark as unsaved
       setIsSaved(false);
+      setHasUnsavedChanges(true);
 
       // Merge with any pending updates for this section
       const existingPending =
@@ -353,15 +397,22 @@ export const useEditForm = () => {
           // Check if this is still the latest version
           const latestVersion = sectionUpdateVersions.current.get(sectionId);
           if (latestVersion !== versionSnapshot) {
-            // A newer update has been scheduled, skip this one
-            resolve(null);
+            // A newer update has been scheduled, skip this one - return current section state
+            const currentSection = sections.find((s) => s.id === sectionId);
+            if (currentSection) {
+              resolve(currentSection);
+            }
             return;
           }
 
           // Double-check that we still have pending data
           const dataToSave = pendingSectionUpdates.current.get(sectionId);
           if (!dataToSave) {
-            resolve(null);
+            // No data to save - return current section state
+            const currentSection = sections.find((s) => s.id === sectionId);
+            if (currentSection) {
+              resolve(currentSection);
+            }
             return;
           }
 
@@ -373,14 +424,34 @@ export const useEditForm = () => {
           try {
             // Use the snapshot data, not the current ref value
             const updatedSection = await updateSection(sectionId, dataSnapshot);
+            const currentSection = sections.find((s) => s.id === sectionId);
+            const sectionWithFields = {
+              ...updatedSection,
+              fields: currentSection?.fields || [],
+            };
             setIsSaved(true);
-            resolve(updatedSection);
+
+            // Check if there are any remaining pending updates
+            const hasPending =
+              pendingSectionUpdates.current.size > 0 ||
+              pendingFieldUpdates.current.size > 0;
+            setHasUnsavedChanges(hasPending);
+
+            resolve(sectionWithFields);
           } catch (error) {
             console.error("Failed to update section:", error);
-            
+
+            // Show user-friendly error toast
+            toast.error("Failed to save section changes", {
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "Your changes could not be saved. Please try again.",
+            });
+
             // On error, restore the pending update so it can be retried
             pendingSectionUpdates.current.set(sectionId, dataSnapshot);
-            
+
             reject(error);
           } finally {
             setIsSaving(false);
@@ -444,11 +515,7 @@ export const useEditForm = () => {
 
       // Transform to match Section interface
       const newSection: Section = {
-        id: duplicatedSection.id,
-        title: duplicatedSection.title,
-        description: duplicatedSection.description,
-        order: duplicatedSection.order,
-        nextSectionLogic: duplicatedSection.nextSectionLogic,
+        ...duplicatedSection,
         fields: duplicatedSection.fields as Field[],
       };
 
@@ -579,9 +646,9 @@ export const useEditForm = () => {
    */
   async function addField(
     sectionId: string,
-    fieldType: string,
+    fieldType: FieldType,
     question?: string
-  ): Promise<any> {
+  ): Promise<Field> {
     setIsSaving(true);
     setIsSaved(false);
     try {
@@ -615,9 +682,10 @@ export const useEditForm = () => {
    * Uses optimistic locking to prevent race conditions
    */
   const updateFieldData = useCallback(
-    (fieldId: string, data: Partial<Field>): Promise<any> => {
+    (fieldId: string, data: FieldUpdateData): Promise<Field> => {
       // Increment version for this field update
-      const currentVersion = (fieldUpdateVersions.current.get(fieldId) || 0) + 1;
+      const currentVersion =
+        (fieldUpdateVersions.current.get(fieldId) || 0) + 1;
       fieldUpdateVersions.current.set(fieldId, currentVersion);
 
       // Update local state immediately (optimistic update)
@@ -632,6 +700,7 @@ export const useEditForm = () => {
 
       // Mark as unsaved
       setIsSaved(false);
+      setHasUnsavedChanges(true);
 
       // Merge with any pending updates for this field
       const existingPending = pendingFieldUpdates.current.get(fieldId) || {};
@@ -654,15 +723,21 @@ export const useEditForm = () => {
           // Check if this is still the latest version
           const latestVersion = fieldUpdateVersions.current.get(fieldId);
           if (latestVersion !== versionSnapshot) {
-            // A newer update has been scheduled, skip this one
-            resolve(null);
+            // A newer update has been scheduled, skip this one - resolve with current field state
+            const currentField = sections
+              .flatMap((s) => s.fields)
+              .find((f) => f.id === fieldId);
+            resolve(currentField!);
             return;
           }
 
           // Double-check that we still have pending data
           const dataToSave = pendingFieldUpdates.current.get(fieldId);
           if (!dataToSave) {
-            resolve(null);
+            const currentField = sections
+              .flatMap((s) => s.fields)
+              .find((f) => f.id === fieldId);
+            resolve(currentField!);
             return;
           }
 
@@ -675,13 +750,29 @@ export const useEditForm = () => {
             // Use the snapshot data, not the current ref value
             const updatedField = await updateField(fieldId, dataSnapshot);
             setIsSaved(true);
+
+            // Check if there are any remaining pending updates
+            const hasPending =
+              pendingSectionUpdates.current.size > 0 ||
+              pendingFieldUpdates.current.size > 0;
+            setHasUnsavedChanges(hasPending);
+
             resolve(updatedField);
           } catch (error) {
             console.error("Failed to update field:", error);
-            
-            // On error, restore the pending update so it can be retried
+
+            // Show user-friendly error toast
+            toast.error("Failed to save field changes", {
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "Your changes could not be saved. Please try again.",
+            });
+
+            // Revert optimistic update by fetching fresh data
+            // For now, restore the pending update so user can retry
             pendingFieldUpdates.current.set(fieldId, dataSnapshot);
-            
+
             reject(error);
           } finally {
             setIsSaving(false);
@@ -714,6 +805,11 @@ export const useEditForm = () => {
       );
       pendingFieldUpdates.current.clear();
       setIsSaved(true);
+
+      // Clear unsaved flag if no section updates are pending
+      if (pendingSectionUpdates.current.size === 0) {
+        setHasUnsavedChanges(false);
+      }
     } catch (error) {
       console.error("Failed to flush pending updates:", error);
     } finally {
@@ -896,13 +992,9 @@ export const useEditForm = () => {
    * Enhance a field using AI
    */
   async function enhanceFieldWithAI(
-    field: any,
+    field: Field,
     sectionTitle?: string
-  ): Promise<{
-    success: boolean;
-    data?: import("@/lib/agent").FieldEnhanceResponse;
-    error?: string;
-  }> {
+  ): Promise<AIEnhancementResult> {
     try {
       const { enhanceField } = await import("@/lib/agent");
 
@@ -937,7 +1029,7 @@ export const useEditForm = () => {
           question: field.question,
           description: field.description,
           placeholder: field.placeholder,
-          options: field.options,
+          options: field.options as any,
           minLabel: field.minLabel,
           maxLabel: field.maxLabel,
         },
@@ -964,15 +1056,11 @@ export const useEditForm = () => {
    * Regenerate enhancement with feedback
    */
   async function regenerateEnhancement(
-    field: any,
-    previousSuggestion: import("@/lib/agent").FieldEnhanceResponse,
+    field: Field,
+    previousSuggestion: AIEnhancementSuggestion | undefined,
     feedback?: string,
     sectionTitle?: string
-  ): Promise<{
-    success: boolean;
-    data?: import("@/lib/agent").FieldEnhanceResponse;
-    error?: string;
-  }> {
+  ): Promise<AIEnhancementResult> {
     try {
       const { regenerateEnhancement: regenerate } = await import("@/lib/agent");
 
@@ -1001,6 +1089,25 @@ export const useEditForm = () => {
         ? normalizedType
         : "SHORT_ANSWER";
 
+      // If no previous suggestion, we can't regenerate
+      if (!previousSuggestion) {
+        return {
+          success: false,
+          error: "No previous suggestion to regenerate from",
+        };
+      }
+
+      // Convert AIEnhancementSuggestion to FieldEnhanceResponse format
+      const convertedSuggestion = {
+        question: previousSuggestion.question || field.question,
+        description: previousSuggestion.description || null,
+        placeholder: previousSuggestion.placeholder || null,
+        options: previousSuggestion.options || null,
+        minLabel: previousSuggestion.minLabel || null,
+        maxLabel: previousSuggestion.maxLabel || null,
+        suggestions: previousSuggestion.suggestions || [],
+      };
+
       const result = await regenerate(
         {
           fieldType,
@@ -1008,7 +1115,7 @@ export const useEditForm = () => {
             question: field.question,
             description: field.description,
             placeholder: field.placeholder,
-            options: field.options,
+            options: field.options as any,
             minLabel: field.minLabel,
             maxLabel: field.maxLabel,
           },
@@ -1020,7 +1127,7 @@ export const useEditForm = () => {
             : undefined,
           sectionTitle,
         },
-        previousSuggestion,
+        convertedSuggestion,
         feedback
       );
 
@@ -1042,21 +1149,23 @@ export const useEditForm = () => {
   async function updateSectionNavigationLogic(
     sectionId: string,
     logic: NextSectionLogic
-  ): Promise<any> {
+  ): Promise<Section> {
     setIsSaving(true);
     setIsSaved(false);
     try {
       const updatedSection = await updateSectionLogic(sectionId, logic);
 
+      const currentSection = sections.find((s) => s.id === sectionId);
+
       setSections((prev) =>
         prev.map((section) =>
           section.id === sectionId
-            ? { ...section, nextSectionLogic: logic }
+            ? { ...section, nextSectionLogic: logic as any }
             : section
         )
       );
       setIsSaved(true);
-      return updatedSection;
+      return { ...updatedSection, fields: currentSection?.fields || [] };
     } catch (error) {
       console.error("Failed to update section logic:", error);
       throw error;
@@ -1068,9 +1177,15 @@ export const useEditForm = () => {
   /**
    * Get section with all its fields (for conditional logic modal)
    */
-  async function getSectionDetails(sectionId: string): Promise<any> {
+  async function getSectionDetails(
+    sectionId: string
+  ): Promise<SectionDetailsForLogic> {
     try {
-      return await getSectionWithFields(sectionId);
+      const section = await getSectionWithFields(sectionId);
+      if (!section) {
+        throw new Error("Section not found");
+      }
+      return section as SectionDetailsForLogic;
     } catch (error) {
       console.error("Failed to get section details:", error);
       throw error;
@@ -1082,7 +1197,7 @@ export const useEditForm = () => {
    */
   async function getConditionalFieldsForSection(
     sectionId: string
-  ): Promise<Field[]> {
+  ): Promise<ConditionalField[]> {
     try {
       return await getConditionalFields(sectionId);
     } catch (error) {
@@ -1096,7 +1211,7 @@ export const useEditForm = () => {
    */
   async function getSectionsForNavigation(
     formId: string
-  ): Promise<Array<{ id: string; title: string; order: number }>> {
+  ): Promise<SectionForNavigation[]> {
     try {
       return await getFormSectionsForNavigation(formId);
     } catch (error) {
@@ -1124,10 +1239,9 @@ export const useEditForm = () => {
   /**
    * Check for circular references in form navigation
    */
-  async function checkCircularReferences(formId: string): Promise<{
-    hasCircularReference: boolean;
-    cycles: string[][];
-  }> {
+  async function checkCircularReferences(
+    formId: string
+  ): Promise<CircularReferenceResult> {
     try {
       return await detectCircularReferences(formId);
     } catch (error) {
@@ -1174,6 +1288,9 @@ export const useEditForm = () => {
       pendingFieldUpdates.current.clear();
       pendingSectionUpdates.current.clear();
       setIsSaved(true);
+
+      // All updates flushed, clear unsaved flag
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error("Failed to flush pending updates:", error);
     } finally {
@@ -1194,6 +1311,12 @@ export const useEditForm = () => {
     isPublished,
     isSaved,
     isSaving,
+    isLoadingHeader,
+    headerError,
+    hasUnsavedChanges,
+    isPublishing,
+    isDuplicating,
+    isDeleting,
     duplicateForm: duplicateFormHandler,
     deleteForm: deleteFormHandler,
 

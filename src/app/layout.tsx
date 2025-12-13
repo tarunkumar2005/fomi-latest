@@ -3,7 +3,6 @@ import { Providers } from "./providers";
 import ConditionalFooter from "@/components/shared/ConditionalFooter";
 import PostHogPageView from "@/components/shared/PostHogPageView";
 import { Toaster } from "@/components/ui/sonner";
-import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -61,10 +60,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script
-          src={process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL}
-          data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-          strategy="afterInteractive"
+        {/* Google Fonts for theme support */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap"
+          rel="stylesheet"
         />
       </head>
       <body className={`antialiased`}>

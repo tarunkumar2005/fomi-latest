@@ -152,12 +152,22 @@ export default function SectionContainer({
         style={{
           transform: CSS.Transform.toString(transform),
           transition,
+          backgroundColor: "var(--preview-card, hsl(var(--card)))",
+          borderColor: isActive
+            ? "var(--preview-primary, hsl(var(--primary)))"
+            : "var(--preview-border, hsl(var(--border)))",
+          borderRadius: "var(--preview-border-radius, 0.5rem)",
+          borderWidth: "1px",
+          borderStyle: "solid",
+          ...(isActive && {
+            borderLeftWidth: "4px",
+            borderLeftColor: "var(--preview-primary, hsl(var(--primary)))",
+            boxShadow: `0 0 0 1px color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 20%, transparent), 0 10px 15px -3px rgb(0 0 0 / 0.1)`,
+          }),
         }}
         className={cn(
-          "group relative bg-card rounded-lg border transition-all duration-200",
-          isActive
-            ? "border-primary shadow-lg ring-1 ring-primary/20 border-l-4 border-l-primary"
-            : "border-border hover:border-border/80 hover:shadow-sm",
+          "group relative transition-all duration-200",
+          isActive ? "shadow-lg" : "hover:shadow-sm",
           isDragging && "opacity-50 shadow-2xl z-50"
         )}
         onClick={() => !isActive && onActivate()}
@@ -176,7 +186,10 @@ export default function SectionContainer({
           </div>
         </div>
         {/* Section Header */}
-        <div className="p-6 border-b border-border space-y-3">
+        <div
+          className="p-6 border-b space-y-3"
+          style={{ borderColor: "var(--preview-border, hsl(var(--border)))" }}
+        >
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0 space-y-2">
               {/* Section Title with Badge */}
@@ -196,7 +209,11 @@ export default function SectionContainer({
                         setIsEditingTitle(false);
                       }
                     }}
-                    className="text-lg font-semibold h-auto py-1 px-2 border-2 border-primary flex-1"
+                    style={{
+                      borderColor: "var(--theme-primary)",
+                      borderWidth: "2px",
+                    }}
+                    className="text-lg font-semibold h-auto py-1 px-2 flex-1"
                     placeholder="Section title"
                   />
                 ) : (
@@ -206,9 +223,15 @@ export default function SectionContainer({
                         e.stopPropagation();
                         setIsEditingTitle(true);
                       }}
+                      style={{
+                        color: title
+                          ? "var(--preview-text, hsl(var(--foreground)))"
+                          : "var(--preview-text-muted, hsl(var(--muted-foreground)))",
+                        fontFamily:
+                          "var(--preview-font-heading, 'Sora', sans-serif)",
+                      }}
                       className={cn(
-                        "text-lg font-semibold text-foreground cursor-text hover:text-primary transition-colors flex-1",
-                        !title && "text-muted-foreground"
+                        "text-lg font-semibold cursor-text transition-colors flex-1"
                       )}
                     >
                       {title || "Click to add section title"}
@@ -216,7 +239,14 @@ export default function SectionContainer({
                     {hasConditionalLogic && (
                       <Badge
                         variant="secondary"
-                        className="flex items-center gap-1 bg-primary/10 text-primary border-primary/20"
+                        className="flex items-center gap-1"
+                        style={{
+                          backgroundColor:
+                            "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
+                          color: "var(--preview-primary, hsl(var(--primary)))",
+                          borderColor:
+                            "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 20%, transparent)",
+                        }}
                       >
                         <GitBranch className="h-3 w-3" />
                         <span className="text-xs">Conditional</span>
@@ -260,11 +290,15 @@ export default function SectionContainer({
                     e.stopPropagation();
                     setIsEditingDescription(true);
                   }}
+                  style={{
+                    color: description
+                      ? "var(--preview-text-muted, hsl(var(--muted-foreground)))"
+                      : "color-mix(in srgb, var(--preview-text-muted, hsl(var(--muted-foreground))) 50%, transparent)",
+                    fontFamily: "var(--preview-font-body, 'Inter', sans-serif)",
+                  }}
                   className={cn(
-                    "text-sm cursor-text hover:text-foreground transition-colors",
-                    description
-                      ? "text-muted-foreground"
-                      : "text-muted-foreground/50 italic"
+                    "text-sm cursor-text transition-colors",
+                    !description && "italic"
                   )}
                 >
                   {description || "Click to add description"}

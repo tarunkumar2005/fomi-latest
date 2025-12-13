@@ -1,6 +1,5 @@
 "use client";
 
-import { memo } from "react";
 import type { ReactNode } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -12,10 +11,7 @@ interface DraggableFieldWrapperProps {
   children: ReactNode;
 }
 
-function DraggableFieldWrapper({
-  id,
-  children,
-}: DraggableFieldWrapperProps) {
+function DraggableFieldWrapper({ id, children }: DraggableFieldWrapperProps) {
   const {
     attributes,
     listeners,
@@ -47,9 +43,7 @@ function DraggableFieldWrapper({
   );
 }
 
-// Memoize to prevent re-renders when sibling fields change
-export default memo(DraggableFieldWrapper, (prev, next) => {
-  // Only re-render if the id changes (which shouldn't happen)
-  // Children will handle their own re-renders
-  return prev.id === next.id;
-});
+// Note: We intentionally do NOT memoize this component.
+// The children (field components) need to re-render when their props change.
+// Memoizing based only on `id` would prevent children from updating.
+export default DraggableFieldWrapper;

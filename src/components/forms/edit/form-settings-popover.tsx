@@ -1,75 +1,167 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { Settings, CalendarDays, Users, UserCheck, MessageSquare, Loader2, X, Check } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Settings,
+  CalendarDays,
+  Users,
+  UserCheck,
+  MessageSquare,
+  Loader2,
+  X,
+  Check,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface FormSettings {
-  closeDate?: Date | null
-  responseLimit?: number | null
-  oneResponsePerUser?: boolean
-  thankYouMessage?: string | null
+  closeDate?: Date | null;
+  responseLimit?: number | null;
+  oneResponsePerUser?: boolean;
+  thankYouMessage?: string | null;
 }
 
 interface FormSettingsPopoverProps {
-  settings: FormSettings
-  onSave: (settings: FormSettings) => Promise<void>
-  trigger?: React.ReactNode
+  settings: FormSettings;
+  onSave: (settings: FormSettings) => Promise<void>;
+  trigger?: React.ReactNode;
 }
 
-export default function FormSettingsPopover({ settings, onSave, trigger }: FormSettingsPopoverProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [showCalendar, setShowCalendar] = useState(false)
+export default function FormSettingsPopover({
+  settings,
+  onSave,
+  trigger,
+}: FormSettingsPopoverProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Local state for editing
-  const [closeDate, setCloseDate] = useState<Date | null>(settings.closeDate ? new Date(settings.closeDate) : null)
-  const [responseLimit, setResponseLimit] = useState<string>(settings.responseLimit?.toString() || "")
-  const [oneResponsePerUser, setOneResponsePerUser] = useState(settings.oneResponsePerUser || false)
-  const [thankYouMessage, setThankYouMessage] = useState(settings.thankYouMessage || "")
+  const [closeDate, setCloseDate] = useState<Date | null>(
+    settings.closeDate ? new Date(settings.closeDate) : null
+  );
+  const [responseLimit, setResponseLimit] = useState<string>(
+    settings.responseLimit?.toString() || ""
+  );
+  const [oneResponsePerUser, setOneResponsePerUser] = useState(
+    settings.oneResponsePerUser || false
+  );
+  const [thankYouMessage, setThankYouMessage] = useState(
+    settings.thankYouMessage || ""
+  );
+
+  // Validation errors
+  const [responseLimitError, setResponseLimitError] = useState<string>("");
+  const [closeDateError, setCloseDateError] = useState<string>("");
 
   // Reset local state when popover opens
   useEffect(() => {
     if (isOpen) {
-      setCloseDate(settings.closeDate ? new Date(settings.closeDate) : null)
-      setResponseLimit(settings.responseLimit?.toString() || "")
-      setOneResponsePerUser(settings.oneResponsePerUser || false)
-      setThankYouMessage(settings.thankYouMessage || "")
-      setShowCalendar(false)
+      setCloseDate(settings.closeDate ? new Date(settings.closeDate) : null);
+      setResponseLimit(settings.responseLimit?.toString() || "");
+      setOneResponsePerUser(settings.oneResponsePerUser || false);
+      setThankYouMessage(settings.thankYouMessage || "");
+      setShowCalendar(false);
+      setResponseLimitError("");
+      setCloseDateError("");
     }
-  }, [isOpen, settings])
+  }, [isOpen, settings]);
+
+  // Validation function
+  const validateSettings = (): boolean => {
+    let isValid = true;
+
+    // Validate response limit
+    if (responseLimit) {
+      const limit = Number.parseInt(responseLimit);
+      if (isNaN(limit) || limit <= 0) {
+        setResponseLimitError("Must be a positive number");
+        isValid = false;
+      } else {
+        setResponseLimitError("");
+      }
+    } else {
+      setResponseLimitError("");
+    }
+
+    // Validate close date
+    if (closeDate) {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const selectedDate = new Date(closeDate);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      if (selectedDate < now) {
+        setCloseDateError("Cannot set a date in the past");
+        isValid = false;
+      } else {
+        setCloseDateError("");
+      }
+    } else {
+      setCloseDateError("");
+    }
+
+    return isValid;
+  };
+
+  // Validate on input change
+  const handleResponseLimitChange = (value: string) => {
+    setResponseLimit(value);
+    if (value) {
+      const limit = Number.parseInt(value);
+      if (isNaN(limit) || limit <= 0) {
+        setResponseLimitError("Must be a positive number");
+      } else {
+        setResponseLimitError("");
+      }
+    } else {
+      setResponseLimitError("");
+    }
+  };
 
   const handleSave = async () => {
-    setIsSaving(true)
+    // Validate before saving
+    if (!validateSettings()) {
+      return;
+    }
+
+    setIsSaving(true);
     try {
       await onSave({
         closeDate,
         responseLimit: responseLimit ? Number.parseInt(responseLimit) : null,
         oneResponsePerUser,
         thankYouMessage: thankYouMessage || null,
-      })
-      setIsOpen(false)
+      });
+      setIsOpen(false);
     } catch (error) {
-      console.error("Failed to save settings:", error)
+      console.error("Failed to save settings:", error);
+      // Error toast is handled by the parent component
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
+
+  // Check if form is valid
+  const isFormValid = !responseLimitError && !closeDateError;
 
   const handleClearCloseDate = () => {
-    setCloseDate(null)
-    setShowCalendar(false)
-  }
+    setCloseDate(null);
+    setShowCalendar(false);
+  };
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -92,7 +184,9 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
               <Settings className="h-4 w-4 text-primary" />
             </div>
-            <h3 className="text-sm font-semibold text-foreground">Form Settings</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              Form Settings
+            </h3>
           </div>
           <Button
             variant="ghost"
@@ -121,8 +215,8 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
                     mode="single"
                     selected={closeDate || undefined}
                     onSelect={(date: Date | undefined) => {
-                      setCloseDate(date || null)
-                      setShowCalendar(false)
+                      setCloseDate(date || null);
+                      setShowCalendar(false);
                     }}
                     disabled={(date: Date) => date < new Date()}
                     className="rounded-xl border border-border/50 bg-background p-2"
@@ -143,7 +237,7 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
                     size="sm"
                     className={cn(
                       "flex-1 justify-start text-left font-normal h-9 text-xs rounded-lg border-border/50",
-                      !closeDate && "text-muted-foreground",
+                      !closeDate && "text-muted-foreground"
                     )}
                     onClick={() => setShowCalendar(true)}
                   >
@@ -161,7 +255,15 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
                   )}
                 </div>
               )}
-              <p className="text-[11px] text-muted-foreground mt-1.5">Form stops accepting responses after this date</p>
+              {closeDateError ? (
+                <p className="text-[11px] text-destructive mt-1.5">
+                  {closeDateError}
+                </p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground mt-1.5">
+                  Form stops accepting responses after this date
+                </p>
+              )}
             </div>
           </div>
 
@@ -180,11 +282,23 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
                 type="number"
                 placeholder="No limit"
                 value={responseLimit}
-                onChange={(e) => setResponseLimit(e.target.value)}
+                onChange={(e) => handleResponseLimitChange(e.target.value)}
                 min={1}
-                className="h-9 text-sm rounded-lg border-border/50"
+                className={cn(
+                  "h-9 text-sm rounded-lg border-border/50",
+                  responseLimitError &&
+                    "border-destructive focus-visible:ring-destructive"
+                )}
               />
-              <p className="text-[11px] text-muted-foreground mt-1.5">Maximum number of responses allowed</p>
+              {responseLimitError ? (
+                <p className="text-[11px] text-destructive mt-1.5">
+                  {responseLimitError}
+                </p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground mt-1.5">
+                  Maximum number of responses allowed
+                </p>
+              )}
             </div>
           </div>
 
@@ -197,11 +311,19 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
                 <UserCheck className="h-3.5 w-3.5 text-emerald-500" />
               </div>
               <div>
-                <Label className="text-sm font-medium">One response per user</Label>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Limit each user to a single response</p>
+                <Label className="text-sm font-medium">
+                  One response per user
+                </Label>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Limit each user to a single response
+                </p>
               </div>
             </div>
-            <Switch checked={oneResponsePerUser} onCheckedChange={setOneResponsePerUser} className="mt-0.5" />
+            <Switch
+              checked={oneResponsePerUser}
+              onCheckedChange={setOneResponsePerUser}
+              className="mt-0.5"
+            />
           </div>
 
           <div className="h-px bg-border/30" />
@@ -222,7 +344,9 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
                 rows={2}
                 className="resize-none text-sm rounded-lg border-border/50"
               />
-              <p className="text-[11px] text-muted-foreground mt-1.5">Shown after form submission</p>
+              <p className="text-[11px] text-muted-foreground mt-1.5">
+                Shown after form submission
+              </p>
             </div>
           </div>
         </div>
@@ -241,7 +365,7 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
           <Button
             size="sm"
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || !isFormValid}
             className="h-8 px-4 text-xs min-w-20 rounded-lg"
           >
             {isSaving ? (
@@ -256,5 +380,5 @@ export default function FormSettingsPopover({ settings, onSave, trigger }: FormS
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

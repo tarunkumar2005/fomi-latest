@@ -38,6 +38,12 @@ const UrlField = memo(function UrlField({
   isAdvancedOpen,
   onAdvancedToggle,
 }: UrlFieldProps) {
+  console.log(`UrlField rendering for ${field.id}:`, {
+    question: field.question,
+    description: field.description,
+    placeholder: field.placeholder,
+  });
+
   // Use shared field handlers hook
   const {
     isEditingQuestion,
@@ -193,18 +199,6 @@ const UrlField = memo(function UrlField({
         </div>
       </AdvancedPanel>
     </>
-  );
-}, (prevProps, nextProps) => {
-  return (
-    prevProps.field.id === nextProps.field.id &&
-    prevProps.field.question === nextProps.field.question &&
-    prevProps.field.description === nextProps.field.description &&
-    prevProps.field.placeholder === nextProps.field.placeholder &&
-    prevProps.field.required === nextProps.field.required &&
-    prevProps.field.requireHttps === nextProps.field.requireHttps &&
-    prevProps.field.allowedDomains === nextProps.field.allowedDomains &&
-    prevProps.index === nextProps.index &&
-    prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
   );
 });
 
