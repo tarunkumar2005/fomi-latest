@@ -1,30 +1,33 @@
-"use client";
+"use client"
 
-import { useCallback, memo } from "react";
-import { Mail } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import FieldWrapper from "@/components/forms/edit/shared/FieldWrapper";
-import AdvancedPanel from "@/components/forms/edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "@/components/forms/edit/hooks/useFieldHandlers";
+import { useCallback, memo } from "react"
+import { Mail, AtSign } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+  AdvancedPanelDivider,
+} from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
 
 interface EmailFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    placeholder?: string;
-    required: boolean;
-    allowedDomains?: string; // Comma-separated domains like "company.com, example.org"
-    blockedDomains?: string; // Comma-separated domains to reject
-  };
-  index: number;
-  onUpdate: (updates: Partial<EmailFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    placeholder?: string
+    required: boolean
+    allowedDomains?: string
+    blockedDomains?: string
+  }
+  index: number
+  onUpdate: (updates: Partial<EmailFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
 const EmailField = memo(
@@ -38,7 +41,6 @@ const EmailField = memo(
     isAdvancedOpen,
     onAdvancedToggle,
   }: EmailFieldProps) {
-    // Use shared field handlers hook
     const {
       isEditingQuestion,
       isEditingDescription,
@@ -57,32 +59,32 @@ const EmailField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value });
+        onUpdate({ placeholder: value })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required });
-    }, [field.required, onUpdate]);
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
     const handleAllowedDomainsChange = useCallback(
       (value: string) => {
-        onUpdate({ allowedDomains: value || undefined });
+        onUpdate({ allowedDomains: value || undefined })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleBlockedDomainsChange = useCallback(
       (value: string) => {
-        onUpdate({ blockedDomains: value || undefined });
+        onUpdate({ blockedDomains: value || undefined })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     return (
       <>
@@ -117,30 +119,32 @@ const EmailField = memo(
           showAdvanced={true}
         >
           {/* Field-specific preview content */}
-          <Input
-            type="email"
-            value=""
-            placeholder={field.placeholder || "name@example.com"}
-            disabled
-            className="bg-background border-border/50 cursor-not-allowed text-muted-foreground/50"
-          />
+          <div className="relative group/input">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <AtSign className="h-4 w-4 text-muted-foreground/60 group-hover/input:text-primary/60 transition-colors" />
+            </div>
+            <Input
+              type="email"
+              value=""
+              placeholder={field.placeholder || "name@example.com"}
+              disabled
+              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+            />
+          </div>
         </FieldWrapper>
 
         {/* Advanced Settings Panel */}
         <AdvancedPanel
           isOpen={isAdvancedOpen ?? false}
           onClose={handleAdvancedClose}
-          title="Advanced Settings"
+          title="Email Settings"
           subtitle="Configure email validation and behavior"
         >
-          {/* Placeholder */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="placeholder"
-              className="text-sm font-medium text-foreground"
-            >
-              Placeholder Text
-            </Label>
+          <AdvancedPanelFieldGroup
+            label="Placeholder Text"
+            htmlFor="placeholder"
+            description="Example email shown before user types"
+          >
             <Input
               id="placeholder"
               type="email"
@@ -149,25 +153,16 @@ const EmailField = memo(
               placeholder="name@example.com"
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">
-              Example email shown before user types
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Domain Restrictions */}
-          <div className="pt-4 border-t border-border/50">
-            <h4 className="text-sm font-semibold text-foreground mb-4">
-              Domain Restrictions
-            </h4>
+          <AdvancedPanelDivider />
 
-            {/* Allowed Domains */}
-            <div className="space-y-2 mb-4">
-              <Label
-                htmlFor="allowedDomains"
-                className="text-sm font-medium text-foreground"
-              >
-                Allowed Domains (optional)
-              </Label>
+          <AdvancedPanelSection title="Domain Restrictions">
+            <AdvancedPanelFieldGroup
+              label="Allowed Domains (optional)"
+              htmlFor="allowedDomains"
+              description="Only accept emails from these domains (comma-separated). Leave empty to allow all."
+            >
               <Input
                 id="allowedDomains"
                 value={field.allowedDomains || ""}
@@ -175,20 +170,13 @@ const EmailField = memo(
                 placeholder="company.com, example.org"
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Only accept emails from these domains (comma-separated). Leave
-                empty to allow all.
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Blocked Domains */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="blockedDomains"
-                className="text-sm font-medium text-foreground"
-              >
-                Blocked Domains (optional)
-              </Label>
+            <AdvancedPanelFieldGroup
+              label="Blocked Domains (optional)"
+              htmlFor="blockedDomains"
+              description="Reject emails from these domains (comma-separated)"
+            >
               <Input
                 id="blockedDomains"
                 value={field.blockedDomains || ""}
@@ -196,14 +184,11 @@ const EmailField = memo(
                 placeholder="spam.com, tempmail.org"
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Reject emails from these domains (comma-separated)
-              </p>
-            </div>
-          </div>
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -216,8 +201,8 @@ const EmailField = memo(
       prevProps.field.blockedDomains === nextProps.field.blockedDomains &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    );
-  }
-);
+    )
+  },
+)
 
-export default EmailField;
+export default EmailField

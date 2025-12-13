@@ -1,31 +1,35 @@
-"use client";
+"use client"
 
-import { useState, useCallback, memo } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Ruler } from "lucide-react";
-import FieldWrapper from "../edit/shared/FieldWrapper";
-import AdvancedPanel from "../edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { useState, useCallback, memo } from "react"
+import { Input } from "@/components/ui/input"
+import { Ruler } from "lucide-react"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+  AdvancedPanelDivider,
+} from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+import { cn } from "@/lib/utils"
 
 interface LinearScaleFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    required: boolean;
-    min?: number;
-    max?: number;
-    minLabel?: string;
-    maxLabel?: string;
-  };
-  index: number;
-  onUpdate: (updates: Partial<LinearScaleFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    required: boolean
+    min?: number
+    max?: number
+    minLabel?: string
+    maxLabel?: string
+  }
+  index: number
+  onUpdate: (updates: Partial<LinearScaleFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
 const LinearScaleField = memo(
@@ -39,7 +43,7 @@ const LinearScaleField = memo(
     isAdvancedOpen,
     onAdvancedToggle,
   }: LinearScaleFieldProps) {
-    const [selectedValue, setSelectedValue] = useState<number | null>(null);
+    const [selectedValue, setSelectedValue] = useState<number | null>(null)
 
     const {
       isEditingQuestion,
@@ -59,64 +63,63 @@ const LinearScaleField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required });
-    }, [field.required, onUpdate]);
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
-    const min = field.min ?? 1;
-    const max = field.max ?? 5;
-    const minLabel = field.minLabel || "";
-    const maxLabel = field.maxLabel || "";
+    const min = field.min ?? 1
+    const max = field.max ?? 5
+    const minLabel = field.minLabel || ""
+    const maxLabel = field.maxLabel || ""
 
     const handleMinChange = (value: string) => {
-      const num = parseInt(value);
+      const num = Number.parseInt(value)
       if (!isNaN(num) && num >= 0 && num < (field.max ?? 10)) {
-        onUpdate({ min: num });
+        onUpdate({ min: num })
       }
-    };
+    }
 
     const handleMaxChange = (value: string) => {
-      const num = parseInt(value);
+      const num = Number.parseInt(value)
       if (!isNaN(num) && num > (field.min ?? 0) && num <= 10) {
-        onUpdate({ max: num });
+        onUpdate({ max: num })
       }
-    };
+    }
 
     const handleMinLabelChange = (value: string) => {
-      onUpdate({ minLabel: value });
-    };
+      onUpdate({ minLabel: value })
+    }
 
     const handleMaxLabelChange = (value: string) => {
-      onUpdate({ maxLabel: value });
-    };
+      onUpdate({ maxLabel: value })
+    }
 
-    const renderScaleButtons = () => {
-      const buttons = [];
+    const renderScaleButtons = (interactive = false) => {
+      const buttons = []
       for (let i = min; i <= max; i++) {
         buttons.push(
           <button
             key={i}
             type="button"
-            onClick={() => setSelectedValue(i)}
-            disabled
-            className={`
-            h-12 min-w-[3rem] px-4 rounded-lg border-2 font-semibold text-base
-            transition-all duration-150 cursor-pointer
-            ${
+            onClick={() => interactive && setSelectedValue(i)}
+            disabled={!interactive}
+            className={cn(
+              "h-11 min-w-[2.75rem] px-3 rounded-lg border-2 font-semibold text-sm",
+              "transition-all duration-150",
               selectedValue === i
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-background text-foreground hover:border-primary/50"
-            }
-          `}
+                ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-primary/5",
+              !interactive && "cursor-not-allowed opacity-60",
+            )}
           >
             {i}
-          </button>
-        );
+          </button>,
+        )
       }
-      return buttons;
-    };
+      return buttons
+    }
 
     return (
       <>
@@ -150,68 +153,45 @@ const LinearScaleField = memo(
           onAdvancedClick={handleAdvancedClick}
         >
           {/* Linear Scale Preview */}
-          <div className="mb-5">
-            {/* Scale with labels */}
-            <div className="space-y-3">
-              {/* Min Label (if provided) */}
+          <div className="space-y-3">
+            {/* Labels row */}
+            <div className="flex items-center justify-between text-sm">
               {minLabel && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground min-w-[3rem] text-center">
-                    {min}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {minLabel}
-                  </span>
-                </div>
+                <span className="text-muted-foreground flex items-center gap-2">
+                  <span className="text-xs font-medium text-foreground/60 bg-muted px-2 py-0.5 rounded">{min}</span>
+                  {minLabel}
+                </span>
               )}
-
-              {/* Scale Buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {renderScaleButtons()}
-              </div>
-
-              {/* Max Label (if provided) */}
-              {maxLabel && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground min-w-[3rem] text-center">
-                    {max}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {maxLabel}
-                  </span>
-                </div>
-              )}
-
-              {/* Helper text */}
               {!minLabel && !maxLabel && (
-                <p className="text-xs text-muted-foreground/60 mt-2">
-                  Scale from {min} to {max}
-                </p>
+                <span className="text-xs text-muted-foreground">
+                  Scale: {min} to {max}
+                </span>
+              )}
+              {maxLabel && (
+                <span className="text-muted-foreground flex items-center gap-2 ml-auto">
+                  {maxLabel}
+                  <span className="text-xs font-medium text-foreground/60 bg-muted px-2 py-0.5 rounded">{max}</span>
+                </span>
               )}
             </div>
+
+            {/* Scale Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">{renderScaleButtons()}</div>
           </div>
         </FieldWrapper>
 
         <AdvancedPanel
           isOpen={isAdvancedOpen ?? false}
           onClose={handleAdvancedClose}
-          title="Advanced Settings"
+          title="Linear Scale Settings"
           subtitle="Configure scale range and labels"
         >
-          {/* Scale Range Section */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground">
-              Scale Range
-            </h4>
-
-            {/* Minimum Value */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="min"
-                className="text-sm font-medium text-foreground"
-              >
-                Minimum Value
-              </Label>
+          <AdvancedPanelSection title="Scale Range">
+            <AdvancedPanelFieldGroup
+              label="Minimum Value"
+              htmlFor="min"
+              description="Starting point of the scale (0-9)"
+            >
               <Input
                 id="min"
                 type="number"
@@ -221,19 +201,9 @@ const LinearScaleField = memo(
                 onChange={(e) => handleMinChange(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Starting point of the scale (0-9)
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Maximum Value */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="max"
-                className="text-sm font-medium text-foreground"
-              >
-                Maximum Value
-              </Label>
+            <AdvancedPanelFieldGroup label="Maximum Value" htmlFor="max" description="End point of the scale (1-10)">
               <Input
                 id="max"
                 type="number"
@@ -243,26 +213,17 @@ const LinearScaleField = memo(
                 onChange={(e) => handleMaxChange(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                End point of the scale (1-10)
-              </p>
-            </div>
-          </div>
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
 
-          {/* Labels Section */}
-          <div className="pt-4 border-t border-border/50 space-y-4">
-            <h4 className="text-sm font-semibold text-foreground">
-              Scale Labels (Optional)
-            </h4>
+          <AdvancedPanelDivider />
 
-            {/* Minimum Label */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="minLabel"
-                className="text-sm font-medium text-foreground"
-              >
-                Label for {min}
-              </Label>
+          <AdvancedPanelSection title="Scale Labels (Optional)">
+            <AdvancedPanelFieldGroup
+              label={`Label for ${min}`}
+              htmlFor="minLabel"
+              description="Description for minimum value"
+            >
               <Input
                 id="minLabel"
                 value={minLabel}
@@ -270,19 +231,13 @@ const LinearScaleField = memo(
                 placeholder="e.g., Not satisfied"
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Description for minimum value
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Maximum Label */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="maxLabel"
-                className="text-sm font-medium text-foreground"
-              >
-                Label for {max}
-              </Label>
+            <AdvancedPanelFieldGroup
+              label={`Label for ${max}`}
+              htmlFor="maxLabel"
+              description="Description for maximum value"
+            >
               <Input
                 id="maxLabel"
                 value={maxLabel}
@@ -290,46 +245,32 @@ const LinearScaleField = memo(
                 placeholder="e.g., Very satisfied"
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Description for maximum value
-              </p>
-            </div>
-          </div>
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
+
+          <AdvancedPanelDivider />
 
           {/* Preview Section */}
-          <div className="pt-4 border-t border-border/50">
-            <h4 className="text-sm font-semibold text-foreground mb-4">
-              Preview
-            </h4>
+          <AdvancedPanelSection title="Preview">
             <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-3">
               {minLabel && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground min-w-[3rem] text-center">
-                    {min}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {minLabel}
-                  </span>
+                  <span className="text-xs font-medium text-muted-foreground min-w-[2rem] text-center">{min}</span>
+                  <span className="text-sm text-muted-foreground">{minLabel}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2 flex-wrap">
-                {renderScaleButtons()}
-              </div>
+              <div className="flex items-center gap-2 flex-wrap">{renderScaleButtons(true)}</div>
               {maxLabel && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground min-w-[3rem] text-center">
-                    {max}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {maxLabel}
-                  </span>
+                  <span className="text-xs font-medium text-muted-foreground min-w-[2rem] text-center">{max}</span>
+                  <span className="text-sm text-muted-foreground">{maxLabel}</span>
                 </div>
               )}
             </div>
-          </div>
+          </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -343,8 +284,8 @@ const LinearScaleField = memo(
       prevProps.field.maxLabel === nextProps.field.maxLabel &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    );
-  }
-);
+    )
+  },
+)
 
-export default LinearScaleField;
+export default LinearScaleField

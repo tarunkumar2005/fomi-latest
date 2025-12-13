@@ -1,140 +1,192 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import Header from "@/components/dashboard/header";
-import CreateWorkspaceModal from "@/components/dashboard/create-workspace-modal";
-import Overview from "@/components/dashboard/overview";
-import EngagementTrends from "@/components/dashboard/engagement";
-import Audience from "@/components/dashboard/audiance";
-import FunnelAnalysis from "@/components/dashboard/funnel-analysis";
-import FormPaginated from "@/components/dashboard/form-paginated";
-import AIInsights from "@/components/dashboard/ai-insights";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Building2 } from "lucide-react";
-import {
-  useWorkspaces,
-  useDashboardData,
-  useWorkspaceFormsData,
-} from "@/hooks/useDashboard";
-import { RangeOption, type Workspace } from "@/types/dashboard";
-import ErrorBoundary from "@/components/shared/ErrorBoundary";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Building2, Sparkles, AlertCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import Header from "@/components/dashboard/header"
+import CreateWorkspaceModal from "@/components/dashboard/create-workspace-modal"
+import Overview from "@/components/dashboard/overview"
+import EngagementTrends from "@/components/dashboard/engagement"
+import Audience from "@/components/dashboard/audiance"
+import FunnelAnalysis from "@/components/dashboard/funnel-analysis"
+import FormPaginated from "@/components/dashboard/form-paginated"
+import AIInsights from "@/components/dashboard/ai-insights"
+import { useWorkspaces, useDashboardData, useWorkspaceFormsData } from "@/hooks/useDashboard"
+import { RangeOption, type Workspace } from "@/types/dashboard"
+import ErrorBoundary from "@/components/shared/ErrorBoundary"
+
+// Loading Component
+function DashboardLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <div className="flex flex-col items-center gap-6">
+        {/* Animated loader */}
+        <div className="relative">
+          <div className="h-20 w-20 rounded-full border-4 border-muted" />
+          <div className="absolute inset-0 h-20 w-20 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+          <div
+            className="absolute inset-2 h-16 w-16 rounded-full border-4 border-primary/30 border-b-transparent animate-spin"
+            style={{ animationDirection: "reverse", animationDuration: "1.5s" }}
+          />
+        </div>
+
+        <div className="text-center space-y-2">
+          <p className="text-sm font-medium text-foreground">Loading your workspace</p>
+          <p className="text-xs text-muted-foreground">Please wait a moment...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Empty State Component
+function EmptyWorkspaceState({ onCreateWorkspace }: { onCreateWorkspace: () => void }) {
+  return (
+    <div className="flex items-center justify-center pt-32 pb-16">
+      <div className="text-center max-w-md px-6">
+        {/* Icon */}
+        <div className="relative mx-auto w-24 h-24 mb-8">
+          <div className="absolute inset-0 rounded-2xl bg-primary/10 animate-pulse" />
+          <div className="relative h-full w-full rounded-2xl bg-gradient-to-br from-muted/80 to-muted/40 flex items-center justify-center border border-border/50 shadow-sm">
+            <Building2 className="w-12 h-12 text-muted-foreground" />
+          </div>
+          {/* Decorative sparkle */}
+          <div className="absolute -top-2 -right-2">
+            <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            </div>
+          </div>
+        </div>
+
+        {/* Text */}
+        <h2 className="font-heading text-2xl font-semibold text-foreground mb-3">Welcome to your dashboard</h2>
+        <p className="text-muted-foreground mb-8 leading-relaxed">
+          Create your first workspace to start building and managing your forms. Workspaces help you organize forms by
+          project or team.
+        </p>
+
+        {/* CTA */}
+        <Button
+          onClick={onCreateWorkspace}
+          size="lg"
+          className={cn(
+            "h-12 px-8 rounded-xl",
+            "bg-primary hover:bg-primary/90",
+            "shadow-md hover:shadow-lg hover:shadow-primary/20",
+            "transition-all duration-200",
+          )}
+        >
+          <Building2 className="h-5 w-5 mr-2" />
+          Create Workspace
+        </Button>
+
+        {/* Helper text */}
+        <p className="mt-6 text-xs text-muted-foreground">
+          Need help getting started?{" "}
+          <a href="#" className="text-primary hover:underline font-medium">
+            View documentation
+          </a>
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// Error Alert Component
+function DashboardErrorAlert() {
+  return (
+    <div className="px-4 sm:px-6 pt-20">
+      <div className="max-w-7xl mx-auto">
+        <Alert variant="destructive" className="border-destructive/50 bg-destructive/10 rounded-xl">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-destructive flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+            Failed to load dashboard data. Please refresh the page.
+          </AlertDescription>
+        </Alert>
+      </div>
+    </div>
+  )
+}
+
+// Section Wrapper Component
+function DashboardSection({
+  children,
+  componentName,
+  onError,
+}: {
+  children: React.ReactNode
+  componentName: string
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+}) {
+  return (
+    <ErrorBoundary
+      componentName={componentName}
+      onError={(error, errorInfo) => {
+        console.error(`${componentName} error:`, error, errorInfo)
+        onError?.(error, errorInfo)
+      }}
+    >
+      {children}
+    </ErrorBoundary>
+  )
+}
 
 export default function DashboardPageClient() {
-  // Get workspaces
-  const { data: workspaces = [], isLoading: isLoadingWorkspaces } =
-    useWorkspaces();
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
-    null
-  );
-  const [range, setRange] = useState<RangeOption>(RangeOption["24h"]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
-  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
-    useState(false);
+  // Workspace data
+  const { data: workspacesRaw, isLoading: isLoadingWorkspaces } = useWorkspaces()
+  const workspaces: Workspace[] = Array.isArray(workspacesRaw) ? workspacesRaw : []
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+  const [range, setRange] = useState<RangeOption>(RangeOption["24h"])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize] = useState<number>(10)
+  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false)
 
   // Initialize activeWorkspace once workspaces are loaded
   useEffect(() => {
     if (!activeWorkspace && workspaces.length > 0) {
-      setActiveWorkspace(workspaces[0]);
+      setActiveWorkspace(workspaces[0])
     }
-  }, [workspaces, activeWorkspace]);
+  }, [workspaces, activeWorkspace])
 
-  // Fetch dashboard data with TanStack Query (data is already memoized via select)
+  // Fetch dashboard data
   const {
     data: dashboardData,
     isLoading: isDashboardLoading,
     isFetching: isDashboardFetching,
     error: dashboardError,
-  } = useDashboardData(activeWorkspace?.id, range);
+  } = useDashboardData(activeWorkspace?.id, range)
 
-  // Fetch forms data with TanStack Query
+  // Fetch forms data
   const {
     data: formsData,
     isLoading: isLoadingForms,
     error: formsError,
-  } = useWorkspaceFormsData(activeWorkspace?.id, currentPage, pageSize);
+  } = useWorkspaceFormsData(activeWorkspace?.id, currentPage, pageSize)
 
+  // Loading state
   if (isLoadingWorkspaces) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="h-16 w-16 rounded-full border-4 border-muted"></div>
-            <div className="absolute inset-0 h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
-          </div>
-          <p className="text-sm text-muted-foreground font-medium">
-            Loading your workspace...
-          </p>
-        </div>
-      </div>
-    );
+    return <DashboardLoading />
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-background via-background to-muted/20">
-      <Header
-        activeWorkspace={activeWorkspace}
-        setActiveWorkspace={setActiveWorkspace}
-      />
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+      {/* Header */}
+      <Header activeWorkspace={activeWorkspace} setActiveWorkspace={setActiveWorkspace} />
 
+      {/* Main Content */}
       {!workspaces.length && !isLoadingWorkspaces ? (
-        <div className="flex items-center justify-center pt-32 pb-16">
-          <div className="text-center max-w-md px-6">
-            <div className="mx-auto w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-6">
-              <svg
-                className="w-10 h-10 text-muted-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              No workspaces found
-            </h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              Create your first workspace to start building and managing your
-              forms.
-            </p>
-            <Button
-              onClick={() => setShowCreateWorkspaceModal(true)}
-              className="mt-2"
-            >
-              <Building2 className="h-4 w-4 mr-2" />
-              Create Workspace
-            </Button>
-          </div>
-        </div>
+        <EmptyWorkspaceState onCreateWorkspace={() => setShowCreateWorkspaceModal(true)} />
       ) : !activeWorkspace ? null : (
         <>
-          {dashboardError && (
-            <div className="px-4 sm:px-6 pt-20">
-              <div className="max-w-7xl mx-auto">
-                <Alert
-                  variant="destructive"
-                  className="border-destructive/50 bg-destructive/10"
-                >
-                  <AlertDescription className="text-destructive">
-                    Failed to load dashboard data. Please refresh the page.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </div>
-          )}
+          {/* Error Alert */}
+          {dashboardError && <DashboardErrorAlert />}
 
-          <ErrorBoundary
-            componentName="Dashboard Overview"
-            onError={(error, errorInfo) => {
-              console.error("Dashboard overview error:", error, errorInfo);
-            }}
-          >
+          {/* Dashboard Sections */}
+          <DashboardSection componentName="Dashboard Overview">
             <Overview
               range={range}
               setRange={setRange}
@@ -142,76 +194,44 @@ export default function DashboardPageClient() {
               isLoading={isDashboardLoading}
               isFetching={isDashboardFetching}
             />
-          </ErrorBoundary>
+          </DashboardSection>
 
-          <ErrorBoundary
-            componentName="Engagement Trends"
-            onError={(error, errorInfo) => {
-              console.error("Engagement trends error:", error, errorInfo);
-            }}
-          >
+          <DashboardSection componentName="Engagement Trends">
             <EngagementTrends
               range={range}
               isLoading={isDashboardLoading}
               trendsChartData={dashboardData?.trendsChartData}
             />
-          </ErrorBoundary>
+          </DashboardSection>
 
-          <ErrorBoundary
-            componentName="Audience"
-            onError={(error, errorInfo) => {
-              console.error("Audience error:", error, errorInfo);
-            }}
-          >
-            <Audience
-              isLoading={isDashboardLoading}
-              audienceData={dashboardData?.audienceData}
-            />
-          </ErrorBoundary>
+          <DashboardSection componentName="Audience">
+            <Audience isLoading={isDashboardLoading} audienceData={dashboardData?.audienceData} />
+          </DashboardSection>
 
-          <ErrorBoundary
-            componentName="Funnel Analysis"
-            onError={(error, errorInfo) => {
-              console.error("Funnel analysis error:", error, errorInfo);
-            }}
-          >
-            <FunnelAnalysis
-              isLoading={isDashboardLoading}
-              funnelData={dashboardData?.funnelData}
-            />
-          </ErrorBoundary>
+          <DashboardSection componentName="Funnel Analysis">
+            <FunnelAnalysis isLoading={isDashboardLoading} funnelData={dashboardData?.funnelData} />
+          </DashboardSection>
 
-          <ErrorBoundary
-            componentName="Forms List"
-            onError={(error, errorInfo) => {
-              console.error("Forms list error:", error, errorInfo);
-            }}
-          >
+          <DashboardSection componentName="Forms List">
             <FormPaginated
               formsData={formsData}
               isLoading={isLoadingForms}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
             />
-          </ErrorBoundary>
+          </DashboardSection>
 
-          <ErrorBoundary
-            componentName="AI Insights"
-            onError={(error, errorInfo) => {
-              console.error("AI insights error:", error, errorInfo);
-            }}
-          >
+          <DashboardSection componentName="AI Insights">
             <AIInsights />
-          </ErrorBoundary>
+          </DashboardSection>
 
+          {/* Bottom spacer */}
           <div className="h-12" />
         </>
       )}
 
-      <CreateWorkspaceModal
-        open={showCreateWorkspaceModal}
-        onOpenChange={setShowCreateWorkspaceModal}
-      />
+      {/* Create Workspace Modal */}
+      <CreateWorkspaceModal open={showCreateWorkspaceModal} onOpenChange={setShowCreateWorkspaceModal} />
     </div>
-  );
+  )
 }

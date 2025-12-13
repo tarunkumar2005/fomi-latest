@@ -1,29 +1,28 @@
-"use client";
+"use client"
 
-import { useCallback, memo } from "react";
-import { Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import FieldWrapper from "../edit/shared/FieldWrapper";
-import AdvancedPanel from "../edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { useCallback, memo } from "react"
+import { Calendar } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, { AdvancedPanelSection, AdvancedPanelFieldGroup } from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
 
 interface DateFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    required: boolean;
-    minDate?: string;
-    maxDate?: string;
-  };
-  index: number;
-  onUpdate: (updates: Partial<DateFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    required: boolean
+    minDate?: string
+    maxDate?: string
+  }
+  index: number
+  onUpdate: (updates: Partial<DateFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
 const DateField = memo(
@@ -55,25 +54,25 @@ const DateField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required });
-    }, [field.required, onUpdate]);
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
     const handleMinDateChange = useCallback(
       (value: string) => {
-        onUpdate({ minDate: value || undefined });
+        onUpdate({ minDate: value || undefined })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleMaxDateChange = useCallback(
       (value: string) => {
-        onUpdate({ maxDate: value || undefined });
+        onUpdate({ maxDate: value || undefined })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     return (
       <>
@@ -108,15 +107,15 @@ const DateField = memo(
           showAdvanced={true}
         >
           {/* Preview Date Input */}
-          <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Calendar className="h-4 w-4 text-muted-foreground/50" />
+          <div className="relative group/input">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <Calendar className="h-4 w-4 text-muted-foreground/60 group-hover/input:text-primary/60 transition-colors" />
             </div>
             <Input
               type="date"
               value=""
               disabled
-              className="bg-background border-border/50 cursor-not-allowed text-muted-foreground/50 pl-10"
+              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50 hover:border-border transition-colors"
             />
           </div>
         </FieldWrapper>
@@ -124,23 +123,11 @@ const DateField = memo(
         <AdvancedPanel
           isOpen={isAdvancedOpen ?? false}
           onClose={handleAdvancedClose}
-          title="Advanced Settings"
+          title="Date Settings"
           subtitle="Configure date constraints"
         >
-          {/* Date Constraints */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-4">
-              Date Constraints
-            </h4>
-
-            {/* Minimum Date */}
-            <div className="space-y-2 mb-4">
-              <Label
-                htmlFor="minDate"
-                className="text-sm font-medium text-foreground"
-              >
-                Minimum Date
-              </Label>
+          <AdvancedPanelSection title="Date Constraints">
+            <AdvancedPanelFieldGroup label="Minimum Date" htmlFor="minDate" description="Earliest selectable date">
               <Input
                 id="minDate"
                 type="date"
@@ -148,19 +135,9 @@ const DateField = memo(
                 onChange={(e) => handleMinDateChange(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Earliest selectable date
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Maximum Date */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="maxDate"
-                className="text-sm font-medium text-foreground"
-              >
-                Maximum Date
-              </Label>
+            <AdvancedPanelFieldGroup label="Maximum Date" htmlFor="maxDate" description="Latest selectable date">
               <Input
                 id="maxDate"
                 type="date"
@@ -168,14 +145,11 @@ const DateField = memo(
                 onChange={(e) => handleMaxDateChange(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Latest selectable date
-              </p>
-            </div>
-          </div>
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -187,8 +161,8 @@ const DateField = memo(
       prevProps.field.maxDate === nextProps.field.maxDate &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    );
-  }
-);
+    )
+  },
+)
 
-export default DateField;
+export default DateField

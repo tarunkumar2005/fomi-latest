@@ -1,78 +1,60 @@
-"use client";
+"use client"
 
-import type React from "react";
+import { createContext, useContext, type ReactNode, type RefObject, type KeyboardEvent } from "react"
+import { type LucideIcon, Trash2, Copy, Sparkles, Settings, GripVertical } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
-import { type ReactNode, useContext } from "react";
-import {
-  GripVertical,
-  Copy,
-  Trash2,
-  Settings,
-  Sparkles,
-  type LucideIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { createContext } from "react";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import AIEnhance from "@/assets/icon/ai-enhance.png";
+interface DragHandleContextValue {
+  listeners?: Record<string, unknown>
+  attributes?: Record<string, unknown>
+}
 
-// Context for drag handle - provided by DraggableFieldWrapper
-export const DragHandleContext = createContext<{
-  listeners?: any;
-  attributes?: any;
-} | null>(null);
+export const DragHandleContext = createContext<DragHandleContextValue>({})
 
-export interface FieldWrapperProps {
-  // Field identification
-  index: number;
-  fieldType: string;
-  fieldIcon?: LucideIcon;
-  fieldId: string;
+export function useDragHandle() {
+  return useContext(DragHandleContext)
+}
 
-  // Content
-  question: string;
-  description?: string;
-  required: boolean;
-
-  // Edit states
-  isEditingQuestion: boolean;
-  isEditingDescription: boolean;
-  isHovered: boolean;
-
-  // Handlers
-  onQuestionClick: () => void;
-  onDescriptionClick: () => void;
-  onQuestionChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
-  onQuestionBlur: () => void;
-  onDescriptionBlur: () => void;
-  onQuestionKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onDescriptionKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onRequiredToggle: () => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  onAdvancedClick?: () => void;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-
-  // Refs
-  questionRef?: React.RefObject<HTMLInputElement | null>;
-  descriptionRef?: React.RefObject<HTMLInputElement | null>;
-
-  // Slots for field-specific content
-  children: ReactNode; // Preview area content
-
-  // Optional features
-  showAdvanced?: boolean;
-  advancedLabel?: string;
+interface FieldWrapperProps {
+  children: ReactNode
+  index: number
+  fieldType: string
+  fieldIcon: LucideIcon
+  fieldId: string
+  question: string
+  description?: string
+  required: boolean
+  isEditingQuestion: boolean
+  isEditingDescription: boolean
+  isHovered: boolean
+  onQuestionClick: () => void
+  onDescriptionClick: () => void
+  onQuestionChange: (value: string) => void
+  onDescriptionChange: (value: string) => void
+  onQuestionBlur: () => void
+  onDescriptionBlur: () => void
+  onQuestionKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void
+  onDescriptionKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void
+  onRequiredToggle: () => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  onAdvancedClick?: () => void
+  onMouseEnter: () => void
+  onMouseLeave: () => void
+  questionRef: RefObject<HTMLInputElement | null>
+  descriptionRef: RefObject<HTMLTextAreaElement | null>
+  showAdvanced?: boolean
 }
 
 export default function FieldWrapper({
+  children,
   index,
   fieldType,
   fieldIcon: FieldIcon,
@@ -100,241 +82,295 @@ export default function FieldWrapper({
   onMouseLeave,
   questionRef,
   descriptionRef,
-  children,
   showAdvanced = true,
-  advancedLabel = "Advanced",
 }: FieldWrapperProps) {
-  // Try to get drag handle context if available
-  const dragHandleContext = useContext(DragHandleContext);
+  const { listeners, attributes } = useDragHandle()
 
   return (
-    <div className="relative group">
-      {/* Main Card */}
+    <div
+      className={cn(
+        "group relative rounded-xl border bg-card overflow-hidden",
+        "transition-all duration-300 ease-out",
+        "hover:shadow-xl hover:shadow-primary/8",
+        isHovered ? "border-primary/40 shadow-lg shadow-primary/10 scale-[1.002]" : "border-border/50 shadow-sm",
+      )}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        style={{
-          backgroundColor: "var(--preview-card, hsl(var(--card)))",
-          borderColor: isHovered
-            ? "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 30%, transparent)"
-            : "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
-          borderRadius: "var(--preview-border-radius, 1rem)",
-          borderWidth: "1px",
-          borderStyle: "solid",
-          boxShadow: isHovered
-            ? "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
-            : "var(--preview-shadow, 0 1px 3px 0 rgb(0 0 0 / 0.1))",
-        }}
-        className="transition-all duration-200 ease-out"
+        className={cn(
+          "absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60",
+          "opacity-0 transition-opacity duration-300",
+          isHovered && "opacity-100",
+        )}
+      />
+
+      {/* Drag Handle & Field Type Badge */}
+      <div
+        className={cn(
+          "flex items-center justify-between px-4 py-3 border-b",
+          "bg-gradient-to-r from-muted/40 via-muted/20 to-muted/40",
+          "border-border/30",
+        )}
       >
-        <div className="p-4 sm:p-5 lg:p-6">
-          {/* Header Row with Type Badge and Actions */}
-          <div className="flex items-start justify-between gap-2 mb-4 sm:mb-5">
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              {/* Index Pill */}
-              <div
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm"
-                style={{
-                  background: `linear-gradient(to bottom right, color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 20%, transparent), color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent))`,
-                  color: "var(--preview-primary, hsl(var(--primary)))",
-                }}
-              >
-                {index}
-              </div>
-
-              {/* Field Type Badge with Optional Icon */}
-              <div
-                className="flex items-center gap-1.5 text-[10px] sm:text-xs font-medium px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border"
-                style={{
-                  backgroundColor:
-                    "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 10%, transparent)",
-                  color: "var(--preview-primary, hsl(var(--primary)))",
-                  borderColor:
-                    "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 20%, transparent)",
-                }}
-              >
-                {FieldIcon && (
-                  <FieldIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                )}
-                <span className="hidden sm:inline">{fieldType}</span>
-              </div>
-            </div>
-
-            {/* Action Icons - Show on Hover */}
-            <div
-              className={cn(
-                "flex items-center gap-0.5 sm:gap-1 transition-all duration-200",
-                isHovered
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-2 pointer-events-none"
-              )}
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 sm:h-8 sm:w-8 cursor-grab active:cursor-grabbing rounded-lg hover:bg-muted/80"
-                aria-label="Drag to reorder"
-                {...(dragHandleContext?.listeners || {})}
-              >
-                <GripVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onDuplicate}
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted/80"
-                aria-label="Duplicate field"
-              >
-                <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onDelete}
-                className="h-7 w-7 sm:h-8 sm:w-8 hover:bg-destructive/10 hover:text-destructive rounded-lg"
-                aria-label="Delete field"
-              >
-                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Question Title */}
-          <div className="mb-2 sm:mb-3">
-            {isEditingQuestion ? (
-              <Input
-                ref={questionRef}
-                value={question}
-                onChange={(e) => onQuestionChange(e.target.value)}
-                onBlur={onQuestionBlur}
-                onKeyDown={onQuestionKeyDown}
-                style={{
-                  borderColor: "var(--preview-primary, hsl(var(--primary)))",
-                }}
-                className="text-sm sm:text-base font-semibold border-2 h-auto py-2 px-3 rounded-lg"
-                placeholder="Enter your question"
-              />
-            ) : (
-              <h3
-                onClick={onQuestionClick}
-                style={{
-                  color: "var(--preview-text, hsl(var(--foreground)))",
-                  fontFamily: "var(--preview-font-body, 'Inter', sans-serif)",
-                  fontSize: "var(--preview-font-size, 1rem)",
-                }}
-                className="font-semibold cursor-text transition-colors duration-150 leading-relaxed"
-              >
-                {question || "Click to add question"}
-                {required && <span className="text-destructive ml-1">*</span>}
-              </h3>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="mb-3 sm:mb-4">
-            {isEditingDescription ? (
-              <Input
-                ref={descriptionRef}
-                value={description || ""}
-                onChange={(e) => onDescriptionChange(e.target.value)}
-                onBlur={onDescriptionBlur}
-                onKeyDown={onDescriptionKeyDown}
-                style={{
-                  borderColor: "var(--preview-primary, hsl(var(--primary)))",
-                }}
-                className="text-xs sm:text-sm border-2 h-auto py-1.5 px-3 rounded-lg"
-                placeholder="Add description (optional)"
-              />
-            ) : (
-              <p
-                onClick={onDescriptionClick}
-                style={{
-                  color:
-                    "var(--preview-text-muted, hsl(var(--muted-foreground)))",
-                  fontFamily: "var(--preview-font-body, 'Inter', sans-serif)",
-                }}
-                className="text-xs sm:text-sm cursor-text transition-colors duration-150 leading-relaxed"
-              >
-                {description || "Add description (optional)"}
-              </p>
-            )}
-          </div>
-
-          {/* Field-Specific Preview Content */}
-          <div className="mb-4 sm:mb-5">{children}</div>
-
-          {/* Footer Row */}
-          <div
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 sm:pt-4 -mx-4 sm:-mx-5 lg:-mx-6 -mb-4 sm:-mb-5 lg:-mb-6 px-4 sm:px-5 lg:px-6 py-3 sm:py-4 border-t rounded-b-xl sm:rounded-b-2xl"
-            style={{
-              borderColor:
-                "color-mix(in srgb, var(--preview-border, hsl(var(--border))) 50%, transparent)",
-              backgroundColor:
-                "color-mix(in srgb, var(--preview-accent, hsl(var(--muted))) 20%, transparent)",
-            }}
-          >
-            {/* Left: Required & Advanced */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              {/* Required Toggle */}
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`required-${fieldId}`}
-                  checked={required}
-                  onCheckedChange={onRequiredToggle}
-                  className="rounded"
-                  style={{
-                    borderColor: "var(--preview-primary, hsl(var(--primary)))",
-                  }}
-                />
-                <Label
-                  htmlFor={`required-${fieldId}`}
-                  style={{
-                    color: "var(--preview-text, hsl(var(--foreground)))",
-                  }}
-                  className="text-xs sm:text-sm font-medium cursor-pointer select-none"
+        <div className="flex items-center gap-3">
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "cursor-grab active:cursor-grabbing p-1.5 rounded-lg -ml-1",
+                    "opacity-40 hover:opacity-100",
+                    "hover:bg-primary/10 hover:text-primary",
+                    "focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                    "transition-all duration-200",
+                    "touch-none select-none",
+                  )}
+                  {...listeners}
+                  {...attributes}
+                  aria-label="Drag to reorder"
                 >
-                  Required
-                </Label>
-              </div>
+                  <GripVertical className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="text-xs font-medium">
+                Drag to reorder
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
-              {/* Advanced Button */}
-              {showAdvanced && onAdvancedClick && (
+          <Badge
+            variant="secondary"
+            className={cn(
+              "gap-1.5 px-3 py-1.5 font-medium text-xs",
+              "bg-primary/10 text-primary border border-primary/20",
+              "hover:bg-primary/15 hover:border-primary/30",
+              "transition-colors duration-200",
+            )}
+          >
+            <FieldIcon className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{fieldType}</span>
+          </Badge>
+
+          <div
+            className={cn(
+              "flex items-center justify-center w-6 h-6 rounded-full",
+              "bg-muted/60 text-muted-foreground/70",
+              "text-xs font-semibold",
+              "transition-colors duration-200",
+              isHovered && "bg-primary/10 text-primary",
+            )}
+          >
+            {index + 1}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div
+          className={cn(
+            "flex items-center gap-0.5 transition-all duration-300",
+            isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none",
+          )}
+        >
+          <TooltipProvider delayDuration={200}>
+            {onEnhance && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onEnhance}
+                    className={cn(
+                      "h-8 w-8 rounded-lg",
+                      "text-muted-foreground hover:text-primary",
+                      "hover:bg-primary/10 active:scale-95",
+                      "transition-all duration-200",
+                    )}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    <span className="sr-only">Enhance with AI</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs font-medium">
+                  Enhance with AI
+                </TooltipContent>
+              </Tooltip>
+            )}
+
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="sm"
-                  onClick={onAdvancedClick}
-                  className="h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm font-medium hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-lg"
+                  size="icon"
+                  onClick={onDuplicate}
+                  className={cn(
+                    "h-8 w-8 rounded-lg",
+                    "text-muted-foreground hover:text-foreground",
+                    "hover:bg-accent active:scale-95",
+                    "transition-all duration-200",
+                  )}
                 >
-                  <Settings className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 sm:mr-1.5" />
-                  <span className="hidden sm:inline">{advancedLabel}</span>
+                  <Copy className="h-4 w-4" />
+                  <span className="sr-only">Duplicate field</span>
                 </Button>
-              )}
-            </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs font-medium">
+                Duplicate
+              </TooltipContent>
+            </Tooltip>
 
-            {/* Right: AI Enhance */}
-            {onEnhance && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onEnhance}
-                style={{
-                  borderColor:
-                    "color-mix(in srgb, var(--preview-primary, hsl(var(--primary))) 30%, transparent)",
-                  color: "var(--preview-primary, hsl(var(--primary)))",
-                }}
-                className="h-7 sm:h-8 px-2 sm:px-3 text-xs sm:text-sm font-medium hover:bg-primary/10 group rounded-lg w-full sm:w-auto bg-transparent"
-              >
-                <Image
-                  src={AIEnhance}
-                  alt="AI Enhance"
-                  className="h-4 w-4 mr-1 sm:mr-1.5 inline-block"
-                />
-                <span>AI Enhance</span>
-              </Button>
+            {showAdvanced && onAdvancedClick && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onAdvancedClick}
+                    className={cn(
+                      "h-8 w-8 rounded-lg",
+                      "text-muted-foreground hover:text-foreground",
+                      "hover:bg-accent active:scale-95",
+                      "transition-all duration-200",
+                    )}
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span className="sr-only">Advanced settings</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs font-medium">
+                  Settings
+                </TooltipContent>
+              </Tooltip>
             )}
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onDelete}
+                  className={cn(
+                    "h-8 w-8 rounded-lg",
+                    "text-muted-foreground hover:text-destructive",
+                    "hover:bg-destructive/10 active:scale-95",
+                    "transition-all duration-200",
+                  )}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Delete field</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs font-medium">
+                Delete
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
+      {/* Field Content */}
+      <div className="p-5 space-y-4">
+        {/* Question */}
+        <div className="space-y-1">
+          {isEditingQuestion ? (
+            <Input
+              ref={questionRef}
+              value={question}
+              onChange={(e) => onQuestionChange(e.target.value)}
+              onBlur={onQuestionBlur}
+              onKeyDown={onQuestionKeyDown}
+              placeholder="Enter your question..."
+              className={cn(
+                "text-base font-semibold h-auto py-2.5 px-3",
+                "border-2 border-primary/40 bg-background",
+                "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
+                "transition-all duration-200",
+              )}
+              autoFocus
+            />
+          ) : (
+            <div
+              onClick={onQuestionClick}
+              className={cn(
+                "text-base font-semibold text-foreground cursor-text",
+                "rounded-lg px-3 py-2.5 -mx-3 -my-2.5",
+                "hover:bg-muted/60 active:bg-muted/80",
+                "transition-colors duration-150",
+                "flex items-start gap-1.5",
+                "min-h-[44px] items-center",
+              )}
+            >
+              <span className="flex-1 leading-relaxed">{question || "Click to add question..."}</span>
+              {required && <span className="text-destructive font-bold text-base shrink-0">*</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Description */}
+        <div>
+          {isEditingDescription ? (
+            <Textarea
+              ref={descriptionRef}
+              value={description || ""}
+              onChange={(e) => onDescriptionChange(e.target.value)}
+              onBlur={onDescriptionBlur}
+              onKeyDown={onDescriptionKeyDown}
+              placeholder="Add a description (optional)..."
+              className={cn(
+                "text-sm text-muted-foreground resize-none min-h-[72px]",
+                "border-2 border-primary/40 bg-background",
+                "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
+                "transition-all duration-200",
+              )}
+              rows={2}
+              autoFocus
+            />
+          ) : (
+            <div
+              onClick={onDescriptionClick}
+              className={cn(
+                "text-sm cursor-text rounded-lg px-3 py-2 -mx-3 -my-2",
+                "hover:bg-muted/60 active:bg-muted/80",
+                "transition-colors duration-150",
+                "min-h-[36px] flex items-center",
+                description ? "text-muted-foreground" : "text-muted-foreground/50 italic",
+              )}
+            >
+              {description || "Click to add description..."}
+            </div>
+          )}
+        </div>
+
+        {/* Field Preview Content */}
+        <div className="pt-3">{children}</div>
+
+        {/* Footer */}
+        <div className={cn("flex items-center justify-between pt-4 mt-2", "border-t border-border/40")}>
+          <div className="flex items-center gap-3">
+            <Switch
+              id={`required-${fieldId}`}
+              checked={required}
+              onCheckedChange={onRequiredToggle}
+              className="data-[state=checked]:bg-primary"
+            />
+            <label
+              htmlFor={`required-${fieldId}`}
+              className={cn(
+                "text-sm font-medium cursor-pointer select-none",
+                "text-muted-foreground hover:text-foreground",
+                "transition-colors duration-150",
+              )}
+            >
+              Required
+            </label>
           </div>
+
+          <span className={cn("text-[10px] text-muted-foreground/40 font-mono", "px-2 py-1 rounded-md bg-muted/30")}>
+            {fieldId.slice(0, 8)}
+          </span>
         </div>
       </div>
     </div>
-  );
+  )
 }

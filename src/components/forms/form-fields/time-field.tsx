@@ -1,38 +1,36 @@
-"use client";
+"use client"
 
-import { useCallback, memo } from "react";
-import { Clock } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import FieldWrapper from "../edit/shared/FieldWrapper";
-import AdvancedPanel from "../edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { useCallback, memo } from "react"
+import { Clock } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+  AdvancedPanelDivider,
+} from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+import { cn } from "@/lib/utils"
 
 interface TimeFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    required: boolean;
-    placeholder?: string;
-    timeFormat?: "12" | "24";
-    minTime?: string;
-    maxTime?: string;
-  };
-  index: number;
-  onUpdate: (updates: Partial<TimeFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    required: boolean
+    placeholder?: string
+    timeFormat?: "12" | "24"
+    minTime?: string
+    maxTime?: string
+  }
+  index: number
+  onUpdate: (updates: Partial<TimeFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
 const TimeField = memo(
@@ -64,39 +62,39 @@ const TimeField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required });
-    }, [field.required, onUpdate]);
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value || undefined });
+        onUpdate({ placeholder: value || undefined })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleTimeFormatChange = useCallback(
       (value: "12" | "24") => {
-        onUpdate({ timeFormat: value });
+        onUpdate({ timeFormat: value })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleMinTimeChange = useCallback(
       (value: string) => {
-        onUpdate({ minTime: value || undefined });
+        onUpdate({ minTime: value || undefined })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleMaxTimeChange = useCallback(
       (value: string) => {
-        onUpdate({ maxTime: value || undefined });
+        onUpdate({ maxTime: value || undefined })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     return (
       <>
@@ -130,16 +128,20 @@ const TimeField = memo(
           descriptionRef={descriptionRef}
           showAdvanced={true}
         >
-          {/* Preview Time Input */}
-          <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <Clock className="h-4 w-4 text-muted-foreground/50" />
+          <div className="relative group/input">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <Clock
+                className={cn(
+                  "h-4 w-4 text-muted-foreground/60",
+                  "group-hover/input:text-primary/60 transition-colors",
+                )}
+              />
             </div>
             <Input
               type="time"
               value=""
               disabled
-              className="bg-background border-border/50 cursor-not-allowed text-muted-foreground/50 pl-10"
+              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
             />
           </div>
         </FieldWrapper>
@@ -147,17 +149,14 @@ const TimeField = memo(
         <AdvancedPanel
           isOpen={isAdvancedOpen ?? false}
           onClose={handleAdvancedClose}
-          title="Advanced Settings"
+          title="Time Settings"
           subtitle="Configure time input options"
         >
-          {/* Placeholder */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="placeholder"
-              className="text-sm font-medium text-foreground"
-            >
-              Placeholder Text
-            </Label>
+          <AdvancedPanelFieldGroup
+            label="Placeholder Text"
+            htmlFor="placeholder"
+            description="Hint text shown when field is empty"
+          >
             <Input
               id="placeholder"
               type="text"
@@ -166,23 +165,10 @@ const TimeField = memo(
               placeholder="e.g., Select time"
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">
-              Hint text shown when field is empty
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Time Format */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="timeFormat"
-              className="text-sm font-medium text-foreground"
-            >
-              Time Format
-            </Label>
-            <Select
-              value={field.timeFormat || "24"}
-              onValueChange={handleTimeFormatChange}
-            >
+          <AdvancedPanelFieldGroup label="Time Format" htmlFor="timeFormat" description="Display format for time input">
+            <Select value={field.timeFormat || "24"} onValueChange={handleTimeFormatChange}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
@@ -191,25 +177,12 @@ const TimeField = memo(
                 <SelectItem value="24">24-hour (e.g., 14:30)</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              Display format for time input
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Time Constraints */}
-          <div className="pt-4 border-t border-border/50">
-            <h4 className="text-sm font-semibold text-foreground mb-4">
-              Time Constraints
-            </h4>
+          <AdvancedPanelDivider />
 
-            {/* Minimum Time */}
-            <div className="space-y-2 mb-4">
-              <Label
-                htmlFor="minTime"
-                className="text-sm font-medium text-foreground"
-              >
-                Minimum Time
-              </Label>
+          <AdvancedPanelSection title="Time Constraints">
+            <AdvancedPanelFieldGroup label="Minimum Time" htmlFor="minTime" description="Earliest selectable time">
               <Input
                 id="minTime"
                 type="time"
@@ -217,19 +190,9 @@ const TimeField = memo(
                 onChange={(e) => handleMinTimeChange(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Earliest selectable time
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Maximum Time */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="maxTime"
-                className="text-sm font-medium text-foreground"
-              >
-                Maximum Time
-              </Label>
+            <AdvancedPanelFieldGroup label="Maximum Time" htmlFor="maxTime" description="Latest selectable time">
               <Input
                 id="maxTime"
                 type="time"
@@ -237,14 +200,11 @@ const TimeField = memo(
                 onChange={(e) => handleMaxTimeChange(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Latest selectable time
-              </p>
-            </div>
-          </div>
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -258,8 +218,8 @@ const TimeField = memo(
       prevProps.field.maxTime === nextProps.field.maxTime &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    );
-  }
-);
+    )
+  },
+)
 
-export default TimeField;
+export default TimeField

@@ -7,10 +7,7 @@ import { useState, memo } from "react"
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps"
 import { Chrome, Globe2, Monitor, Smartphone, Tablet, MapPin, Laptop, TrendingUp } from "lucide-react"
 
-// ===========================
-// CONSTANTS & UTILITIES
-// ===========================
-
+// Constants
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
 
 const getFlagEmoji = (countryCode: string): string => {
@@ -95,10 +92,7 @@ const trafficSourceConfig: Record<string, { color: string; gradient: string }> =
   "Paid/Campaign": { color: "bg-sky-500", gradient: "from-sky-500 to-sky-500/70" },
 }
 
-// ===========================
-// TYPES
-// ===========================
-
+// Types
 interface CountryMetric {
   country: string
   countryCode: string
@@ -135,10 +129,7 @@ interface AudienceProps {
   audienceData?: AudienceData
 }
 
-// ===========================
-// COMPONENTS
-// ===========================
-
+// Custom Pie Tooltip
 const CustomPieTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const DeviceIcon = deviceIcons[payload[0].name] || Monitor
@@ -201,14 +192,14 @@ const WorldMap = memo(({ countriesData }: { countriesData: any[] }) => {
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    fill={isActive ? "#4f46e5" : "#e2e8f0"}
+                    fill={isActive ? "var(--primary)" : "var(--muted)"}
                     fillOpacity={isActive ? fillOpacity : 0.3}
-                    stroke="#cbd5e1"
+                    stroke="var(--border)"
                     strokeWidth={0.5}
                     style={{
                       default: { outline: "none" },
                       hover: {
-                        fill: isActive ? "#4f46e5" : "#e2e8f0",
+                        fill: isActive ? "var(--primary)" : "var(--muted)",
                         fillOpacity: isActive ? Math.min(fillOpacity + 0.2, 1) : 0.4,
                         outline: "none",
                         cursor: isActive ? "pointer" : "default",
@@ -269,53 +260,55 @@ const WorldMap = memo(({ countriesData }: { countriesData: any[] }) => {
 WorldMap.displayName = "WorldMap"
 
 // Empty State Component
-const EmptyState = ({ icon: Icon, message, subtext }: { icon: any; message: string; subtext: string }) => (
-  <div className="h-[300px] flex items-center justify-center">
-    <div className="text-center space-y-3 max-w-xs">
-      <div className="mx-auto w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
-        <Icon className="h-7 w-7 text-muted-foreground/60" />
+function EmptyState({ icon: Icon, message, subtext }: { icon: any; message: string; subtext: string }) {
+  return (
+    <div className="h-[300px] flex items-center justify-center">
+      <div className="text-center space-y-3 max-w-xs">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
+          <Icon className="h-7 w-7 text-muted-foreground/60" />
+        </div>
+        <p className="text-sm font-medium text-foreground">{message}</p>
+        <p className="text-xs text-muted-foreground">{subtext}</p>
       </div>
-      <p className="text-sm font-medium text-foreground">{message}</p>
-      <p className="text-xs text-muted-foreground">{subtext}</p>
     </div>
-  </div>
-)
+  )
+}
 
-// ===========================
-// MAIN COMPONENT
-// ===========================
+// Loading Skeleton
+function LoadingSkeleton() {
+  return (
+    <div className="px-4 sm:px-6 py-6 bg-background">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="space-y-2">
+          <div className="h-7 w-48 bg-muted rounded-lg animate-pulse" />
+          <div className="h-4 w-64 bg-muted rounded-lg animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="border-border/50 bg-card">
+              <CardHeader className="pb-4">
+                <div className="h-5 w-32 bg-muted rounded-lg animate-pulse" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 bg-muted/50 rounded-xl animate-pulse" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function Audience({ isLoading = false, audienceData }: AudienceProps) {
   const { geographicData = [], deviceTypeData = [], browserData = [], trafficSourceData = [] } = audienceData || {}
 
   if (isLoading) {
-    return (
-      <div className="px-4 sm:px-6 py-6 bg-background">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Section header skeleton */}
-          <div className="space-y-2">
-            <div className="h-7 w-48 bg-muted rounded animate-pulse" />
-            <div className="h-4 w-64 bg-muted rounded animate-pulse" />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i} className="border-border/50 bg-card">
-                <CardHeader className="pb-4">
-                  <div className="h-5 w-32 bg-muted rounded animate-pulse" />
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64 bg-muted/50 rounded-xl animate-pulse" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
+    return <LoadingSkeleton />
   }
 
   // Transform data
-  const chartData = geographicData.map((item, index) => ({
+  const chartData = geographicData.map((item) => ({
     country: item.country,
     countryCode: item.countryCode,
     views: item.views,
@@ -334,20 +327,25 @@ export default function Audience({ isLoading = false, audienceData }: AudiencePr
   return (
     <div className="px-4 sm:px-6 py-6 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Section Header */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Audience Insights</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight font-heading">
+            Audience Insights
+          </h2>
           <p className="text-sm text-muted-foreground mt-1">Understand your visitors and where they come from</p>
         </div>
 
-        {/* ===== GEOGRAPHIC DISTRIBUTION ===== */}
-        <Card className="border-border/50 bg-card overflow-hidden">
+        {/* Geographic Distribution */}
+        <Card className="border-border/50 bg-card overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
           <CardHeader className="pb-4 border-b border-border/50">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-primary/10">
                 <MapPin className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-lg font-semibold text-foreground">Geographic Distribution</CardTitle>
+                <CardTitle className="text-lg font-semibold text-foreground font-heading">
+                  Geographic Distribution
+                </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">Where your visitors are located</p>
               </div>
             </div>
@@ -394,17 +392,17 @@ export default function Audience({ isLoading = false, audienceData }: AudiencePr
           </CardContent>
         </Card>
 
-        {/* ===== DEVICE & BROWSERS ROW ===== */}
+        {/* Device & Browsers Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Device Types */}
-          <Card className="border-border/50 bg-card overflow-hidden">
+          <Card className="border-border/50 bg-card overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
             <CardHeader className="pb-4 border-b border-border/50">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-sky-500/10">
                   <Laptop className="h-5 w-5 text-sky-500" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-semibold text-foreground">Device Types</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground font-heading">Device Types</CardTitle>
                   <p className="text-xs text-muted-foreground mt-0.5">Breakdown by device</p>
                 </div>
               </div>
@@ -456,14 +454,14 @@ export default function Audience({ isLoading = false, audienceData }: AudiencePr
           </Card>
 
           {/* Top Browsers */}
-          <Card className="border-border/50 bg-card overflow-hidden">
+          <Card className="border-border/50 bg-card overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
             <CardHeader className="pb-4 border-b border-border/50">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-primary/10">
                   <Chrome className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-semibold text-foreground">Top Browsers</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground font-heading">Top Browsers</CardTitle>
                   <p className="text-xs text-muted-foreground mt-0.5">Browser distribution</p>
                 </div>
               </div>
@@ -506,15 +504,15 @@ export default function Audience({ isLoading = false, audienceData }: AudiencePr
           </Card>
         </div>
 
-        {/* ===== TRAFFIC SOURCES ===== */}
-        <Card className="border-border/50 bg-card overflow-hidden">
+        {/* Traffic Sources */}
+        <Card className="border-border/50 bg-card overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
           <CardHeader className="pb-4 border-b border-border/50">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-emerald-500/10">
                 <TrendingUp className="h-5 w-5 text-emerald-500" />
               </div>
               <div>
-                <CardTitle className="text-lg font-semibold text-foreground">Traffic Sources</CardTitle>
+                <CardTitle className="text-lg font-semibold text-foreground font-heading">Traffic Sources</CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">How visitors find your forms</p>
               </div>
             </div>
@@ -544,7 +542,7 @@ export default function Audience({ isLoading = false, audienceData }: AudiencePr
                       </div>
                       <div className="relative h-2 bg-muted/50 rounded-full overflow-hidden">
                         <div
-                          className={cn("absolute inset-y-0 left-0 rounded-full bg-linear-to-r", config.gradient)}
+                          className={cn("absolute inset-y-0 left-0 rounded-full bg-gradient-to-r", config.gradient)}
                           style={{ width: `${source.percentage}%` }}
                         />
                       </div>

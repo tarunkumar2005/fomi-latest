@@ -1,31 +1,34 @@
-"use client";
+"use client"
 
-import { useState, useCallback, memo } from "react";
-import { Hash } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import FieldWrapper from "@/components/forms/edit/shared/FieldWrapper";
-import AdvancedPanel from "@/components/forms/edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "@/components/forms/edit/hooks/useFieldHandlers";
+import { useCallback, memo } from "react"
+import { Hash } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+  AdvancedPanelDivider,
+} from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
 
 interface NumberFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    placeholder?: string;
-    required: boolean;
-    min?: number;
-    max?: number;
-    step?: number;
-  };
-  index: number;
-  onUpdate: (updates: Partial<NumberFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    placeholder?: string
+    required: boolean
+    min?: number
+    max?: number
+    step?: number
+  }
+  index: number
+  onUpdate: (updates: Partial<NumberFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
 const NumberField = memo(
@@ -39,7 +42,6 @@ const NumberField = memo(
     isAdvancedOpen,
     onAdvancedToggle,
   }: NumberFieldProps) {
-    // Use shared field handlers hook
     const {
       isEditingQuestion,
       isEditingDescription,
@@ -58,42 +60,42 @@ const NumberField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required });
-    }, [field.required, onUpdate]);
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value });
+        onUpdate({ placeholder: value })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleMinChange = useCallback(
       (value: string) => {
-        const num = parseFloat(value);
-        onUpdate({ min: isNaN(num) ? undefined : num });
+        const num = Number.parseFloat(value)
+        onUpdate({ min: isNaN(num) ? undefined : num })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleMaxChange = useCallback(
       (value: string) => {
-        const num = parseFloat(value);
-        onUpdate({ max: isNaN(num) ? undefined : num });
+        const num = Number.parseFloat(value)
+        onUpdate({ max: isNaN(num) ? undefined : num })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleStepChange = useCallback(
       (value: string) => {
-        const num = parseFloat(value);
-        onUpdate({ step: isNaN(num) || num <= 0 ? undefined : num });
+        const num = Number.parseFloat(value)
+        onUpdate({ step: isNaN(num) || num <= 0 ? undefined : num })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     return (
       <>
@@ -126,32 +128,34 @@ const NumberField = memo(
           onEnhance={onEnhance}
           onAdvancedClick={handleAdvancedClick}
         >
-          <Input
-            type="number"
-            value=""
-            placeholder={field.placeholder || "Enter a number"}
-            min={field.min}
-            max={field.max}
-            step={field.step}
-            disabled
-            className="bg-background border-border/50 cursor-not-allowed text-muted-foreground/50"
-          />
+          <div className="relative group/input">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <Hash className="h-4 w-4 text-muted-foreground/60 group-hover/input:text-primary/60 transition-colors" />
+            </div>
+            <Input
+              type="number"
+              value=""
+              placeholder={field.placeholder || "Enter a number"}
+              min={field.min}
+              max={field.max}
+              step={field.step}
+              disabled
+              className="pl-10 bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
+            />
+          </div>
         </FieldWrapper>
 
         <AdvancedPanel
           isOpen={isAdvancedOpen ?? false}
           onClose={handleAdvancedClose}
-          title="Number Field Settings"
+          title="Number Settings"
           subtitle="Configure numeric validation and behavior"
         >
-          {/* Placeholder */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="placeholder"
-              className="text-sm font-medium text-foreground"
-            >
-              Placeholder Text
-            </Label>
+          <AdvancedPanelFieldGroup
+            label="Placeholder Text"
+            htmlFor="placeholder"
+            description="Text shown before user enters a value"
+          >
             <Input
               id="placeholder"
               value={field.placeholder || ""}
@@ -159,25 +163,16 @@ const NumberField = memo(
               placeholder="Enter a number"
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">
-              Text shown before user enters a value
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Numeric Validation Section */}
-          <div className="pt-4 border-t border-border/50">
-            <h4 className="text-sm font-semibold text-foreground mb-4">
-              Numeric Constraints
-            </h4>
+          <AdvancedPanelDivider />
 
-            {/* Minimum Value */}
-            <div className="space-y-2 mb-4">
-              <Label
-                htmlFor="min"
-                className="text-sm font-medium text-foreground"
-              >
-                Minimum Value
-              </Label>
+          <AdvancedPanelSection title="Numeric Constraints">
+            <AdvancedPanelFieldGroup
+              label="Minimum Value"
+              htmlFor="min"
+              description="Minimum allowed value (inclusive)"
+            >
               <Input
                 id="min"
                 type="number"
@@ -187,19 +182,13 @@ const NumberField = memo(
                 className="w-full"
                 step="any"
               />
-              <p className="text-xs text-muted-foreground">
-                Minimum allowed value (inclusive)
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Maximum Value */}
-            <div className="space-y-2 mb-4">
-              <Label
-                htmlFor="max"
-                className="text-sm font-medium text-foreground"
-              >
-                Maximum Value
-              </Label>
+            <AdvancedPanelFieldGroup
+              label="Maximum Value"
+              htmlFor="max"
+              description="Maximum allowed value (inclusive)"
+            >
               <Input
                 id="max"
                 type="number"
@@ -209,19 +198,13 @@ const NumberField = memo(
                 className="w-full"
                 step="any"
               />
-              <p className="text-xs text-muted-foreground">
-                Maximum allowed value (inclusive)
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Step Value */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="step"
-                className="text-sm font-medium text-foreground"
-              >
-                Step Increment
-              </Label>
+            <AdvancedPanelFieldGroup
+              label="Step Increment"
+              htmlFor="step"
+              description="Increment value for number input (e.g., 0.1, 1, 10)"
+            >
               <Input
                 id="step"
                 type="number"
@@ -232,37 +215,30 @@ const NumberField = memo(
                 min="0"
                 step="any"
               />
-              <p className="text-xs text-muted-foreground">
-                Increment value for number input (e.g., 0.1, 1, 10)
-              </p>
-            </div>
-          </div>
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
 
           {/* Range Preview */}
           {(field.min !== undefined || field.max !== undefined) && (
-            <div className="pt-4 border-t border-border/50">
-              <h4 className="text-sm font-semibold text-foreground mb-2">
-                Allowed Range
-              </h4>
-              <div className="p-3 rounded-lg bg-muted/30 text-sm">
-                <p className="text-foreground">
-                  {field.min !== undefined && field.max !== undefined
-                    ? `${field.min} to ${field.max}`
-                    : field.min !== undefined
-                    ? `${field.min} or greater`
-                    : `${field.max} or less`}
-                </p>
-                {field.step && (
-                  <p className="text-muted-foreground text-xs mt-1">
-                    In steps of {field.step}
+            <>
+              <AdvancedPanelDivider />
+              <AdvancedPanelSection title="Allowed Range">
+                <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                  <p className="text-sm font-medium text-foreground">
+                    {field.min !== undefined && field.max !== undefined
+                      ? `${field.min} to ${field.max}`
+                      : field.min !== undefined
+                        ? `${field.min} or greater`
+                        : `${field.max} or less`}
                   </p>
-                )}
-              </div>
-            </div>
+                  {field.step && <p className="text-xs text-muted-foreground mt-1">In steps of {field.step}</p>}
+                </div>
+              </AdvancedPanelSection>
+            </>
           )}
         </AdvancedPanel>
       </>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -276,8 +252,8 @@ const NumberField = memo(
       prevProps.field.step === nextProps.field.step &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    );
-  }
-);
+    )
+  },
+)
 
-export default NumberField;
+export default NumberField

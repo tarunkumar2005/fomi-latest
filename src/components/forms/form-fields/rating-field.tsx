@@ -1,36 +1,34 @@
-"use client";
+"use client"
 
-import { useState, useCallback, memo } from "react";
-import { Star } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import FieldWrapper from "../edit/shared/FieldWrapper";
-import AdvancedPanel from "../edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { useState, useCallback, memo } from "react"
+import { Star } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+  AdvancedPanelDivider,
+} from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
+import { cn } from "@/lib/utils"
 
 interface RatingFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    required: boolean;
-    maxRating?: number;
-    ratingStyle?: "stars" | "numbers" | "emoji";
-  };
-  index: number;
-  onUpdate: (updates: Partial<RatingFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    required: boolean
+    maxRating?: number
+    ratingStyle?: "stars" | "numbers" | "emoji"
+  }
+  index: number
+  onUpdate: (updates: Partial<RatingFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
 const RatingField = memo(
@@ -44,7 +42,7 @@ const RatingField = memo(
     isAdvancedOpen,
     onAdvancedToggle,
   }: RatingFieldProps) {
-    const [hoveredRating, setHoveredRating] = useState<number | null>(null);
+    const [hoveredRating, setHoveredRating] = useState<number | null>(null)
 
     const {
       isEditingQuestion,
@@ -64,31 +62,31 @@ const RatingField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required });
-    }, [field.required, onUpdate]);
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
-    const maxRating = field.maxRating || 5;
-    const ratingStyle = field.ratingStyle || "stars";
+    const maxRating = field.maxRating || 5
+    const ratingStyle = field.ratingStyle || "stars"
 
     const handleMaxRatingChange = (value: string) => {
-      const num = parseInt(value);
+      const num = Number.parseInt(value)
       if (!isNaN(num) && num >= 1 && num <= 10) {
-        onUpdate({ maxRating: num });
+        onUpdate({ maxRating: num })
       }
-    };
+    }
 
     const handleRatingStyleChange = (value: string) => {
-      onUpdate({ ratingStyle: value as "stars" | "numbers" | "emoji" });
-    };
+      onUpdate({ ratingStyle: value as "stars" | "numbers" | "emoji" })
+    }
 
     const renderRatingPreview = () => {
-      const items = [];
+      const items = []
 
       for (let i = 1; i <= maxRating; i++) {
-        const isHovered = hoveredRating !== null && i <= hoveredRating;
+        const isItemHovered = hoveredRating !== null && i <= hoveredRating
 
         if (ratingStyle === "stars") {
           items.push(
@@ -97,18 +95,17 @@ const RatingField = memo(
               type="button"
               onMouseEnter={() => setHoveredRating(i)}
               onMouseLeave={() => setHoveredRating(null)}
-              className="transition-all duration-150 cursor-pointer"
+              className="transition-all duration-150 cursor-pointer p-0.5"
               disabled
             >
               <Star
-                className={`h-8 w-8 transition-colors ${
-                  isHovered
-                    ? "fill-warning text-warning"
-                    : "fill-none text-border"
-                }`}
+                className={cn(
+                  "h-7 w-7 transition-all duration-200",
+                  isItemHovered ? "fill-warning text-warning scale-110" : "fill-none text-border",
+                )}
               />
-            </button>
-          );
+            </button>,
+          )
         } else if (ratingStyle === "numbers") {
           items.push(
             <button
@@ -117,28 +114,19 @@ const RatingField = memo(
               onMouseEnter={() => setHoveredRating(i)}
               onMouseLeave={() => setHoveredRating(null)}
               disabled
-              className={`h-10 w-10 rounded-lg border-2 transition-all duration-150 cursor-pointer font-semibold ${
-                isHovered
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-background text-muted-foreground"
-              }`}
+              className={cn(
+                "h-10 w-10 rounded-lg border-2 font-semibold text-sm",
+                "transition-all duration-200",
+                isItemHovered
+                  ? "border-primary bg-primary text-primary-foreground scale-105"
+                  : "border-border bg-background text-muted-foreground",
+              )}
             >
               {i}
-            </button>
-          );
+            </button>,
+          )
         } else if (ratingStyle === "emoji") {
-          const emojis = [
-            "😢",
-            "😕",
-            "😐",
-            "🙂",
-            "😊",
-            "😄",
-            "🤩",
-            "😍",
-            "🥰",
-            "🤗",
-          ];
+          const emojis = ["😢", "😕", "😐", "🙂", "😊", "😄", "🤩", "😍", "🥰", "🤗"]
           items.push(
             <button
               key={i}
@@ -146,18 +134,19 @@ const RatingField = memo(
               onMouseEnter={() => setHoveredRating(i)}
               onMouseLeave={() => setHoveredRating(null)}
               disabled
-              className={`text-3xl transition-all duration-150 cursor-pointer ${
-                isHovered ? "scale-125" : "scale-100 opacity-50"
-              }`}
+              className={cn(
+                "text-2xl transition-all duration-200 p-1",
+                isItemHovered ? "scale-125" : "scale-100 opacity-50",
+              )}
             >
               {emojis[i - 1] || "😊"}
-            </button>
-          );
+            </button>,
+          )
         }
       }
 
-      return items;
-    };
+      return items
+    }
 
     return (
       <>
@@ -190,12 +179,9 @@ const RatingField = memo(
           onEnhance={onEnhance}
           onAdvancedClick={handleAdvancedClick}
         >
-          {/* Rating Preview */}
-          <div className="mb-5">
-            <div className="flex items-center gap-2 flex-wrap">
-              {renderRatingPreview()}
-            </div>
-            <p className="text-xs text-muted-foreground/60 mt-2">
+          <div className="space-y-3">
+            <div className="flex items-center gap-1.5 flex-wrap">{renderRatingPreview()}</div>
+            <p className="text-xs text-muted-foreground/60">
               {ratingStyle === "stars" && `Rate from 1 to ${maxRating} stars`}
               {ratingStyle === "numbers" && `Rate from 1 to ${maxRating}`}
               {ratingStyle === "emoji" && `Rate from 1 to ${maxRating} emoji`}
@@ -206,40 +192,27 @@ const RatingField = memo(
         <AdvancedPanel
           isOpen={isAdvancedOpen ?? false}
           onClose={handleAdvancedClose}
-          title="Advanced Settings"
+          title="Rating Settings"
           subtitle="Configure rating style and scale"
         >
-          {/* Rating Style */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="ratingStyle"
-              className="text-sm font-medium text-foreground"
-            >
-              Rating Style
-            </Label>
+          <AdvancedPanelFieldGroup label="Rating Style" htmlFor="ratingStyle" description="Choose how users will rate">
             <Select value={ratingStyle} onValueChange={handleRatingStyleChange}>
               <SelectTrigger id="ratingStyle" className="w-full">
                 <SelectValue placeholder="Select rating style" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="stars">⭐ Stars</SelectItem>
-                <SelectItem value="numbers">🔢 Numbers</SelectItem>
-                <SelectItem value="emoji">😊 Emoji</SelectItem>
+                <SelectItem value="stars">Stars</SelectItem>
+                <SelectItem value="numbers">Numbers</SelectItem>
+                <SelectItem value="emoji">Emoji</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              Choose how users will rate
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Max Rating */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="maxRating"
-              className="text-sm font-medium text-foreground"
-            >
-              Maximum Rating
-            </Label>
+          <AdvancedPanelFieldGroup
+            label="Maximum Rating"
+            htmlFor="maxRating"
+            description={`Scale from 1 to ${maxRating} (max: 10)`}
+          >
             <Input
               id="maxRating"
               type="number"
@@ -249,25 +222,18 @@ const RatingField = memo(
               onChange={(e) => handleMaxRatingChange(e.target.value)}
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">
-              Scale from 1 to {maxRating} (max: 10)
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Preview Section */}
-          <div className="pt-4 border-t border-border/50">
-            <h4 className="text-sm font-semibold text-foreground mb-4">
-              Preview
-            </h4>
-            <div className="p-4 rounded-lg bg-muted/30 border border-border">
-              <div className="flex items-center gap-2 flex-wrap">
-                {renderRatingPreview()}
-              </div>
+          <AdvancedPanelDivider />
+
+          <AdvancedPanelSection title="Preview">
+            <div className="p-4 rounded-xl bg-muted/30 border border-border">
+              <div className="flex items-center gap-1.5 flex-wrap">{renderRatingPreview()}</div>
             </div>
-          </div>
+          </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -279,8 +245,8 @@ const RatingField = memo(
       prevProps.field.ratingStyle === nextProps.field.ratingStyle &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    );
-  }
-);
+    )
+  },
+)
 
-export default RatingField;
+export default RatingField

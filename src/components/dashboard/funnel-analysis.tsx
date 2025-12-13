@@ -4,10 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { TrendingDown, Filter, Trophy, Eye, MousePointer, CheckCircle } from "lucide-react"
 
-// ===========================
-// TYPES
-// ===========================
-
+// Types
 interface FunnelStage {
   stage: string
   value: number
@@ -37,10 +34,7 @@ interface FunnelAnalysisProps {
   funnelData?: FunnelData
 }
 
-// ===========================
-// HELPER FUNCTIONS
-// ===========================
-
+// Helper Functions
 const getPodiumHeight = (rank: number): string => {
   const heights = { 1: "h-28", 2: "h-20", 3: "h-16" }
   return heights[rank as keyof typeof heights] || "h-14"
@@ -50,24 +44,21 @@ const getPodiumColors = (rank: number) => {
   const colors = {
     1: {
       border: "border-amber-400/50",
-      bg: "bg-gradient-to-br from-amber-500/10 to-amber-600/5",
-      badge: "bg-gradient-to-br from-amber-400 to-amber-500 text-amber-950",
-      podium: "bg-gradient-to-t from-amber-500 to-amber-400",
-      shadow: "shadow-amber-500/20",
+      bg: "bg-amber-50 dark:bg-amber-500/10",
+      badge: "bg-amber-400 text-amber-950",
+      podium: "bg-amber-400",
     },
     2: {
-      border: "border-slate-400/50",
-      bg: "bg-gradient-to-br from-slate-400/10 to-slate-500/5",
-      badge: "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900",
-      podium: "bg-gradient-to-t from-slate-400 to-slate-300",
-      shadow: "shadow-slate-400/20",
+      border: "border-slate-300/50",
+      bg: "bg-slate-50 dark:bg-slate-500/10",
+      badge: "bg-slate-300 text-slate-900",
+      podium: "bg-slate-300",
     },
     3: {
-      border: "border-orange-400/50",
-      bg: "bg-gradient-to-br from-orange-400/10 to-orange-500/5",
-      badge: "bg-gradient-to-br from-orange-300 to-orange-400 text-orange-900",
-      podium: "bg-gradient-to-t from-orange-400 to-orange-300",
-      shadow: "shadow-orange-400/20",
+      border: "border-orange-300/50",
+      bg: "bg-orange-50 dark:bg-orange-500/10",
+      badge: "bg-orange-300 text-orange-900",
+      podium: "bg-orange-300",
     },
   }
   return colors[rank as keyof typeof colors] || colors[3]
@@ -79,47 +70,45 @@ const stageIcons: Record<string, any> = {
   Submissions: CheckCircle,
 }
 
-// ===========================
-// COMPONENTS
-// ===========================
-
-const LoadingSkeleton = () => (
-  <div className="px-4 sm:px-6 py-6 bg-background">
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div className="space-y-2">
-        <div className="h-7 w-64 bg-muted rounded animate-pulse" />
-        <div className="h-4 w-96 bg-muted rounded animate-pulse" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {[1, 2].map((i) => (
-          <Card key={i} className="border-border/50 bg-card overflow-hidden">
-            <CardHeader className="pb-4 border-b border-border/50">
-              <div className="h-6 w-40 bg-muted rounded animate-pulse" />
-            </CardHeader>
-            <CardContent className="pt-6 pb-4">
-              <div className="h-64 bg-muted/50 rounded-xl animate-pulse" />
-            </CardContent>
-          </Card>
-        ))}
+// Loading Skeleton Component
+function LoadingSkeleton() {
+  return (
+    <div className="px-4 sm:px-6 py-6 bg-background">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="space-y-2">
+          <div className="h-7 w-64 bg-muted rounded-lg animate-pulse" />
+          <div className="h-4 w-96 bg-muted rounded-lg animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[1, 2].map((i) => (
+            <Card key={i} className="border-border/50 bg-card overflow-hidden">
+              <CardHeader className="pb-4 border-b border-border/50">
+                <div className="h-6 w-40 bg-muted rounded-lg animate-pulse" />
+              </CardHeader>
+              <CardContent className="pt-6 pb-4">
+                <div className="h-64 bg-muted/50 rounded-xl animate-pulse" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-)
+  )
+}
 
-const EmptyState = ({ message }: { message: string }) => (
-  <div className="h-64 flex items-center justify-center">
-    <div className="text-center space-y-3 max-w-xs">
-      <div className="mx-auto w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
-        <Filter className="h-7 w-7 text-muted-foreground/60" />
+// Empty State Component
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="h-64 flex items-center justify-center">
+      <div className="text-center space-y-3 max-w-xs">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
+          <Filter className="h-7 w-7 text-muted-foreground/60" />
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">{message}</p>
       </div>
-      <p className="text-sm text-muted-foreground">{message}</p>
     </div>
-  </div>
-)
-
-// ===========================
-// MAIN COMPONENT
-// ===========================
+  )
+}
 
 export default function FunnelAnalysis({ isLoading = false, funnelData }: FunnelAnalysisProps) {
   const { conversionFunnel = [], topForms = [] } = funnelData || {}
@@ -153,21 +142,25 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Section Header */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Funnel & Performance</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight font-heading">
+            Funnel & Performance
+          </h2>
           <p className="text-sm text-muted-foreground mt-1">Visualize user journey and identify top performers</p>
         </div>
 
         {/* Side by Side Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* ===== CONVERSION FUNNEL ===== */}
-          <Card className="border-border/50 bg-card overflow-hidden">
+          {/* Conversion Funnel Card */}
+          <Card className="border-border/50 bg-card overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
             <CardHeader className="pb-4 border-b border-border/50">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-primary/10">
                   <Filter className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-semibold text-foreground">Conversion Funnel</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground font-heading">
+                    Conversion Funnel
+                  </CardTitle>
                   <p className="text-xs text-muted-foreground mt-0.5">User journey stages</p>
                 </div>
               </div>
@@ -181,7 +174,6 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
                     const StageIcon = stageIcons[stage.stage] || Eye
                     return (
                       <div key={index} className="space-y-2">
-                        {/* Stage Header */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <StageIcon className="h-4 w-4" style={{ color: stage.color }} />
@@ -223,8 +215,8 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
             </CardContent>
           </Card>
 
-          {/* ===== TOP PERFORMING FORMS ===== */}
-          <Card className="border-border/50 bg-card overflow-hidden">
+          {/* Top Performing Forms Card */}
+          <Card className="border-border/50 bg-card overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
             <CardHeader className="pb-4 border-b border-border/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -232,7 +224,7 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
                     <Trophy className="h-5 w-5 text-amber-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">Top Performers</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-foreground font-heading">Top Performers</CardTitle>
                     <p className="text-xs text-muted-foreground mt-0.5">Best converting forms</p>
                   </div>
                 </div>
@@ -249,25 +241,24 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
                     const isEmpty = form.name === "No Form"
 
                     return (
-                      <div key={form.slug} className="flex flex-col items-center flex-1 max-w-[140px]">
+                      <div key={form.slug} className="flex flex-col items-center flex-1 max-w-[140px] outline-none">
                         {/* Form Card */}
-                        <div className="w-full mb-2">
+                        <div className="w-full mb-2 outline-none">
                           <div
                             className={cn(
-                              "p-3 rounded-xl border bg-card transition-all duration-300",
+                              "p-3 rounded-xl border bg-card transition-all duration-300 outline-none",
                               colors.border,
                               colors.bg,
-                              !isEmpty && "hover:shadow-lg cursor-pointer",
-                              isEmpty && "opacity-40",
+                              !isEmpty && "hover:shadow-lg cursor-pointer hover:scale-105",
+                              isEmpty && "opacity-50",
                             )}
                           >
                             {/* Rank Badge */}
                             <div className="flex justify-center mb-3">
                               <div
                                 className={cn(
-                                  "w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-lg",
+                                  "w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-md",
                                   colors.badge,
-                                  colors.shadow,
                                 )}
                               >
                                 {form.rank}
@@ -278,7 +269,7 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
                             <div className="text-center">
                               <p
                                 className={cn(
-                                  "text-xs font-semibold mb-2 truncate",
+                                  "text-xs font-semibold mb-2 truncate outline-none",
                                   isEmpty ? "text-muted-foreground italic" : "text-foreground",
                                 )}
                                 title={form.name}
@@ -287,7 +278,9 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
                               </p>
                               {!isEmpty ? (
                                 <>
-                                  <p className="text-xl font-bold text-foreground mb-1">{form.conversionRate}%</p>
+                                  <p className="text-xl font-bold text-foreground mb-1 font-heading">
+                                    {form.conversionRate}%
+                                  </p>
                                   <p className="text-xs text-muted-foreground">Avg: {form.avgTime}</p>
                                   <div className="mt-3 pt-3 border-t border-border/50">
                                     <div className="grid grid-cols-3 gap-1 text-xs">
@@ -316,11 +309,10 @@ export default function FunnelAnalysis({ isLoading = false, funnelData }: Funnel
                         {/* Podium Base */}
                         <div
                           className={cn(
-                            "w-full rounded-t-lg transition-all shadow-lg",
+                            "w-full rounded-t-lg outline-none",
                             height,
                             colors.podium,
-                            colors.shadow,
-                            isEmpty && "opacity-30",
+                            isEmpty && "opacity-40",
                           )}
                         />
                       </div>

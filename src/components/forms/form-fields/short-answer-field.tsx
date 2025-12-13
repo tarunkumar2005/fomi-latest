@@ -1,226 +1,205 @@
-"use client";
+"use client"
 
-import { useCallback, memo } from "react";
-import { Type } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import FieldWrapper from "../edit/shared/FieldWrapper";
-import AdvancedPanel from "../edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "../edit/hooks/useFieldHandlers";
+import { useCallback, memo } from "react"
+import { Type } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+  AdvancedPanelDivider,
+} from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
 
 interface ShortAnswerFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    placeholder?: string;
-    required: boolean;
-    minLength?: number;
-    maxLength?: number;
-  };
-  index: number;
-  onUpdate: (updates: Partial<ShortAnswerFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    placeholder?: string
+    required: boolean
+    minLength?: number
+    maxLength?: number
+  }
+  index: number
+  onUpdate: (updates: Partial<ShortAnswerFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
-function ShortAnswerField({
-  field,
-  index,
-  onUpdate,
-  onDelete,
-  onDuplicate,
-  onEnhance,
-  isAdvancedOpen,
-  onAdvancedToggle,
-}: ShortAnswerFieldProps) {
-  // Use the custom hook for common field handlers
-  const {
-    isEditingQuestion,
-    isEditingDescription,
-    isHovered,
-    questionRef,
-    descriptionRef,
-    handleQuestionClick,
-    handleQuestionChange,
-    handleQuestionBlur,
-    handleQuestionKeyDown,
-    handleDescriptionClick,
-    handleDescriptionChange,
-    handleDescriptionBlur,
-    handleDescriptionKeyDown,
-    handleMouseEnter,
-    handleMouseLeave,
-    handleAdvancedClick,
-    handleAdvancedClose,
-  } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+const ShortAnswerField = memo(
+  function ShortAnswerField({
+    field,
+    index,
+    onUpdate,
+    onDelete,
+    onDuplicate,
+    onEnhance,
+    isAdvancedOpen,
+    onAdvancedToggle,
+  }: ShortAnswerFieldProps) {
+    const {
+      isEditingQuestion,
+      isEditingDescription,
+      isHovered,
+      questionRef,
+      descriptionRef,
+      handleQuestionClick,
+      handleQuestionChange,
+      handleQuestionBlur,
+      handleQuestionKeyDown,
+      handleDescriptionClick,
+      handleDescriptionChange,
+      handleDescriptionBlur,
+      handleDescriptionKeyDown,
+      handleMouseEnter,
+      handleMouseLeave,
+      handleAdvancedClick,
+      handleAdvancedClose,
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
-  // Field-specific handlers
-  const handleRequiredToggle = useCallback(() => {
-    onUpdate({ required: !field.required });
-  }, [field.required, onUpdate]);
+    const handleRequiredToggle = useCallback(() => {
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
-  const handlePlaceholderChange = useCallback(
-    (value: string) => {
-      onUpdate({ placeholder: value });
-    },
-    [onUpdate]
-  );
+    const handlePlaceholderChange = useCallback(
+      (value: string) => {
+        onUpdate({ placeholder: value })
+      },
+      [onUpdate],
+    )
 
-  const handleMinLengthChange = useCallback(
-    (value: string) => {
-      const num = parseInt(value);
-      onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num });
-    },
-    [onUpdate]
-  );
+    const handleMinLengthChange = useCallback(
+      (value: string) => {
+        const num = Number.parseInt(value)
+        onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num })
+      },
+      [onUpdate],
+    )
 
-  const handleMaxLengthChange = useCallback(
-    (value: string) => {
-      const num = parseInt(value);
-      onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num });
-    },
-    [onUpdate]
-  );
+    const handleMaxLengthChange = useCallback(
+      (value: string) => {
+        const num = Number.parseInt(value)
+        onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num })
+      },
+      [onUpdate],
+    )
 
-  return (
-    <>
-      <FieldWrapper
-        index={index}
-        fieldType="Short Answer"
-        fieldIcon={Type}
-        fieldId={field.id}
-        question={field.question}
-        description={field.description}
-        required={field.required}
-        isEditingQuestion={isEditingQuestion}
-        isEditingDescription={isEditingDescription}
-        isHovered={isHovered}
-        onQuestionClick={handleQuestionClick}
-        onDescriptionClick={handleDescriptionClick}
-        onQuestionChange={handleQuestionChange}
-        onDescriptionChange={handleDescriptionChange}
-        onQuestionBlur={handleQuestionBlur}
-        onDescriptionBlur={handleDescriptionBlur}
-        onQuestionKeyDown={handleQuestionKeyDown}
-        onDescriptionKeyDown={handleDescriptionKeyDown}
-        onRequiredToggle={handleRequiredToggle}
-        onDelete={onDelete}
-        onDuplicate={onDuplicate}
-        onEnhance={onEnhance}
-        onAdvancedClick={handleAdvancedClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        questionRef={questionRef}
-        descriptionRef={descriptionRef}
-        showAdvanced={true}
-      >
-        {/* Field-Specific Preview Content */}
-        <Input
-          value=""
-          placeholder={field.placeholder || "Your answer here..."}
-          disabled
-          className="bg-background border-border/50 cursor-not-allowed text-muted-foreground/50"
-        />
-      </FieldWrapper>
-
-      {/* Advanced Settings Panel */}
-      <AdvancedPanel
-        isOpen={isAdvancedOpen ?? false}
-        onClose={handleAdvancedClose}
-        title="Advanced Settings"
-        subtitle="Configure validation and behavior"
-      >
-        {/* Placeholder */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="placeholder"
-            className="text-sm font-medium text-foreground"
-          >
-            Placeholder Text
-          </Label>
+    return (
+      <>
+        <FieldWrapper
+          index={index}
+          fieldType="Short Answer"
+          fieldIcon={Type}
+          fieldId={field.id}
+          question={field.question}
+          description={field.description}
+          required={field.required}
+          isEditingQuestion={isEditingQuestion}
+          isEditingDescription={isEditingDescription}
+          isHovered={isHovered}
+          onQuestionClick={handleQuestionClick}
+          onDescriptionClick={handleDescriptionClick}
+          onQuestionChange={handleQuestionChange}
+          onDescriptionChange={handleDescriptionChange}
+          onQuestionBlur={handleQuestionBlur}
+          onDescriptionBlur={handleDescriptionBlur}
+          onQuestionKeyDown={handleQuestionKeyDown}
+          onDescriptionKeyDown={handleDescriptionKeyDown}
+          onRequiredToggle={handleRequiredToggle}
+          onDelete={onDelete}
+          onDuplicate={onDuplicate}
+          onEnhance={onEnhance}
+          onAdvancedClick={handleAdvancedClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          questionRef={questionRef}
+          descriptionRef={descriptionRef}
+          showAdvanced={true}
+        >
           <Input
-            id="placeholder"
-            value={field.placeholder || ""}
-            onChange={(e) => handlePlaceholderChange(e.target.value)}
-            placeholder="Your answer here..."
-            className="w-full"
+            value=""
+            placeholder={field.placeholder || "Your answer here..."}
+            disabled
+            className="bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50"
           />
-          <p className="text-xs text-muted-foreground">
-            Text shown before user types
-          </p>
-        </div>
+        </FieldWrapper>
 
-        {/* Validation Section */}
-        <div className="pt-4 border-t border-border/50">
-          <h4 className="text-sm font-semibold text-foreground mb-4">
-            Validation Rules
-          </h4>
+        <AdvancedPanel
+          isOpen={isAdvancedOpen ?? false}
+          onClose={handleAdvancedClose}
+          title="Short Answer Settings"
+          subtitle="Configure validation and behavior"
+        >
+          <AdvancedPanelFieldGroup
+            label="Placeholder Text"
+            htmlFor="placeholder"
+            description="Text shown before user types"
+          >
+            <Input
+              id="placeholder"
+              value={field.placeholder || ""}
+              onChange={(e) => handlePlaceholderChange(e.target.value)}
+              placeholder="Your answer here..."
+              className="w-full"
+            />
+          </AdvancedPanelFieldGroup>
 
-          {/* Min Length */}
-          <div className="space-y-2 mb-4">
-            <Label
+          <AdvancedPanelDivider />
+
+          <AdvancedPanelSection title="Validation Rules">
+            <AdvancedPanelFieldGroup
+              label="Minimum Length"
               htmlFor="minLength"
-              className="text-sm font-medium text-foreground"
+              description="Minimum characters required"
             >
-              Minimum Length
-            </Label>
-            <Input
-              id="minLength"
-              type="number"
-              min="0"
-              value={field.minLength || ""}
-              onChange={(e) => handleMinLengthChange(e.target.value)}
-              placeholder="No minimum"
-              className="w-full"
-            />
-            <p className="text-xs text-muted-foreground">
-              Minimum characters required
-            </p>
-          </div>
+              <Input
+                id="minLength"
+                type="number"
+                min="0"
+                value={field.minLength || ""}
+                onChange={(e) => handleMinLengthChange(e.target.value)}
+                placeholder="No minimum"
+                className="w-full"
+              />
+            </AdvancedPanelFieldGroup>
 
-          {/* Max Length */}
-          <div className="space-y-2">
-            <Label
+            <AdvancedPanelFieldGroup
+              label="Maximum Length"
               htmlFor="maxLength"
-              className="text-sm font-medium text-foreground"
+              description="Maximum characters allowed"
             >
-              Maximum Length
-            </Label>
-            <Input
-              id="maxLength"
-              type="number"
-              min="0"
-              value={field.maxLength || ""}
-              onChange={(e) => handleMaxLengthChange(e.target.value)}
-              placeholder="No maximum"
-              className="w-full"
-            />
-            <p className="text-xs text-muted-foreground">
-              Maximum characters allowed
-            </p>
-          </div>
-        </div>
-      </AdvancedPanel>
-    </>
-  );
-}
+              <Input
+                id="maxLength"
+                type="number"
+                min="0"
+                value={field.maxLength || ""}
+                onChange={(e) => handleMaxLengthChange(e.target.value)}
+                placeholder="No maximum"
+                className="w-full"
+              />
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
+        </AdvancedPanel>
+      </>
+    )
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.field.id === nextProps.field.id &&
+      prevProps.field.question === nextProps.field.question &&
+      prevProps.field.description === nextProps.field.description &&
+      prevProps.field.placeholder === nextProps.field.placeholder &&
+      prevProps.field.required === nextProps.field.required &&
+      prevProps.field.minLength === nextProps.field.minLength &&
+      prevProps.field.maxLength === nextProps.field.maxLength &&
+      prevProps.index === nextProps.index &&
+      prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
+    )
+  },
+)
 
-// Memoize component to prevent re-renders when sibling fields change
-export default memo(ShortAnswerField, (prev, next) => {
-  // Re-render only if field data or state changes
-  return (
-    prev.field.id === next.field.id &&
-    prev.field.question === next.field.question &&
-    prev.field.description === next.field.description &&
-    prev.field.placeholder === next.field.placeholder &&
-    prev.field.required === next.field.required &&
-    prev.field.minLength === next.field.minLength &&
-    prev.field.maxLength === next.field.maxLength &&
-    prev.index === next.index &&
-    prev.isAdvancedOpen === next.isAdvancedOpen
-  );
-});
+export default ShortAnswerField

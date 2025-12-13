@@ -27,6 +27,30 @@ interface SectionRepeatDialogProps {
   onSave: (isRepeatable: boolean, repeatCount?: number) => Promise<void>
 }
 
+const useCaseExamples = [
+  {
+    icon: Users,
+    title: "Family Members",
+    description: "Let users add multiple family members with same details",
+    color: "text-chart-1",
+    bg: "bg-chart-1/10",
+  },
+  {
+    icon: Package,
+    title: "Product Items",
+    description: "Allow adding multiple products to an order",
+    color: "text-chart-3",
+    bg: "bg-chart-3/10",
+  },
+  {
+    icon: Briefcase,
+    title: "Work Experience",
+    description: "Collect multiple job history entries",
+    color: "text-chart-5",
+    bg: "bg-chart-5/10",
+  },
+]
+
 export default function SectionRepeatDialog({
   open,
   onOpenChange,
@@ -40,7 +64,6 @@ export default function SectionRepeatDialog({
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Reset state when dialog opens
   useEffect(() => {
     if (open) {
       setIsRepeatable(currentIsRepeatable)
@@ -54,7 +77,6 @@ export default function SectionRepeatDialog({
     setError(null)
 
     try {
-      // Validate repeat count
       if (isRepeatable && (repeatCount < 1 || repeatCount > 10)) {
         setError("Repeat count must be between 1 and 10")
         setIsSaving(false)
@@ -71,37 +93,13 @@ export default function SectionRepeatDialog({
     }
   }
 
-  const useCaseExamples = [
-    {
-      icon: Users,
-      title: "Family Members",
-      description: "Let users add multiple family members with same details",
-      color: "text-indigo-500",
-      bg: "bg-indigo-500/10",
-    },
-    {
-      icon: Package,
-      title: "Product Items",
-      description: "Allow adding multiple products to an order",
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
-    },
-    {
-      icon: Briefcase,
-      title: "Work Experience",
-      description: "Collect multiple job history entries",
-      color: "text-violet-500",
-      bg: "bg-violet-500/10",
-    },
-  ]
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] p-0 gap-0 rounded-2xl overflow-hidden">
-        <DialogHeader className="px-4 sm:px-6 py-4 sm:py-5 border-b border-border/50 bg-muted/30">
+        <DialogHeader className="px-4 sm:px-6 py-4 sm:py-5 border-b border-border/50 bg-gradient-to-r from-muted/50 via-muted/30 to-muted/50">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Repeat className="h-5 w-5 text-primary" />
+            <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center">
+              <Repeat className="h-5 w-5 text-warning" />
             </div>
             <div>
               <DialogTitle className="text-base sm:text-lg font-semibold">Repeatable Section Settings</DialogTitle>
@@ -117,8 +115,8 @@ export default function SectionRepeatDialog({
             {/* Enable/Disable Toggle */}
             <div
               className={cn(
-                "flex items-center justify-between gap-4 rounded-xl border-2 p-4 transition-all",
-                isRepeatable ? "border-primary bg-primary/5" : "border-border/50",
+                "flex items-center justify-between gap-4 rounded-xl border-2 p-4 transition-all duration-200",
+                isRepeatable ? "border-warning bg-warning/5" : "border-border/50 hover:border-border",
               )}
             >
               <div className="flex-1 space-y-1">
@@ -156,7 +154,7 @@ export default function SectionRepeatDialog({
                   <div className="flex items-center gap-3 flex-1">
                     <div className="h-2.5 flex-1 sm:w-32 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-linear-to-r from-primary to-primary/70 transition-all duration-300 rounded-full"
+                        className="h-full bg-gradient-to-r from-warning to-warning/70 transition-all duration-300 rounded-full"
                         style={{ width: `${(repeatCount / 10) * 100}%` }}
                       />
                     </div>
@@ -175,7 +173,6 @@ export default function SectionRepeatDialog({
                 <p className="text-xs sm:text-sm text-muted-foreground">How it will appear to form respondents</p>
                 <div className="rounded-xl border-2 border-dashed border-border/50 p-4 sm:p-6 bg-muted/20">
                   <div className="space-y-3">
-                    {/* Instance 1 */}
                     <div className="rounded-xl border border-border/50 bg-card p-3 sm:p-4 shadow-sm">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs sm:text-sm font-medium">{sectionTitle} #1</span>
@@ -183,7 +180,6 @@ export default function SectionRepeatDialog({
                       <p className="text-[10px] sm:text-xs text-muted-foreground">[Form fields will appear here]</p>
                     </div>
 
-                    {/* Add More Button */}
                     <Button
                       type="button"
                       variant="outline"
@@ -208,12 +204,10 @@ export default function SectionRepeatDialog({
 
             {/* Use Cases Info */}
             {!isRepeatable && (
-              <Alert className="rounded-xl border-sky-500/20 bg-sky-500/5">
-                <Info className="h-4 w-4 text-sky-500" />
+              <Alert className="rounded-xl border-chart-2/20 bg-chart-2/5">
+                <Info className="h-4 w-4 text-chart-2" />
                 <AlertDescription>
-                  <p className="font-medium mb-3 text-xs sm:text-sm text-sky-700 dark:text-sky-300">
-                    Common use cases:
-                  </p>
+                  <p className="font-medium mb-3 text-xs sm:text-sm text-chart-2">Common use cases:</p>
                   <div className="space-y-2.5">
                     {useCaseExamples.map((example, idx) => (
                       <div key={idx} className="flex items-start gap-2.5">
@@ -231,7 +225,6 @@ export default function SectionRepeatDialog({
               </Alert>
             )}
 
-            {/* Error Display */}
             {error && (
               <Alert variant="destructive" className="rounded-xl">
                 <AlertCircle className="h-4 w-4" />
@@ -241,7 +234,7 @@ export default function SectionRepeatDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t border-border/50 bg-muted/30">
+        <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t border-border/50 bg-muted/20">
           <div className="flex items-center justify-end gap-2 w-full">
             <Button
               type="button"

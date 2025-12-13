@@ -5,16 +5,20 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area
 import { RangeOption } from "@/types/dashboard"
 import { TrendingUp, BarChart3 } from "lucide-react"
 
+// Custom Tooltip Component
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl p-4 min-w-[180px]">
+      <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl p-4 min-w-[200px]">
         <p className="text-sm font-semibold text-foreground mb-3 pb-2 border-b border-border/50">{label}</p>
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: entry.color }} />
+            <div key={index} className="flex items-center justify-between gap-6">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-3 h-3 rounded-full shadow-sm ring-2 ring-background"
+                  style={{ backgroundColor: entry.color }}
+                />
                 <span className="text-xs text-muted-foreground font-medium">{entry.name}</span>
               </div>
               <span className="text-sm font-bold text-foreground tabular-nums">{entry.value.toLocaleString()}</span>
@@ -27,12 +31,16 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null
 }
 
+// Custom Legend Component
 const CustomLegend = ({ payload }: any) => {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+    <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
       {payload?.map((entry: any, index: number) => (
         <div key={index} className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+          <div
+            className="w-3 h-3 rounded-full ring-2 ring-background shadow-sm"
+            style={{ backgroundColor: entry.color }}
+          />
           <span className="text-xs font-medium text-muted-foreground">{entry.value}</span>
         </div>
       ))}
@@ -40,16 +48,86 @@ const CustomLegend = ({ payload }: any) => {
   )
 }
 
-export default function EngagementTrends({
-  isLoading = false,
-  trendsChartData,
-  range,
-}: {
+// Loading State Component
+function LoadingState() {
+  return (
+    <div className="px-4 sm:px-6 py-6 bg-background">
+      <div className="max-w-7xl mx-auto">
+        <Card className="border-border/50 bg-card overflow-hidden">
+          <CardHeader className="pb-4 border-b border-border/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-primary/10">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold text-foreground">Engagement Trends</CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">Performance over time</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6 pb-4">
+            <div className="h-80 w-full flex items-center justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative">
+                  <div className="h-14 w-14 rounded-full border-4 border-muted" />
+                  <div className="absolute inset-0 h-14 w-14 rounded-full border-4 border-primary/50 border-t-primary animate-spin" />
+                </div>
+                <p className="text-sm text-muted-foreground">Loading chart data...</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+// Empty State Component
+function EmptyState() {
+  return (
+    <div className="px-4 sm:px-6 py-6 bg-background">
+      <div className="max-w-7xl mx-auto">
+        <Card className="border-border/50 bg-card overflow-hidden">
+          <CardHeader className="pb-4 border-b border-border/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-primary/10">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold text-foreground">Engagement Trends</CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">Performance over time</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6 pb-4">
+            <div className="h-80 w-full flex items-center justify-center">
+              <div className="text-center space-y-4 max-w-sm">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center">
+                  <BarChart3 className="h-8 w-8 text-muted-foreground/60" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-1">No engagement data yet</p>
+                  <p className="text-xs text-muted-foreground">
+                    Data will appear here once you start receiving form interactions
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+interface EngagementTrendsProps {
   isLoading?: boolean
   trendsChartData?: any[]
   range?: RangeOption
-}) {
-  // Decide label formatting based on selected range (explicit)
+}
+
+export default function EngagementTrends({ isLoading = false, trendsChartData, range }: EngagementTrendsProps) {
+  // Decide label formatting based on selected range
   const intervalHours = range === RangeOption["24h"] ? 6 : 24
 
   const formattedData = trendsChartData?.map((item: any) => {
@@ -57,7 +135,6 @@ export default function EngagementTrends({
 
     let formattedDate: string
     if (range === RangeOption["24h"]) {
-      // For 24h view show half-day ranges (6 hour buckets)
       const startTime = date.toLocaleTimeString("en-US", {
         hour: "numeric",
         hour12: true,
@@ -69,7 +146,6 @@ export default function EngagementTrends({
       })
       formattedDate = `${startTime} - ${endTime}`
     } else {
-      // For multi-day ranges show human friendly date
       formattedDate = date.toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -85,79 +161,17 @@ export default function EngagementTrends({
   })
 
   if (isLoading) {
-    return (
-      <div className="px-4 sm:px-6 py-6 bg-background">
-        <div className="max-w-7xl mx-auto">
-          <Card className="border-border/50 bg-card overflow-hidden">
-            <CardHeader className="pb-4 border-b border-border/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-primary/10">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg font-semibold text-foreground">Engagement Trends</CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">Performance over time</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6 pb-4">
-              <div className="h-80 w-full flex items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="relative h-12 w-12">
-                    <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
-                    <div className="absolute inset-0 rounded-full border-4 border-primary/50 border-t-primary animate-spin"></div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Loading chart data...</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (!formattedData || formattedData.length === 0) {
-    return (
-      <div className="px-4 sm:px-6 py-6 bg-background">
-        <div className="max-w-7xl mx-auto">
-          <Card className="border-border/50 bg-card overflow-hidden">
-            <CardHeader className="pb-4 border-b border-border/50">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-primary/10">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg font-semibold text-foreground">Engagement Trends</CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">Performance over time</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6 pb-4">
-              <div className="h-80 w-full flex items-center justify-center">
-                <div className="text-center space-y-4 max-w-sm">
-                  <div className="mx-auto w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center">
-                    <BarChart3 className="h-8 w-8 text-muted-foreground/60" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground mb-1">No engagement data yet</p>
-                    <p className="text-xs text-muted-foreground">
-                      Data will appear here once you start receiving form interactions
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
+    return <EmptyState />
   }
 
   return (
     <div className="px-4 sm:px-6 py-6 bg-background">
       <div className="max-w-7xl mx-auto">
-        <Card className="border-border/50 bg-card overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+        <Card className="border-border/50 bg-card overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
           <CardHeader className="pb-4 border-b border-border/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -165,7 +179,9 @@ export default function EngagementTrends({
                   <TrendingUp className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-semibold text-foreground">Engagement Trends</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground font-heading">
+                    Engagement Trends
+                  </CardTitle>
                   <p className="text-xs text-muted-foreground mt-0.5">Performance over time</p>
                 </div>
               </div>

@@ -1,32 +1,35 @@
-"use client";
+"use client"
 
-import { useCallback, memo } from "react";
-import { AlignLeft } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import FieldWrapper from "@/components/forms/edit/shared/FieldWrapper";
-import AdvancedPanel from "@/components/forms/edit/shared/AdvancedPanel";
-import { useFieldHandlers } from "@/components/forms/edit/hooks/useFieldHandlers";
+import { useCallback, memo } from "react"
+import { AlignLeft } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import FieldWrapper from "../edit/shared/FieldWrapper"
+import AdvancedPanel, {
+  AdvancedPanelSection,
+  AdvancedPanelFieldGroup,
+  AdvancedPanelDivider,
+} from "../edit/shared/AdvancedPanel"
+import { useFieldHandlers } from "../edit/hooks/useFieldHandlers"
 
 interface ParagraphFieldProps {
   field: {
-    id: string;
-    question: string;
-    description?: string;
-    placeholder?: string;
-    required: boolean;
-    minLength?: number;
-    maxLength?: number;
-    rows?: number;
-  };
-  index: number;
-  onUpdate: (updates: Partial<ParagraphFieldProps["field"]>) => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEnhance?: () => void;
-  isAdvancedOpen?: boolean;
-  onAdvancedToggle?: () => void;
+    id: string
+    question: string
+    description?: string
+    placeholder?: string
+    required: boolean
+    minLength?: number
+    maxLength?: number
+    rows?: number
+  }
+  index: number
+  onUpdate: (updates: Partial<ParagraphFieldProps["field"]>) => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onEnhance?: () => void
+  isAdvancedOpen?: boolean
+  onAdvancedToggle?: () => void
 }
 
 const ParagraphField = memo(
@@ -40,7 +43,6 @@ const ParagraphField = memo(
     isAdvancedOpen,
     onAdvancedToggle,
   }: ParagraphFieldProps) {
-    // Use shared field handlers hook
     const {
       isEditingQuestion,
       isEditingDescription,
@@ -59,42 +61,42 @@ const ParagraphField = memo(
       handleMouseLeave,
       handleAdvancedClick,
       handleAdvancedClose,
-    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle);
+    } = useFieldHandlers(field, onUpdate, isAdvancedOpen, onAdvancedToggle)
 
     const handleRequiredToggle = useCallback(() => {
-      onUpdate({ required: !field.required });
-    }, [field.required, onUpdate]);
+      onUpdate({ required: !field.required })
+    }, [field.required, onUpdate])
 
     const handlePlaceholderChange = useCallback(
       (value: string) => {
-        onUpdate({ placeholder: value });
+        onUpdate({ placeholder: value })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleMinLengthChange = useCallback(
       (value: string) => {
-        const num = parseInt(value);
-        onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num });
+        const num = Number.parseInt(value)
+        onUpdate({ minLength: isNaN(num) || num < 0 ? undefined : num })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleMaxLengthChange = useCallback(
       (value: string) => {
-        const num = parseInt(value);
-        onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num });
+        const num = Number.parseInt(value)
+        onUpdate({ maxLength: isNaN(num) || num < 0 ? undefined : num })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     const handleRowsChange = useCallback(
       (value: string) => {
-        const num = parseInt(value);
-        onUpdate({ rows: isNaN(num) || num < 1 ? 4 : num });
+        const num = Number.parseInt(value)
+        onUpdate({ rows: isNaN(num) || num < 1 ? 4 : num })
       },
-      [onUpdate]
-    );
+      [onUpdate],
+    )
 
     return (
       <>
@@ -132,24 +134,21 @@ const ParagraphField = memo(
             placeholder={field.placeholder || "Your answer here..."}
             rows={field.rows || 4}
             disabled
-            className="bg-background border-border/50 cursor-not-allowed text-muted-foreground/50 resize-none"
+            className="bg-muted/30 border-border/50 cursor-not-allowed text-muted-foreground/50 resize-none"
           />
         </FieldWrapper>
 
         <AdvancedPanel
           isOpen={isAdvancedOpen ?? false}
           onClose={handleAdvancedClose}
-          title="Paragraph Field Settings"
+          title="Paragraph Settings"
           subtitle="Configure validation and textarea behavior"
         >
-          {/* Placeholder */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="placeholder"
-              className="text-sm font-medium text-foreground"
-            >
-              Placeholder Text
-            </Label>
+          <AdvancedPanelFieldGroup
+            label="Placeholder Text"
+            htmlFor="placeholder"
+            description="Text shown before user types"
+          >
             <Input
               id="placeholder"
               value={field.placeholder || ""}
@@ -157,19 +156,13 @@ const ParagraphField = memo(
               placeholder="Your answer here..."
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">
-              Text shown before user types
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Textarea Rows */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="rows"
-              className="text-sm font-medium text-foreground"
-            >
-              Textarea Height (Rows)
-            </Label>
+          <AdvancedPanelFieldGroup
+            label="Textarea Height (Rows)"
+            htmlFor="rows"
+            description="Number of visible text rows (1-20)"
+          >
             <Input
               id="rows"
               type="number"
@@ -180,25 +173,16 @@ const ParagraphField = memo(
               placeholder="4"
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">
-              Number of visible text rows (1-20)
-            </p>
-          </div>
+          </AdvancedPanelFieldGroup>
 
-          {/* Validation Section */}
-          <div className="pt-4 border-t border-border/50">
-            <h4 className="text-sm font-semibold text-foreground mb-4">
-              Validation Rules
-            </h4>
+          <AdvancedPanelDivider />
 
-            {/* Min Length */}
-            <div className="space-y-2 mb-4">
-              <Label
-                htmlFor="minLength"
-                className="text-sm font-medium text-foreground"
-              >
-                Minimum Length
-              </Label>
+          <AdvancedPanelSection title="Validation Rules">
+            <AdvancedPanelFieldGroup
+              label="Minimum Length"
+              htmlFor="minLength"
+              description="Minimum characters required"
+            >
               <Input
                 id="minLength"
                 type="number"
@@ -208,19 +192,13 @@ const ParagraphField = memo(
                 placeholder="No minimum"
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Minimum characters required
-              </p>
-            </div>
+            </AdvancedPanelFieldGroup>
 
-            {/* Max Length */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="maxLength"
-                className="text-sm font-medium text-foreground"
-              >
-                Maximum Length
-              </Label>
+            <AdvancedPanelFieldGroup
+              label="Maximum Length"
+              htmlFor="maxLength"
+              description="Maximum characters allowed"
+            >
               <Input
                 id="maxLength"
                 type="number"
@@ -230,14 +208,11 @@ const ParagraphField = memo(
                 placeholder="No maximum"
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Maximum characters allowed
-              </p>
-            </div>
-          </div>
+            </AdvancedPanelFieldGroup>
+          </AdvancedPanelSection>
         </AdvancedPanel>
       </>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -251,8 +226,8 @@ const ParagraphField = memo(
       prevProps.field.rows === nextProps.field.rows &&
       prevProps.index === nextProps.index &&
       prevProps.isAdvancedOpen === nextProps.isAdvancedOpen
-    );
-  }
-);
+    )
+  },
+)
 
-export default ParagraphField;
+export default ParagraphField

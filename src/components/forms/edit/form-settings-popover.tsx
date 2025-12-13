@@ -1,167 +1,129 @@
-"use client";
+"use client"
 
-import type React from "react";
-
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Settings,
-  CalendarDays,
-  Users,
-  UserCheck,
-  MessageSquare,
-  Loader2,
-  X,
-  Check,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { Settings, CalendarDays, Users, UserCheck, MessageSquare, Loader2, X, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
 
 interface FormSettings {
-  closeDate?: Date | null;
-  responseLimit?: number | null;
-  oneResponsePerUser?: boolean;
-  thankYouMessage?: string | null;
+  closeDate?: Date | null
+  responseLimit?: number | null
+  oneResponsePerUser?: boolean
+  thankYouMessage?: string | null
 }
 
 interface FormSettingsPopoverProps {
-  settings: FormSettings;
-  onSave: (settings: FormSettings) => Promise<void>;
-  trigger?: React.ReactNode;
+  settings: FormSettings
+  onSave: (settings: FormSettings) => Promise<void>
+  trigger?: React.ReactNode
 }
 
-export default function FormSettingsPopover({
-  settings,
-  onSave,
-  trigger,
-}: FormSettingsPopoverProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
+export default function FormSettingsPopover({ settings, onSave, trigger }: FormSettingsPopoverProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
 
-  // Local state for editing
-  const [closeDate, setCloseDate] = useState<Date | null>(
-    settings.closeDate ? new Date(settings.closeDate) : null
-  );
-  const [responseLimit, setResponseLimit] = useState<string>(
-    settings.responseLimit?.toString() || ""
-  );
-  const [oneResponsePerUser, setOneResponsePerUser] = useState(
-    settings.oneResponsePerUser || false
-  );
-  const [thankYouMessage, setThankYouMessage] = useState(
-    settings.thankYouMessage || ""
-  );
+  const [closeDate, setCloseDate] = useState<Date | null>(settings.closeDate ? new Date(settings.closeDate) : null)
+  const [responseLimit, setResponseLimit] = useState<string>(settings.responseLimit?.toString() || "")
+  const [oneResponsePerUser, setOneResponsePerUser] = useState(settings.oneResponsePerUser || false)
+  const [thankYouMessage, setThankYouMessage] = useState(settings.thankYouMessage || "")
 
-  // Validation errors
-  const [responseLimitError, setResponseLimitError] = useState<string>("");
-  const [closeDateError, setCloseDateError] = useState<string>("");
+  const [responseLimitError, setResponseLimitError] = useState<string>("")
+  const [closeDateError, setCloseDateError] = useState<string>("")
 
-  // Reset local state when popover opens
   useEffect(() => {
     if (isOpen) {
-      setCloseDate(settings.closeDate ? new Date(settings.closeDate) : null);
-      setResponseLimit(settings.responseLimit?.toString() || "");
-      setOneResponsePerUser(settings.oneResponsePerUser || false);
-      setThankYouMessage(settings.thankYouMessage || "");
-      setShowCalendar(false);
-      setResponseLimitError("");
-      setCloseDateError("");
+      setCloseDate(settings.closeDate ? new Date(settings.closeDate) : null)
+      setResponseLimit(settings.responseLimit?.toString() || "")
+      setOneResponsePerUser(settings.oneResponsePerUser || false)
+      setThankYouMessage(settings.thankYouMessage || "")
+      setShowCalendar(false)
+      setResponseLimitError("")
+      setCloseDateError("")
     }
-  }, [isOpen, settings]);
+  }, [isOpen, settings])
 
-  // Validation function
   const validateSettings = (): boolean => {
-    let isValid = true;
+    let isValid = true
 
-    // Validate response limit
     if (responseLimit) {
-      const limit = Number.parseInt(responseLimit);
+      const limit = Number.parseInt(responseLimit)
       if (isNaN(limit) || limit <= 0) {
-        setResponseLimitError("Must be a positive number");
-        isValid = false;
+        setResponseLimitError("Must be a positive number")
+        isValid = false
       } else {
-        setResponseLimitError("");
+        setResponseLimitError("")
       }
     } else {
-      setResponseLimitError("");
+      setResponseLimitError("")
     }
 
-    // Validate close date
     if (closeDate) {
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      const selectedDate = new Date(closeDate);
-      selectedDate.setHours(0, 0, 0, 0);
+      const now = new Date()
+      now.setHours(0, 0, 0, 0)
+      const selectedDate = new Date(closeDate)
+      selectedDate.setHours(0, 0, 0, 0)
 
       if (selectedDate < now) {
-        setCloseDateError("Cannot set a date in the past");
-        isValid = false;
+        setCloseDateError("Cannot set a date in the past")
+        isValid = false
       } else {
-        setCloseDateError("");
+        setCloseDateError("")
       }
     } else {
-      setCloseDateError("");
+      setCloseDateError("")
     }
 
-    return isValid;
-  };
+    return isValid
+  }
 
-  // Validate on input change
   const handleResponseLimitChange = (value: string) => {
-    setResponseLimit(value);
+    setResponseLimit(value)
     if (value) {
-      const limit = Number.parseInt(value);
+      const limit = Number.parseInt(value)
       if (isNaN(limit) || limit <= 0) {
-        setResponseLimitError("Must be a positive number");
+        setResponseLimitError("Must be a positive number")
       } else {
-        setResponseLimitError("");
+        setResponseLimitError("")
       }
     } else {
-      setResponseLimitError("");
+      setResponseLimitError("")
     }
-  };
+  }
 
   const handleSave = async () => {
-    // Validate before saving
-    if (!validateSettings()) {
-      return;
-    }
+    if (!validateSettings()) return
 
-    setIsSaving(true);
+    setIsSaving(true)
     try {
       await onSave({
         closeDate,
         responseLimit: responseLimit ? Number.parseInt(responseLimit) : null,
         oneResponsePerUser,
         thankYouMessage: thankYouMessage || null,
-      });
-      setIsOpen(false);
+      })
+      setIsOpen(false)
     } catch (error) {
-      console.error("Failed to save settings:", error);
-      // Error toast is handled by the parent component
+      console.error("Failed to save settings:", error)
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
-  // Check if form is valid
-  const isFormValid = !responseLimitError && !closeDateError;
+  const isFormValid = !responseLimitError && !closeDateError
 
   const handleClearCloseDate = () => {
-    setCloseDate(null);
-    setShowCalendar(false);
-  };
+    setCloseDate(null)
+    setShowCalendar(false)
+  }
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -175,18 +137,18 @@ export default function FormSettingsPopover({
 
       <PopoverContent
         align="end"
-        className="w-[320px] sm:w-[360px] p-0 shadow-xl border-border/50 rounded-2xl overflow-hidden"
+        className="w-[320px] sm:w-[380px] p-0 shadow-2xl border-border/50 rounded-2xl overflow-hidden"
         sideOffset={8}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-linear-to-r from-muted/50 to-muted/30">
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/50 bg-gradient-to-r from-muted/50 via-muted/30 to-muted/50">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
               <Settings className="h-4 w-4 text-primary" />
             </div>
-            <h3 className="text-sm font-semibold text-foreground">
-              Form Settings
-            </h3>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Form Settings</h3>
+              <p className="text-[10px] text-muted-foreground">Configure form behavior</p>
+            </div>
           </div>
           <Button
             variant="ghost"
@@ -203,8 +165,8 @@ export default function FormSettingsPopover({
           {/* Close Date */}
           <div className="space-y-2.5">
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                <CalendarDays className="h-3.5 w-3.5 text-indigo-500" />
+              <div className="h-7 w-7 rounded-lg bg-chart-1/10 flex items-center justify-center">
+                <CalendarDays className="h-3.5 w-3.5 text-chart-1" />
               </div>
               <Label className="text-sm font-medium">Close Date</Label>
             </div>
@@ -215,8 +177,8 @@ export default function FormSettingsPopover({
                     mode="single"
                     selected={closeDate || undefined}
                     onSelect={(date: Date | undefined) => {
-                      setCloseDate(date || null);
-                      setShowCalendar(false);
+                      setCloseDate(date || null)
+                      setShowCalendar(false)
                     }}
                     disabled={(date: Date) => date < new Date()}
                     className="rounded-xl border border-border/50 bg-background p-2"
@@ -236,8 +198,8 @@ export default function FormSettingsPopover({
                     variant="outline"
                     size="sm"
                     className={cn(
-                      "flex-1 justify-start text-left font-normal h-9 text-xs rounded-lg border-border/50",
-                      !closeDate && "text-muted-foreground"
+                      "flex-1 justify-start text-left font-normal h-9 text-xs rounded-lg border-border/50 hover:bg-muted/50",
+                      !closeDate && "text-muted-foreground",
                     )}
                     onClick={() => setShowCalendar(true)}
                   >
@@ -256,9 +218,7 @@ export default function FormSettingsPopover({
                 </div>
               )}
               {closeDateError ? (
-                <p className="text-[11px] text-destructive mt-1.5">
-                  {closeDateError}
-                </p>
+                <p className="text-[11px] text-destructive mt-1.5">{closeDateError}</p>
               ) : (
                 <p className="text-[11px] text-muted-foreground mt-1.5">
                   Form stops accepting responses after this date
@@ -272,8 +232,8 @@ export default function FormSettingsPopover({
           {/* Response Limit */}
           <div className="space-y-2.5">
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                <Users className="h-3.5 w-3.5 text-violet-500" />
+              <div className="h-7 w-7 rounded-lg bg-chart-2/10 flex items-center justify-center">
+                <Users className="h-3.5 w-3.5 text-chart-2" />
               </div>
               <Label className="text-sm font-medium">Response Limit</Label>
             </div>
@@ -286,18 +246,13 @@ export default function FormSettingsPopover({
                 min={1}
                 className={cn(
                   "h-9 text-sm rounded-lg border-border/50",
-                  responseLimitError &&
-                    "border-destructive focus-visible:ring-destructive"
+                  responseLimitError && "border-destructive focus-visible:ring-destructive",
                 )}
               />
               {responseLimitError ? (
-                <p className="text-[11px] text-destructive mt-1.5">
-                  {responseLimitError}
-                </p>
+                <p className="text-[11px] text-destructive mt-1.5">{responseLimitError}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground mt-1.5">
-                  Maximum number of responses allowed
-                </p>
+                <p className="text-[11px] text-muted-foreground mt-1.5">Maximum number of responses allowed</p>
               )}
             </div>
           </div>
@@ -307,23 +262,15 @@ export default function FormSettingsPopover({
           {/* One Response Per User */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-2">
-              <div className="h-7 w-7 rounded-lg bg-emerald-500/10 flex items-center justify-center mt-0.5">
-                <UserCheck className="h-3.5 w-3.5 text-emerald-500" />
+              <div className="h-7 w-7 rounded-lg bg-success/10 flex items-center justify-center mt-0.5">
+                <UserCheck className="h-3.5 w-3.5 text-success" />
               </div>
               <div>
-                <Label className="text-sm font-medium">
-                  One response per user
-                </Label>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Limit each user to a single response
-                </p>
+                <Label className="text-sm font-medium">One response per user</Label>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Limit each user to a single response</p>
               </div>
             </div>
-            <Switch
-              checked={oneResponsePerUser}
-              onCheckedChange={setOneResponsePerUser}
-              className="mt-0.5"
-            />
+            <Switch checked={oneResponsePerUser} onCheckedChange={setOneResponsePerUser} className="mt-0.5" />
           </div>
 
           <div className="h-px bg-border/30" />
@@ -331,8 +278,8 @@ export default function FormSettingsPopover({
           {/* Thank You Message */}
           <div className="space-y-2.5">
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
+              <div className="h-7 w-7 rounded-lg bg-warning/10 flex items-center justify-center">
+                <MessageSquare className="h-3.5 w-3.5 text-warning" />
               </div>
               <Label className="text-sm font-medium">Thank You Message</Label>
             </div>
@@ -344,9 +291,7 @@ export default function FormSettingsPopover({
                 rows={2}
                 className="resize-none text-sm rounded-lg border-border/50"
               />
-              <p className="text-[11px] text-muted-foreground mt-1.5">
-                Shown after form submission
-              </p>
+              <p className="text-[11px] text-muted-foreground mt-1.5">Shown after form submission</p>
             </div>
           </div>
         </div>
@@ -380,5 +325,5 @@ export default function FormSettingsPopover({
         </div>
       </PopoverContent>
     </Popover>
-  );
+  )
 }
