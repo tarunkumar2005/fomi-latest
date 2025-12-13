@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useMemo, useState, useCallback, useRef, useEffect } from "react"
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import {
   Square,
   Circle,
@@ -10,8 +10,8 @@ import {
   AlignCenter,
   Palette,
   Sparkles,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import type {
   FormTheme,
   ThemeColors,
@@ -19,21 +19,31 @@ import type {
   ThemeLayout,
   ThemeButtons,
   ThemeInputFields,
-} from "@/types/form-theme"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+} from "@/types/form-theme";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface ThemeCustomizeProps {
-  theme: FormTheme
-  onThemeChange: (updates: Partial<FormTheme>) => void
-  isLoading?: boolean
+  theme: FormTheme;
+  onThemeChange: (updates: Partial<FormTheme>) => void;
+  isLoading?: boolean;
 }
 
 const FONT_OPTIONS = [
@@ -47,18 +57,18 @@ const FONT_OPTIONS = [
   "Raleway",
   "Playfair Display",
   "Merriweather",
-]
+];
 
 const parseJson = <T,>(value: T | string, fallback: T): T => {
   if (typeof value === "string") {
     try {
-      return JSON.parse(value) as T
+      return JSON.parse(value) as T;
     } catch {
-      return fallback
+      return fallback;
     }
   }
-  return value || fallback
-}
+  return value || fallback;
+};
 
 const defaultColors: ThemeColors = {
   primary: "#6366f1",
@@ -71,7 +81,7 @@ const defaultColors: ThemeColors = {
   destructive: "#ef4444",
   input: "#ffffff",
   ring: "#6366f1",
-}
+};
 
 const defaultTypography: ThemeTypography = {
   headingFont: "Sora",
@@ -80,90 +90,116 @@ const defaultTypography: ThemeTypography = {
   fontWeight: 500,
   lineHeight: 1.5,
   letterSpacing: 0,
-}
+};
 
 const defaultLayout: ThemeLayout = {
   borderRadius: 12,
   spacing: "normal",
   shadow: "md",
-}
+};
 
 const defaultButtons: ThemeButtons = {
   style: "rounded",
   size: "md",
   variant: "solid",
-}
+};
 
 const defaultInputFields: ThemeInputFields = {
   style: "outlined",
   size: "md",
-}
+};
 
-export default function ThemeCustomize({ theme, onThemeChange, isLoading }: ThemeCustomizeProps) {
-  const colors = useMemo(() => parseJson(theme?.colors, defaultColors), [theme?.colors])
-  const typography = useMemo(() => parseJson(theme?.typography, defaultTypography), [theme?.typography])
-  const layout = useMemo(() => parseJson(theme?.layout, defaultLayout), [theme?.layout])
-  const buttons = useMemo(() => parseJson(theme?.buttons, defaultButtons), [theme?.buttons])
-  const inputFields = useMemo(() => parseJson(theme?.inputFields, defaultInputFields), [theme?.inputFields])
+export default function ThemeCustomize({
+  theme,
+  onThemeChange,
+  isLoading,
+}: ThemeCustomizeProps) {
+  const colors = useMemo(
+    () => parseJson(theme?.colors, defaultColors),
+    [theme?.colors]
+  );
+  const typography = useMemo(
+    () => parseJson(theme?.typography, defaultTypography),
+    [theme?.typography]
+  );
+  const layout = useMemo(
+    () => parseJson(theme?.layout, defaultLayout),
+    [theme?.layout]
+  );
+  const buttons = useMemo(
+    () => parseJson(theme?.buttons, defaultButtons),
+    [theme?.buttons]
+  );
+  const inputFields = useMemo(
+    () => parseJson(theme?.inputFields, defaultInputFields),
+    [theme?.inputFields]
+  );
 
   // Local state for color inputs to prevent lag during dragging
-  const [localColors, setLocalColors] = useState<ThemeColors>(colors)
-  const colorDebounceRef = useRef<NodeJS.Timeout | null>(null)
+  const [localColors, setLocalColors] = useState<ThemeColors>(colors);
+  const colorDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sync local colors when theme colors change externally
   useEffect(() => {
-    setLocalColors(colors)
-  }, [colors])
+    setLocalColors(colors);
+  }, [colors]);
 
   // Debounced color update - only updates parent after debounce
-  const updateColorsDebounced = useCallback((key: keyof ThemeColors, value: string) => {
-    // Update local state immediately for responsive UI
-    setLocalColors(prev => {
-      const newColors = { ...prev, [key]: value }
-      
-      // Clear any existing debounce timer
-      if (colorDebounceRef.current) {
-        clearTimeout(colorDebounceRef.current)
-      }
-      
-      // Schedule the parent update with the new colors
-      colorDebounceRef.current = setTimeout(() => {
-        onThemeChange({ colors: newColors })
-      }, 200) // 200ms debounce for smooth dragging
-      
-      return newColors
-    })
-  }, [onThemeChange])
+  const updateColorsDebounced = useCallback(
+    (key: keyof ThemeColors, value: string) => {
+      // Update local state immediately for responsive UI
+      setLocalColors((prev) => {
+        const newColors = { ...prev, [key]: value };
+
+        // Clear any existing debounce timer
+        if (colorDebounceRef.current) {
+          clearTimeout(colorDebounceRef.current);
+        }
+
+        // Schedule the parent update with the new colors
+        colorDebounceRef.current = setTimeout(() => {
+          onThemeChange({ colors: newColors });
+        }, 200); // 200ms debounce for smooth dragging
+
+        return newColors;
+      });
+    },
+    [onThemeChange]
+  );
 
   // Cleanup debounce timer on unmount
   useEffect(() => {
     return () => {
       if (colorDebounceRef.current) {
-        clearTimeout(colorDebounceRef.current)
+        clearTimeout(colorDebounceRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   const updateColors = (key: keyof ThemeColors, value: string) => {
-    updateColorsDebounced(key, value)
-  }
+    updateColorsDebounced(key, value);
+  };
 
   const updateTypography = (key: keyof ThemeTypography, value: unknown) => {
-    onThemeChange({ typography: { ...typography, [key]: value } })
-  }
+    onThemeChange({ typography: { ...typography, [key]: value } });
+  };
 
   const updateLayout = (key: keyof ThemeLayout, value: unknown) => {
-    onThemeChange({ layout: { ...layout, [key]: value } })
-  }
+    onThemeChange({ layout: { ...layout, [key]: value } });
+  };
 
-  const colorSwatches: Array<{ key: keyof ThemeColors; label: string; description?: string }> = [
+  const colorSwatches: Array<{
+    key: keyof ThemeColors;
+    label: string;
+    description?: string;
+  }> = [
     { key: "primary", label: "Primary", description: "Brand color" },
     { key: "background", label: "Background", description: "Page BG" },
     { key: "card", label: "Surface", description: "Card BG" },
     { key: "text", label: "Text", description: "Main text" },
     { key: "border", label: "Border", description: "Dividers" },
     { key: "accent", label: "Accent", description: "Highlights" },
-  ]
+  ];
 
   return (
     <ScrollArea className="h-full">
@@ -175,8 +211,12 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
               <Sparkles className="h-4.5 w-4.5 text-primary" />
             </div>
             <div>
-              <h3 className="text-sm font-heading font-semibold text-foreground">Design Studio</h3>
-              <p className="text-xs text-muted-foreground">Fine-tune your form appearance</p>
+              <h3 className="text-sm font-heading font-semibold text-foreground">
+                Design Studio
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Fine-tune your form appearance
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 border border-success/20">
@@ -195,14 +235,25 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
           }}
         >
           <div className="space-y-2.5">
-            <div className="h-2.5 rounded-full" style={{ backgroundColor: localColors.primary, width: "60%" }} />
             <div
-              className="h-2 rounded-full"
-              style={{ backgroundColor: localColors.textMuted, width: "80%", opacity: 0.4 }}
+              className="h-2.5 rounded-full"
+              style={{ backgroundColor: localColors.primary, width: "60%" }}
             />
             <div
               className="h-2 rounded-full"
-              style={{ backgroundColor: localColors.textMuted, width: "45%", opacity: 0.4 }}
+              style={{
+                backgroundColor: localColors.textMuted,
+                width: "80%",
+                opacity: 0.4,
+              }}
+            />
+            <div
+              className="h-2 rounded-full"
+              style={{
+                backgroundColor: localColors.textMuted,
+                width: "45%",
+                opacity: 0.4,
+              }}
             />
           </div>
         </div>
@@ -223,7 +274,9 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
                       style={{ backgroundColor: localColors[swatch.key] }}
                     />
                     <div className="text-left min-w-0">
-                      <p className="text-xs font-medium text-foreground truncate">{swatch.label}</p>
+                      <p className="text-xs font-medium text-foreground truncate">
+                        {swatch.label}
+                      </p>
                       <p className="text-[10px] text-muted-foreground font-mono truncate uppercase">
                         {localColors[swatch.key]}
                       </p>
@@ -233,20 +286,28 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
                 <PopoverContent className="w-60 p-4" align="start">
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-sm font-medium">{swatch.label}</Label>
-                      <p className="text-xs text-muted-foreground">{swatch.description}</p>
+                      <Label className="text-sm font-medium">
+                        {swatch.label}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {swatch.description}
+                      </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
                         value={localColors[swatch.key]}
-                        onChange={(e) => updateColors(swatch.key, e.target.value)}
+                        onChange={(e) =>
+                          updateColors(swatch.key, e.target.value)
+                        }
                         className="h-10 w-14 rounded-lg cursor-pointer border border-border"
                       />
                       <Input
                         type="text"
                         value={localColors[swatch.key]}
-                        onChange={(e) => updateColors(swatch.key, e.target.value)}
+                        onChange={(e) =>
+                          updateColors(swatch.key, e.target.value)
+                        }
                         className="flex-1 h-10 font-mono text-xs uppercase"
                       />
                     </div>
@@ -259,12 +320,21 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
 
         {/* TYPOGRAPHY Section */}
         <section className="space-y-4">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Typography</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Typography
+          </h4>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-foreground">Heading Font</Label>
-              <Select value={typography.headingFont} onValueChange={(value) => updateTypography("headingFont", value)}>
+              <Label className="text-xs font-medium text-foreground">
+                Heading Font
+              </Label>
+              <Select
+                value={typography.headingFont}
+                onValueChange={(value) =>
+                  updateTypography("headingFont", value)
+                }
+              >
                 <SelectTrigger className="h-10 rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
@@ -279,8 +349,13 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-foreground">Body Font</Label>
-              <Select value={typography.bodyFont} onValueChange={(value) => updateTypography("bodyFont", value)}>
+              <Label className="text-xs font-medium text-foreground">
+                Body Font
+              </Label>
+              <Select
+                value={typography.bodyFont}
+                onValueChange={(value) => updateTypography("bodyFont", value)}
+              >
                 <SelectTrigger className="h-10 rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
@@ -296,7 +371,9 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
 
             {/* Font Size */}
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-foreground">Font Size</Label>
+              <Label className="text-xs font-medium text-foreground">
+                Font Size
+              </Label>
               <div className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-xl">
                 {(["small", "medium", "large"] as const).map((size) => (
                   <button
@@ -306,7 +383,7 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
                       "flex-1 h-9 rounded-lg text-xs font-medium transition-all",
                       typography.fontSize === size
                         ? "bg-card text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground",
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     {size.charAt(0).toUpperCase() + size.slice(1)}
@@ -319,12 +396,16 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
 
         {/* LAYOUT Section */}
         <section className="space-y-4">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Layout & Spacing</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Layout & Spacing
+          </h4>
 
           {/* Border Radius */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-medium text-foreground">Corner Radius</Label>
+              <Label className="text-xs font-medium text-foreground">
+                Corner Radius
+              </Label>
               <span className="text-xs font-mono text-muted-foreground px-2 py-0.5 bg-muted rounded-md">
                 {layout.borderRadius}px
               </span>
@@ -345,7 +426,9 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
 
           {/* Content Width */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium text-foreground">Content Width</Label>
+            <Label className="text-xs font-medium text-foreground">
+              Content Width
+            </Label>
             <ToggleGroup
               type="single"
               value={layout.spacing}
@@ -379,19 +462,27 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
           {/* Shadow Toggle */}
           <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
             <div>
-              <Label className="text-xs font-medium text-foreground">Add Depth</Label>
-              <p className="text-xs text-muted-foreground">Enable card shadows</p>
+              <Label className="text-xs font-medium text-foreground">
+                Add Depth
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Enable card shadows
+              </p>
             </div>
             <Switch
               checked={layout.shadow !== "none"}
-              onCheckedChange={(checked) => updateLayout("shadow", checked ? "md" : "none")}
+              onCheckedChange={(checked) =>
+                updateLayout("shadow", checked ? "md" : "none")
+              }
             />
           </div>
         </section>
 
         {/* BUTTONS Section */}
         <section className="space-y-4">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Buttons</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Buttons
+          </h4>
 
           {/* Button Shape */}
           <div className="space-y-2">
@@ -400,7 +491,13 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
               type="single"
               value={buttons.style}
               onValueChange={(value) =>
-                value && onThemeChange({ buttons: { ...buttons, style: value as "rounded" | "sharp" | "pill" } })
+                value &&
+                onThemeChange({
+                  buttons: {
+                    ...buttons,
+                    style: value as "rounded" | "sharp" | "pill",
+                  },
+                })
               }
               className="flex w-full gap-1.5 p-1 bg-muted/50 rounded-xl"
             >
@@ -435,12 +532,14 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
               {(["sm", "md", "lg"] as const).map((size) => (
                 <button
                   key={size}
-                  onClick={() => onThemeChange({ buttons: { ...buttons, size } })}
+                  onClick={() =>
+                    onThemeChange({ buttons: { ...buttons, size } })
+                  }
                   className={cn(
                     "flex-1 h-9 rounded-lg text-xs font-medium transition-all",
                     buttons.size === size
                       ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {size === "sm" ? "Small" : size === "md" ? "Medium" : "Large"}
@@ -456,7 +555,13 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
               type="single"
               value={buttons.variant}
               onValueChange={(value) =>
-                value && onThemeChange({ buttons: { ...buttons, variant: value as "outline" | "solid" | "ghost" } })
+                value &&
+                onThemeChange({
+                  buttons: {
+                    ...buttons,
+                    variant: value as "outline" | "solid" | "ghost",
+                  },
+                })
               }
               className="flex w-full gap-1.5 p-1 bg-muted/50 rounded-xl"
             >
@@ -484,7 +589,9 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
 
         {/* INPUT FIELDS Section */}
         <section className="space-y-4">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Input Fields</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Input Fields
+          </h4>
 
           {/* Input Style */}
           <div className="space-y-2">
@@ -494,7 +601,12 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
               value={inputFields.style}
               onValueChange={(value) =>
                 value &&
-                onThemeChange({ inputFields: { ...inputFields, style: value as "outlined" | "filled" | "underlined" } })
+                onThemeChange({
+                  inputFields: {
+                    ...inputFields,
+                    style: value as "outlined" | "filled" | "underlined",
+                  },
+                })
               }
               className="flex w-full gap-1.5 p-1 bg-muted/50 rounded-xl"
             >
@@ -521,17 +633,21 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
 
           {/* Input Height */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium text-foreground">Height</Label>
+            <Label className="text-xs font-medium text-foreground">
+              Height
+            </Label>
             <div className="flex gap-1.5 p-1 bg-muted/50 rounded-xl">
               {(["sm", "md", "lg"] as const).map((size) => (
                 <button
                   key={size}
-                  onClick={() => onThemeChange({ inputFields: { ...inputFields, size } })}
+                  onClick={() =>
+                    onThemeChange({ inputFields: { ...inputFields, size } })
+                  }
                   className={cn(
                     "flex-1 h-9 rounded-lg text-xs font-medium transition-all",
                     inputFields.size === size
                       ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {size === "sm" ? "Small" : size === "md" ? "Medium" : "Large"}
@@ -543,20 +659,28 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
 
         {/* ADVANCED Section */}
         <section className="space-y-4">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Advanced</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Advanced
+          </h4>
 
           {/* Animations Toggle */}
           <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
             <div>
-              <Label className="text-xs font-medium text-foreground">Animations</Label>
-              <p className="text-xs text-muted-foreground">Smooth transitions</p>
+              <Label className="text-xs font-medium text-foreground">
+                Animations
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Smooth transitions
+              </p>
             </div>
             <Switch defaultChecked={true} />
           </div>
 
           {/* Custom CSS */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium text-foreground">Custom CSS</Label>
+            <Label className="text-xs font-medium text-foreground">
+              Custom CSS
+            </Label>
             <Textarea
               placeholder="/* Custom overrides */"
               className="font-mono text-xs min-h-24 resize-none bg-muted/30 rounded-xl"
@@ -565,5 +689,5 @@ export default function ThemeCustomize({ theme, onThemeChange, isLoading }: Them
         </section>
       </div>
     </ScrollArea>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { Role, Plan as PrismaPlan } from "@prisma/client";
+import { Role, Plan as PrismaPlan } from "@/app/generated/prisma/client";
 
 export enum RangeOption {
   "24h" = "24h",
